@@ -1,0 +1,7 @@
+{
+  "name": "freak out - แอปช่วยจัดการงานและลดการคิดเยอะ",
+  "description": "เว็บแอปจัดการงานและลดการคิดเยอะ (Focus • Plan • Do • Done) ช่วยวิเคราะห์งานตามพลังงานและเวลา พร้อมโหมด Focus, Smart Recommendation และระบบ Gamification",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
