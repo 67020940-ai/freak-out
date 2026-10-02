@@ -46,3 +46,24 @@ export interface Badge {
   category: 'starter' | 'streak' | 'focus' | 'anti-overthink' | 'master';
   xpReward: number;
 }
+
+export interface PetState {
+  name: string;
+  level: number;
+  affinity: number; // 0 - 100
+  mood: 'happy' | 'focus' | 'zen' | 'working' | 'celebrate';
+  equippedAccessory?: string;
+  stardust: number;
+  streakFreezes: number;
+}
+
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  startTime: string; // "09:00"
+  endTime: string;   // "11:30"
+  category: 'class' | 'meeting' | 'break' | 'focus';
+  source: 'google' | 'apple' | 'outlook' | 'freakout';
+  isFocusShield?: boolean;
+}
+

@@ -1,8 +1,11 @@
+/* Hallmark · genre: playful · macrostructure: Workbench · theme: Linen & Sage · pre-emit critique: P5 H4 E5 S4 R5 V5 */
 @import "tailwindcss";
 
 :root {
+  /* Hallmark Canonical Tokens */
   --bg: #F9F7F2;
   --ink: #2C2C24;
+  --ink-muted: #6E6D62;
   --sage: #828D7A;
   --sage-dark: #6C7764;
   --sage-light: #EBF0E8;
@@ -11,27 +14,121 @@
   --earth-light: #F6EFEA;
   --cream: #EFE9DE;
   --cream-border: #E2DACB;
+
+  /* Font Families */
+  --font-display: 'Playfair Display', 'Mitr', Georgia, serif;
+  --font-body: 'Prompt', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 @layer base {
-  body {
-    font-family: 'Prompt', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  html, body {
+    overflow-x: clip;
     background-color: var(--bg);
     color: var(--ink);
+    font-family: var(--font-body);
+    /* Subtle paper texture */
+    background-image: radial-gradient(rgba(44, 44, 36, 0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+    min-height: 100vh;
   }
 
-  h1, h2, h3, .font-heading {
-    font-family: 'Playfair Display', 'Mitr', 'Georgia', serif;
-    letter-spacing: -0.01em;
+  /* Anti-slop typography: Headings MUST remain upright roman, never italic */
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: var(--font-display);
+    font-style: normal !important;
+    letter-spacing: -0.015em;
+    overflow-wrap: anywhere;
+    min-width: 0;
   }
 
   .font-serif-title {
     font-family: 'Playfair Display', 'Georgia', serif;
+    font-style: normal !important;
   }
 
   .font-brand {
     font-family: 'Playfair Display', 'Cinzel', 'Georgia', serif;
+    font-style: normal !important;
   }
+}
+
+/* 8-State Interactive Buttons & Cards */
+.btn-tactile-primary {
+  background-color: var(--sage-dark);
+  color: #F9F7F2;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 0.625rem 1.25rem;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 1px 3px rgba(44, 44, 36, 0.08);
+}
+.btn-tactile-primary:hover, .btn-tactile-primary.is-hover {
+  background-color: #586350;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 119, 100, 0.25);
+}
+.btn-tactile-primary:focus-visible, .btn-tactile-primary.is-focus {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+}
+.btn-tactile-primary:active, .btn-tactile-primary.is-active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(44, 44, 36, 0.1);
+}
+.btn-tactile-primary:disabled, .btn-tactile-primary[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-tactile-secondary {
+  background-color: #FFFFFF;
+  color: var(--ink);
+  font-weight: 600;
+  border: 1px solid var(--cream-border);
+  border-radius: 9999px;
+  padding: 0.625rem 1.25rem;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 1px 2px rgba(44, 44, 36, 0.04);
+}
+.btn-tactile-secondary:hover, .btn-tactile-secondary.is-hover {
+  background-color: var(--cream);
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+.btn-tactile-secondary:focus-visible, .btn-tactile-secondary.is-focus {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+}
+.btn-tactile-secondary:active, .btn-tactile-secondary.is-active {
+  transform: translateY(1px);
+}
+.btn-tactile-secondary:disabled, .btn-tactile-secondary[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Tactile Card Container */
+.card-tactile {
+  background: #FFFFFF;
+  border: 1px solid var(--cream-border);
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 8px -2px rgba(44, 44, 36, 0.04);
+  transition: all 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-tactile:hover {
+  box-shadow: 0 8px 24px -6px rgba(44, 44, 36, 0.08);
+  border-color: #D6CEBE;
 }
 
 @keyframes float-slow {
@@ -95,4 +192,3 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(130, 141, 122, 0.6);
 }
-

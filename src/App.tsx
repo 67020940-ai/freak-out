@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Task, UserStats, Badge } from './types';
+import { Task, UserStats, Badge, PetState } from './types';
 import { INITIAL_TASKS, INITIAL_STATS, INITIAL_BADGES } from './data/mockData';
-import { Header } from './components/Header';
+import { Header, AppTab } from './components/Header';
 import { TaskList } from './components/TaskList';
 import { SmartPickModal } from './components/SmartPickModal';
 import { FocusModeModal } from './components/FocusModeModal';
@@ -10,9 +10,23 @@ import { PanicCalmModal } from './components/PanicCalmModal';
 import { GamificationView } from './components/GamificationView';
 import { PricingModal } from './components/PricingModal';
 import { MascotCloud } from './components/MascotCloud';
+import { CloudPetView } from './components/CloudPetView';
+import { CalendarView } from './components/CalendarView';
+import { DailyRewardModal } from './components/DailyRewardModal';
+import { AdSimulationBanner } from './components/AdSimulationBanner';
+
+const INITIAL_PET: PetState = {
+  name: 'นูเบ้',
+  level: 2,
+  affinity: 50,
+  mood: 'happy',
+  equippedAccessory: 'glasses',
+  stardust: 350,
+  streakFreezes: 1,
+};
 
 export default function App() {
-  // Persistence via localStorage with fallback
+  // Persistence via localStorage
   const [tasks, setTasks] = useState<Task[]>(() => {
     try {
       const saved = localStorage.getItem('freakout_tasks');
@@ -40,13 +54,31 @@ export default function App() {
     }
   });
 
-  const [currentTab, setCurrentTab] = useState<'tasks' | 'smart-pick' | 'gamification'>('tasks');
+  const [pet, setPet] = useState<PetState>(() => {
+    try {
+      const saved = localStorage.getItem('freakout_pet');
+      return saved ? JSON.parse(saved) : INITIAL_PET;
+    } catch {
+      return INITIAL_PET;
+    }
+  });
+
+  const [isProUser, setIsProUser] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('freakout_is_pro') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const [currentTab, setCurrentTab] = useState<AppTab>('tasks');
   const [activeFocusTask, setActiveFocusTask] = useState<Task | null>(null);
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState<boolean>(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isSmartPickOpen, setIsSmartPickOpen] = useState<boolean>(false);
   const [isPanicModalOpen, setIsPanicModalOpen] = useState<boolean>(false);
   const [isPricingModalOpen, setIsPricingModalOpen] = useState<boolean>(false);
+  const [isDailyRewardOpen, setIsDailyRewardOpen] = useState<boolean>(false);
 
   // Sync to localStorage
   useEffect(() => {
@@ -73,6 +105,22 @@ export default function App() {
     }
   }, [badges]);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem('freakout_pet', JSON.stringify(pet));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [pet]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('freakout_is_pro', String(isProUser));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [isProUser]);
+
   // Award XP and update stats
   const awardXp = (amount: number, isOverthinkingTask = false, minutesFocused = 0) => {
     setStats((prev) => {
@@ -96,6 +144,13 @@ export default function App() {
           : prev.overthinkingTasksSolved,
       };
     });
+
+    // Also increase pet affinity and stardust!
+    setPet((prev) => ({
+      ...prev,
+      affinity: Math.min(100, prev.affinity + 5),
+      stardust: prev.stardust + 10,
+    }));
   };
 
   // Toggle Task Completion
@@ -141,7 +196,6 @@ export default function App() {
   // Add or Edit Task
   const handleSaveTask = (taskData: Omit<Task, 'id' | 'createdAt' | 'completed'> & { id?: string }) => {
     if (taskData.id) {
-      // Edit
       setTasks((prev) =>
         prev.map((t) =>
           t.id === taskData.id
@@ -153,7 +207,6 @@ export default function App() {
         )
       );
     } else {
-      // Create new
       const newTask: Task = {
         ...taskData,
         id: `task-${Date.now()}`,
@@ -164,19 +217,25 @@ export default function App() {
     }
   };
 
-  // Delete Task
   const handleDeleteTask = (taskId: string) => {
     setTasks((prev) => prev.filter((t) => t.id !== taskId));
   };
 
-  // Start Focus Mode
   const handleStartFocus = (task: Task) => {
     setActiveFocusTask(task);
   };
 
-  // Complete Task via Focus Mode
   const handleCompleteFocusTask = (task: Task) => {
     handleToggleTask(task.id);
+  };
+
+  const handleClaimDailyReward = (reward: { stardust: number; xp: number; freezes?: number }) => {
+    setPet((prev) => ({
+      ...prev,
+      stardust: prev.stardust + reward.stardust,
+      streakFreezes: prev.streakFreezes + (reward.freezes || 0),
+    }));
+    awardXp(reward.xp);
   };
 
   return (
@@ -184,6 +243,7 @@ export default function App() {
       {/* App Header */}
       <Header
         stats={stats}
+        pet={pet}
         currentTab={currentTab}
         onTabChange={(tab) => setCurrentTab(tab)}
         onOpenNewTask={() => {
@@ -193,10 +253,23 @@ export default function App() {
         onOpenSmartPick={() => setIsSmartPickOpen(true)}
         onOpenPanic={() => setIsPanicModalOpen(true)}
         onOpenPricing={() => setIsPricingModalOpen(true)}
+        onOpenDailyReward={() => setIsDailyRewardOpen(true)}
+        isProUser={isProUser}
+        onToggleProMode={() => setIsProUser((prev) => !prev)}
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+        {/* Ad simulation banner for free users */}
+        <AdSimulationBanner
+          isProUser={isProUser}
+          onOpenPricing={() => setIsPricingModalOpen(true)}
+          onRewardGranted={() => {
+            setPet((prev) => ({ ...prev, stardust: prev.stardust + 30 }));
+          }}
+        />
+
+        {/* Tab 1: Tasks */}
         {currentTab === 'tasks' && (
           <TaskList
             tasks={tasks}
@@ -216,10 +289,31 @@ export default function App() {
           />
         )}
 
+        {/* Tab 2: Cloud Pet Sanctuary */}
+        {currentTab === 'cloud-pet' && (
+          <CloudPetView
+            pet={pet}
+            onUpdatePet={setPet}
+            onOpenPanic={() => setIsPanicModalOpen(true)}
+            streakDays={stats.streakDays}
+          />
+        )}
+
+        {/* Tab 3: Calendar & Timeline */}
+        {currentTab === 'calendar' && (
+          <CalendarView
+            tasks={tasks}
+            onStartFocus={handleStartFocus}
+            isProUser={isProUser}
+            onOpenPricing={() => setIsPricingModalOpen(true)}
+          />
+        )}
+
+        {/* Tab 4: Smart Pick */}
         {currentTab === 'smart-pick' && (
           <div className="max-w-2xl mx-auto space-y-6">
             <div className="bg-[#FAF8F5] rounded-3xl p-6 sm:p-8 border border-[#E2DACB] shadow-2xs text-center">
-              <MascotCloud size="lg" mood="cheering" bubbleText="บอกระดับพลังงานมาได้เลย เค้าจะเลือกงานให้เอง!" />
+              <MascotCloud size="lg" mood="cheering" useArtwork={true} bubbleText="บอกระดับพลังงานมาได้เลย เค้าจะเลือกงานให้เอง!" />
               <h2 className="text-2xl font-bold font-heading text-[#2C2C24] mt-4">
                 AI & Smart Recommendation Engine
               </h2>
@@ -234,7 +328,7 @@ export default function App() {
               </button>
             </div>
 
-            {/* Quick Tips for Gen Z Overthinkers */}
+            {/* Quick Tips */}
             <div className="bg-[#EFE9DE]/70 rounded-3xl p-6 border border-[#E2DACB] space-y-3">
               <h3 className="text-sm font-bold text-[#2C2C24] uppercase tracking-wider">
                 💡 กฎ 2 นาทีสยบ Overthinking:
@@ -257,21 +351,26 @@ export default function App() {
           </div>
         )}
 
+        {/* Tab 5: Gamification & Badges */}
         {currentTab === 'gamification' && (
           <GamificationView stats={stats} badges={badges} />
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-[#EAE4D9] bg-[#FAF8F5]/80 py-6 text-center text-xs text-[#7A786C]">
+      {/* Hallmark Ft1 Minimal Status Bar Footer */}
+      <footer className="border-t border-[#EAE4D9] bg-[#FAF8F5]/90 py-6 text-xs text-[#7A786C]">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="font-heading font-bold text-[#2C2C24]">freak out</span>
+          <div className="flex items-center gap-2.5">
+            <span className="font-heading font-bold text-[#2C2C24] tracking-tight">freak out</span>
             <span className="text-[#8A8A7A]">•</span>
-            <span>Focus • Plan • Do • Done</span>
+            <span className="font-medium text-[#5F7554]">Less thinking, More doing</span>
+            <span className="hidden sm:inline text-[#E2DACB]">|</span>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono bg-[#EAE8F5] text-[#5C4D82] border border-[#DDD5EF]">
+              Hallmark · Workbench
+            </span>
           </div>
-          <div>
-            แอปจัดการงานและลดความกังวล • ออกแบบสำหรับคนรุ่นใหม่และคนวัยทำงาน 🌿
+          <div className="text-[11px] text-[#8A887A]">
+            Tactile Habit & Anti-Burnout Companion • ออกแบบสำหรับคนรุ่นใหม่และคนวัยทำงาน 🌿
           </div>
         </div>
       </footer>
@@ -315,6 +414,15 @@ export default function App() {
       <PricingModal
         isOpen={isPricingModalOpen}
         onClose={() => setIsPricingModalOpen(false)}
+        isProUser={isProUser}
+        onUpgradePro={() => setIsProUser(true)}
+      />
+
+      <DailyRewardModal
+        isOpen={isDailyRewardOpen}
+        onClose={() => setIsDailyRewardOpen(false)}
+        streakDays={stats.streakDays}
+        onClaimReward={handleClaimDailyReward}
       />
     </div>
   );

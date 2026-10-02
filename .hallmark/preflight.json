@@ -1,0 +1,21 @@
+{
+  "scanDate": "2026-10-02T21:52:45Z",
+  "project": "/Users/jay/freak-out",
+  "fontStack": "Prompt, Plus Jakarta Sans (body); Playfair Display, Mitr (display/headings) via Google Fonts (index.html:15, src/index.css:18,24)",
+  "palette": "Warm Natural / Tactile Linen (--bg: #F9F7F2, --ink: #2C2C24, --sage: #828D7A, --earth: #B88E76, --cream: #EFE9DE in src/index.css:3-14)",
+  "motion": "motion-on (motion: ^12.23.24 in package.json:22)",
+  "spacing": "Tailwind v4 4-pt scale (@tailwindcss/vite: ^4.1.14 in package.json:15)",
+  "framework": "React 19 + TypeScript + Vite 6 (package.json:23-25)",
+  "preserved": [
+    "font stack (Prompt + Plus Jakarta Sans + Playfair Display)",
+    "tactile warm linen palette",
+    "motion-on stance (Framer Motion 12)",
+    "single-page architecture and local persistence"
+  ],
+  "introduced": [
+    "Hallmark Playful/Soft macrostructure & visual hierarchy",
+    "8-state component discipline",
+    "Anti-AI-slop typography purity (strictly upright roman headings, no fake chrome)",
+    "Strict responsive guarantees (320px - 768px - desktop)"
+  ]
+}

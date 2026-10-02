@@ -1,0 +1,299 @@
+import React, { useState } from 'react';
+import { Task, CalendarEvent } from '../types';
+import {
+  Calendar as CalendarIcon,
+  CheckCircle2,
+  Clock,
+  Sparkles,
+  ShieldCheck,
+  Coffee,
+  Plus,
+  ArrowRight,
+  ExternalLink,
+  Sliders,
+  Check,
+  Zap,
+  Info
+} from 'lucide-react';
+import { MascotCloud } from './MascotCloud';
+
+interface CalendarViewProps {
+  tasks: Task[];
+  onStartFocus: (task: Task) => void;
+  isProUser: boolean;
+  onOpenPricing: () => void;
+}
+
+const DEFAULT_SCHEDULE: CalendarEvent[] = [
+  {
+    id: 'cal-1',
+    title: 'บรรยายวิชาการตลาดดิจิทัล (ห้อง 402)',
+    startTime: '09:00',
+    endTime: '11:30',
+    category: 'class',
+    source: 'google',
+  },
+  {
+    id: 'cal-2',
+    title: 'พักรับประทานอาหารกลางวัน & พักสมอง',
+    startTime: '13:00',
+    endTime: '14:00',
+    category: 'break',
+    source: 'freakout',
+  },
+  {
+    id: 'cal-3',
+    title: 'นัดประชุมกลุ่มโปรเจกต์ Freak Out',
+    startTime: '14:00',
+    endTime: '15:30',
+    category: 'meeting',
+    source: 'google',
+  },
+];
+
+export const CalendarView: React.FC<CalendarViewProps> = ({
+  tasks,
+  onStartFocus,
+  isProUser,
+  onOpenPricing,
+}) => {
+  const [googleConnected, setGoogleConnected] = useState(true);
+  const [appleConnected, setAppleConnected] = useState(true);
+  const [outlookConnected, setOutlookConnected] = useState(false);
+  const [focusShieldEnabled, setFocusShieldEnabled] = useState(true);
+  const [bufferMinutes, setBufferMinutes] = useState(15);
+
+  // Find a pending task that fits the gap (e.g. <= 30 mins)
+  const recommendedTask = tasks.find((t) => !t.completed && t.estimatedMinutes <= 45) || tasks[0];
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Header Banner */}
+      <div className="bg-[#FAF8F5] rounded-3xl p-6 border border-[#E2DACB] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-[#E8F2FA] border border-[#CEE0F0] flex items-center justify-center shrink-0">
+            <CalendarIcon className="w-6 h-6 text-[#385E82]" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-bold font-heading text-[#2C2C24]">Smart Calendar & Timeline</h2>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E2ECE0] text-[#3B5433] border border-[#CFDFCB]">
+                AI Context-Aware
+              </span>
+            </div>
+            <p className="text-xs text-[#7A786C]">
+              เบื้องหลัง AI สแกนตารางจริง — แต่เบื้องหน้าโชว์เฉพาะช่วงเวลาที่ต้องโฟกัส ไม่กดดัน
+            </p>
+          </div>
+        </div>
+
+        {/* Focus Shield Status */}
+        <div className="flex items-center gap-2 bg-white px-3.5 py-2 rounded-2xl border border-[#EAE4D9] shadow-2xs">
+          <ShieldCheck className="w-4 h-4 text-[#5F7554]" />
+          <div className="text-xs">
+            <span className="font-bold text-[#2C2C24]">Focus Shield: </span>
+            <span className="text-[#5F7554] font-semibold">{focusShieldEnabled ? 'เปิดใช้งาน (กันคนนัดแทรก)' : 'ปิด'}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Sync Accounts & Smart Controls */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Connected Services */}
+        <div className="md:col-span-2 bg-[#FAF8F5] rounded-3xl p-5 border border-[#E2DACB] space-y-3">
+          <span className="text-xs font-bold text-[#7A786C] uppercase tracking-wider block">
+            🔗 ซิงค์ปฏิทินที่เชื่อมต่อ
+          </span>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            {/* Google */}
+            <div className="p-3 bg-white rounded-2xl border border-[#EAE4D9] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-base">📅</span>
+                <div className="text-xs font-bold text-[#2C2C24]">Google Cal</div>
+              </div>
+              <input
+                type="checkbox"
+                checked={googleConnected}
+                onChange={() => setGoogleConnected(!googleConnected)}
+                className="rounded text-[#828D7A] cursor-pointer"
+              />
+            </div>
+
+            {/* Apple */}
+            <div className="p-3 bg-white rounded-2xl border border-[#EAE4D9] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-base">🍏</span>
+                <div className="text-xs font-bold text-[#2C2C24]">Apple Cal</div>
+              </div>
+              <input
+                type="checkbox"
+                checked={appleConnected}
+                onChange={() => setAppleConnected(!appleConnected)}
+                className="rounded text-[#828D7A] cursor-pointer"
+              />
+            </div>
+
+            {/* Outlook */}
+            <div className="p-3 bg-white rounded-2xl border border-[#EAE4D9] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-base">💼</span>
+                <div className="text-xs font-bold text-[#2C2C24]">MS Outlook</div>
+              </div>
+              <input
+                type="checkbox"
+                checked={outlookConnected}
+                onChange={() => {
+                  if (!isProUser) {
+                    onOpenPricing();
+                  } else {
+                    setOutlookConnected(!outlookConnected);
+                  }
+                }}
+                className="rounded text-[#828D7A] cursor-pointer"
+              />
+            </div>
+          </div>
+          {!isProUser && (
+            <p className="text-[11px] text-[#B87A24] flex items-center gap-1">
+              <span>👑 สมาชิก Pro เชื่อมต่อได้หลายปฏิทินพร้อมกัน และเขียนบล็อกเวลาลงปฏิทินจริง</span>
+              <button onClick={onOpenPricing} className="underline font-bold cursor-pointer">อัปเกรด</button>
+            </p>
+          )}
+        </div>
+
+        {/* Smart Buffer Settings */}
+        <div className="bg-[#FAF8F5] rounded-3xl p-5 border border-[#E2DACB] space-y-2 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-bold text-[#7A786C] uppercase tracking-wider">
+                ⏳ Smart Buffer Time
+              </span>
+              <span className="text-xs font-bold text-[#828D7A]">{bufferMinutes} นาที</span>
+            </div>
+            <p className="text-[11px] text-[#7A786C]">
+              เว้นช่วงพักหายใจอัตโนมัติก่อนเริ่มคาบ/นัดถัดไป
+            </p>
+          </div>
+          <input
+            type="range"
+            min="5"
+            max="30"
+            step="5"
+            value={bufferMinutes}
+            onChange={(e) => setBufferMinutes(Number(e.target.value))}
+            className="w-full accent-[#828D7A] cursor-pointer"
+          />
+          <div className="flex justify-between text-[10px] text-[#8C8A7D]">
+            <span>5 นาที</span>
+            <span>15 นาที (แนะนำ)</span>
+            <span>30 นาที</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Calm Timeline View */}
+      <div className="bg-[#FAF8F5] rounded-3xl p-6 border border-[#E2DACB] space-y-5">
+        <div className="flex items-center justify-between border-b border-[#EAE4D9] pb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold text-[#2C2C24]">เส้นเวลาวันนี้ (Today's Calm Flow)</span>
+            <span className="text-xs text-[#7A786C]">• อังคาร 2 ต.ค.</span>
+          </div>
+          <span className="text-[11px] font-semibold text-[#5F7554] bg-[#E2ECE0] px-2.5 py-0.5 rounded-full border border-[#CFDFCB]">
+            ตรวจพบ 2 ช่วงว่างโฟกัส
+          </span>
+        </div>
+
+        {/* Timeline Items */}
+        <div className="space-y-4">
+          {/* Event 1 */}
+          <div className="flex gap-4 items-start">
+            <div className="w-16 text-right shrink-0 pt-1">
+              <span className="text-xs font-bold text-[#2C2C24]">09:00</span>
+              <span className="block text-[10px] text-[#8C8A7D]">11:30 น.</span>
+            </div>
+            <div className="w-3 h-3 rounded-full bg-[#E58270] mt-1.5 shrink-0 ring-4 ring-[#FDECE8]" />
+            <div className="flex-1 bg-white p-3.5 rounded-2xl border border-[#EAE4D9] shadow-2xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#2C2C24]">บรรยายวิชาการตลาดดิจิทัล (ห้อง 402)</span>
+                <span className="text-[10px] text-[#8C8A7D] bg-[#F2EEE9] px-2 py-0.5 rounded-md">Google Cal</span>
+              </div>
+              <p className="text-[11px] text-[#7A786C] mt-0.5">มีเรียนต่อเนื่อง 2 ชั่วโมงครึ่ง • สถานะ: จบแล้ว</p>
+            </div>
+          </div>
+
+          {/* AI AUTO-SLOT GAP HIGHLIGHT (Crucial Feature!) */}
+          <div className="flex gap-4 items-start relative">
+            <div className="w-16 text-right shrink-0 pt-4">
+              <span className="text-xs font-bold text-[#828D7A]">11:30</span>
+              <span className="block text-[10px] text-[#5F7554]">13:00 น.</span>
+            </div>
+            <div className="w-3 h-3 rounded-full bg-[#828D7A] mt-5 shrink-0 ring-4 ring-[#E2ECE0]" />
+
+            {/* Smart Slot Box */}
+            <div className="flex-1 bg-linear-to-br from-[#F5EFE6] to-[#FAF8F5] p-4 sm:p-5 rounded-3xl border-2 border-dashed border-[#828D7A] shadow-xs relative overflow-hidden">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#828D7A] text-white flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" /> ช่องว่างสมองโล่ง (ว่าง 1 ชม. 30 นาที)
+                    </span>
+                    <span className="text-[11px] text-[#7A786C]">ช่วงพักเที่ยง</span>
+                  </div>
+                  <div className="text-sm font-bold text-[#2C2C24] flex items-center gap-1.5 pt-1">
+                    <span>💡 AI แนะนำให้ทำ:</span>
+                    <span className="text-[#3B5433] underline">{recommendedTask?.title || 'เคลียร์สรุปรายงานส่งอาจารย์'}</span>
+                  </div>
+                  <p className="text-xs text-[#7A786C]">
+                    งานนี้ใช้เวลาประมาณ {recommendedTask?.estimatedMinutes || 25} นาที — เคลียร์เสร็จแล้วยังมีเวลาพักกินข้าวสบายๆ อีก 1 ชั่วโมงเต็ม!
+                  </p>
+                </div>
+
+                {recommendedTask && (
+                  <button
+                    onClick={() => onStartFocus(recommendedTask)}
+                    className="px-4 py-2.5 rounded-2xl bg-[#828D7A] hover:bg-[#6C7764] text-white font-bold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center gap-1.5 shrink-0"
+                  >
+                    <Zap className="w-3.5 h-3.5 fill-current" />
+                    <span>เริ่มโฟกัสทันที</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Event 2: Lunch Buffer */}
+          <div className="flex gap-4 items-start">
+            <div className="w-16 text-right shrink-0 pt-1">
+              <span className="text-xs font-bold text-[#2C2C24]">13:00</span>
+              <span className="block text-[10px] text-[#8C8A7D]">14:00 น.</span>
+            </div>
+            <div className="w-3 h-3 rounded-full bg-[#B88E76] mt-1.5 shrink-0 ring-4 ring-[#FFF4E8]" />
+            <div className="flex-1 bg-white p-3 rounded-2xl border border-[#EAE4D9] shadow-2xs flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Coffee className="w-4 h-4 text-[#B88E76]" />
+                <span className="text-xs font-bold text-[#2C2C24]">พักรับประทานอาหารกลางวัน & เติมพลัง (Buffer)</span>
+              </div>
+              <span className="text-[10px] text-[#7A786C] bg-[#FAF8F5] px-2 py-0.5 rounded-md border border-[#EAE4D9]">Freak Out Calm</span>
+            </div>
+          </div>
+
+          {/* Event 3: Meeting */}
+          <div className="flex gap-4 items-start">
+            <div className="w-16 text-right shrink-0 pt-1">
+              <span className="text-xs font-bold text-[#2C2C24]">14:00</span>
+              <span className="block text-[10px] text-[#8C8A7D]">15:30 น.</span>
+            </div>
+            <div className="w-3 h-3 rounded-full bg-[#4A729A] mt-1.5 shrink-0 ring-4 ring-[#E8F2FA]" />
+            <div className="flex-1 bg-white p-3.5 rounded-2xl border border-[#EAE4D9] shadow-2xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#2C2C24]">นัดประชุมกลุ่มโปรเจกต์ Freak Out</span>
+                <span className="text-[10px] text-[#8C8A7D] bg-[#F2EEE9] px-2 py-0.5 rounded-md">Google Cal</span>
+              </div>
+              <p className="text-[11px] text-[#7A786C] mt-0.5">คุยเรื่อง Business Model Canvas และสไลด์นำเสนอ</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
