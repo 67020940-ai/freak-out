@@ -53,32 +53,35 @@ export const DailyRewardModal: React.FC<DailyRewardModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-[#FAF8F5] rounded-3xl w-full max-w-xl border border-[#E2DACB] shadow-2xl p-6 sm:p-7 relative overflow-hidden">
+    <div className="absolute inset-0 z-50 flex flex-col justify-end bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-[#FAF8F5] rounded-t-[36px] w-full max-h-[94%] overflow-y-auto border-t border-[#E8E2D5] shadow-2xl p-5 relative animate-in slide-in-from-bottom duration-300 no-scrollbar">
+        {/* iOS Pull Handle */}
+        <div className="w-10 h-1 bg-[#2C2C24]/20 rounded-full mx-auto mb-3 shrink-0" />
+
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full text-[#7A786C] hover:text-[#2C2C24] hover:bg-[#EFE9DE] transition cursor-pointer"
+          className="absolute top-4 right-4 p-2 rounded-full text-[#7A786C] hover:text-[#2C2C24] hover:bg-[#EFE9DE] transition cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Modal Header */}
-        <div className="text-center space-y-1 mb-6">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF4E0] border border-[#F4E1BD] text-[#B87A24] text-xs font-bold mb-1">
-            <Flame className="w-4 h-4 fill-current" />
+        <div className="text-center space-y-1 mb-5">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FFF4E0] border border-[#F4E1BD] text-[#B87A24] text-[11px] font-bold mb-1">
+            <Flame className="w-3.5 h-3.5 fill-current" />
             <span>เช็คอินต่อเนื่อง {streakDays} วันแล้ว!</span>
           </div>
-          <h2 className="text-2xl font-bold font-heading text-[#2C2C24]">
-            ปฏิทินของขวัญรายวัน (Daily Login Rewards)
+          <h2 className="text-xl font-bold font-heading text-[#2C2C24]">
+            ปฏิทินของขวัญรายวัน
           </h2>
-          <p className="text-xs text-[#7A786C] max-w-md mx-auto">
+          <p className="text-xs text-[#7A786C] max-w-xs mx-auto">
             เข้าแอพทุกวันเพื่อรับละอองดาว คอสตูม และน้ำยาป้องกันสตรีคหลุด 🛡️
           </p>
         </div>
 
         {/* 7-Day Rewards Grid */}
-        <div className="grid grid-cols-4 sm:grid-cols-7 gap-2.5 mb-6">
+        <div className="grid grid-cols-4 gap-2 mb-4">
           {REWARDS.map((r) => {
             const isToday = r.status === 'today' && !claimedToday;
             const isClaimed = r.status === 'claimed' || (r.status === 'today' && claimedToday);

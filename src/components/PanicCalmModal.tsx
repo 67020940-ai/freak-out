@@ -47,25 +47,28 @@ export const PanicCalmModal: React.FC<PanicCalmModalProps> = ({ isOpen, onClose 
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2C2C24]/60 backdrop-blur-md">
-      <div className="bg-[#FAF8F5] rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-[#E2DACB] p-6 sm:p-7 relative text-center">
+    <div className="absolute inset-0 z-50 flex flex-col justify-end bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-[#FAF8F5] rounded-t-[36px] w-full max-h-[94%] overflow-y-auto shadow-2xl border-t border-[#E8E2D5] p-5 relative text-center animate-in slide-in-from-bottom duration-300 no-scrollbar">
+        {/* iOS Drag Handle */}
+        <div className="w-10 h-1 bg-[#2C2C24]/20 rounded-full mx-auto mb-3 shrink-0" />
+
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full text-[#8A8A7A] hover:text-[#2C2C24] hover:bg-[#EFE9DE] transition cursor-pointer"
+          className="absolute top-4 right-4 p-2 rounded-full text-[#8A8A7A] hover:text-[#2C2C24] hover:bg-[#EFE9DE] transition cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Header */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EFE9DE] text-[#55634E] text-xs font-bold mb-2 border border-[#E2DACB]">
-          <Wind className="w-3.5 h-3.5 text-[#828D7A]" />
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#EFE9DE] text-[#55634E] text-[11px] font-bold mb-2 border border-[#E2DACB]">
+          <Wind className="w-3 h-3 text-[#828D7A]" />
           <span>SOS Reset Your Mind</span>
         </div>
-        <h2 className="text-xl sm:text-2xl font-bold font-heading text-[#2C2C24]">
+        <h2 className="text-lg font-bold font-heading text-[#2C2C24]">
           ผ่อนคลายและเคลียร์สมอง 🌿
         </h2>
-        <p className="text-xs sm:text-sm text-[#6E6E60] max-w-xs mx-auto mt-1">
+        <p className="text-xs text-[#6E6E60] max-w-xs mx-auto mt-1">
           เวลาที่รู้สึกตื่นตระหนก คิดวน หรือสมองตื้อ ให้เวลาตัวเอง 1 นาทีตรงนี้นะ
         </p>
 

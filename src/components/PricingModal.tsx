@@ -41,33 +41,36 @@ export const PricingModal: React.FC<PricingModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-[#FAF8F5] rounded-3xl max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-[#E2DACB] p-6 sm:p-8 relative">
+    <div className="absolute inset-0 z-50 flex flex-col justify-end bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-[#FAF8F5] rounded-t-[36px] w-full max-h-[94%] overflow-y-auto shadow-2xl border-t border-[#E8E2D5] p-5 relative animate-in slide-in-from-bottom duration-300 no-scrollbar">
+        {/* iOS Pull Handle */}
+        <div className="w-10 h-1 bg-[#2C2C24]/20 rounded-full mx-auto mb-3 shrink-0" />
+
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full text-[#8A8A7A] hover:text-[#2C2C24] hover:bg-[#EFE9DE] transition cursor-pointer"
+          className="absolute top-4 right-4 p-2 rounded-full text-[#8A8A7A] hover:text-[#2C2C24] hover:bg-[#EFE9DE] transition cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Header */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF4E0] text-[#B87A24] text-xs font-bold mb-2 border border-[#F4E1BD]">
-            <Crown className="w-3.5 h-3.5 fill-current" />
+        <div className="text-center mb-5">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FFF4E0] text-[#B87A24] text-[11px] font-bold mb-2 border border-[#F4E1BD]">
+            <Crown className="w-3 h-3 fill-current" />
             <span>Freak Out Pro & Student Plans</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold font-heading text-[#2C2C24]">
+          <h2 className="text-xl font-bold font-heading text-[#2C2C24]">
             เลือกแผนการใช้งานที่เหมาะกับคุณ 🌿
           </h2>
-          <p className="text-xs sm:text-sm text-[#6E6E60] max-w-md mx-auto mt-1">
+          <p className="text-xs text-[#6E6E60] max-w-xs mx-auto mt-1">
             ใช้งานฟรีพร้อมโฆษณา หรืออัปเกรดเพื่อตัดสิ่งรบกวน ไร้โฆษณา 100% พร้อม AI ไม่จำกัด
           </p>
 
           {/* Billing Cycle Toggle */}
-          <div className="inline-flex items-center p-1 rounded-2xl bg-[#EFE9DE] border border-[#E2DACB] mt-4 text-xs font-bold">
+          <div className="inline-flex items-center p-1 rounded-2xl bg-[#EFE9DE] border border-[#E2DACB] mt-3.5 text-xs font-bold">
             <button
               onClick={() => setBillingCycle('monthly')}
-              className={`px-4 py-1.5 rounded-xl transition cursor-pointer ${
+              className={`px-3 py-1 rounded-xl transition cursor-pointer ${
                 billingCycle === 'monthly'
                   ? 'bg-white text-[#2C2C24] shadow-xs'
                   : 'text-[#6E6E60]'
@@ -77,7 +80,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({
             </button>
             <button
               onClick={() => setBillingCycle('annual')}
-              className={`px-4 py-1.5 rounded-xl transition cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3 py-1 rounded-xl transition cursor-pointer flex items-center gap-1 ${
                 billingCycle === 'annual'
                   ? 'bg-[#828D7A] text-white shadow-xs'
                   : 'text-[#6E6E60]'
@@ -85,14 +88,14 @@ export const PricingModal: React.FC<PricingModalProps> = ({
             >
               <span>รายปี</span>
               <span className="px-1.5 py-0.2 bg-[#FAF3E5] text-[#8C6D37] rounded text-[10px] font-bold">
-                ประหยัด 35% 🔥
+                ลด 35% 🔥
               </span>
             </button>
           </div>
         </div>
 
-        {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {/* Pricing Cards Stack */}
+        <div className="flex flex-col gap-3.5 mb-6">
           {/* Card 1: Free Plan */}
           <div className="bg-white rounded-3xl p-5 border border-[#EAE4D9] flex flex-col justify-between">
             <div>

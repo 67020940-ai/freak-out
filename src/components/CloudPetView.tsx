@@ -18,6 +18,7 @@ import {
   Info
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { PixelCloud8Bit, PixelCloudPose } from './PixelCloud8Bit';
 
 interface CloudPetViewProps {
   pet: PetState;
@@ -26,11 +27,10 @@ interface CloudPetViewProps {
   streakDays: number;
 }
 
-const MASCOT_POSES = [
-  { id: 'celebrate', name: 'ฉลองสำเร็จ 🎉', file: '/mascot/cloud_celebrate_done_1789549091591.jpg', desc: 'กระโดดดีใจ มีประกายวิ้งๆ' },
-  { id: 'focus', name: 'โฟกัสอ่านหนังสือ 📖', file: '/mascot/cloud_focus_mode_1789549067226.jpg', desc: 'ตั้งใจทำงาน หน้าจอโน้ตบุ๊ก' },
-  { id: 'zen', name: 'เซน ผ่อนคลาย 🧘', file: '/mascot/03_zen_relax.jpg', desc: 'หลับตาพริ้ม หายใจลึกๆ' },
-  { id: 'working', name: 'ปั่นงานไฟลุก ✍️', file: '/mascot/05_doraemon_hands_rolling_sheet.jpg', desc: 'มือเป็นระวิง สู้ตายเพื่อเดดไลน์' },
+const PIXEL_POSES: { id: PixelCloudPose; name: string; desc: string }[] = [
+  { id: 'idle', name: 'สบายใจ ☁️', desc: 'ลอยเบาๆ กระพริบตา' },
+  { id: 'focus', name: 'ปั่นงาน 🔥', desc: 'พิมพ์งาน โฟกัสลุกโชน' },
+  { id: 'celebrate', name: 'ฉลองสำเร็จ 🎉', desc: 'กระโดดดีใจ มีดาววิ้ง' },
 ];
 
 const ACCESSORIES = [
@@ -48,13 +48,11 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
   onOpenPanic,
   streakDays,
 }) => {
-  const [activePose, setActivePose] = useState<string>('celebrate');
+  const [activePose, setActivePose] = useState<PixelCloudPose>('idle');
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(pet.name);
   const [petFeedback, setPetFeedback] = useState<string | null>(null);
   const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
-
-  const currentPose = MASCOT_POSES.find((p) => p.id === activePose) || MASCOT_POSES[0];
 
   // Petting interaction
   const handlePet = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -106,31 +104,27 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-4 pb-16">
       {/* Top Banner / Mood Card */}
-      <div className="bg-[#FAF8F5] rounded-3xl p-6 sm:p-8 border border-[#E2DACB] shadow-xs relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-radial from-[#F5EFE6] to-transparent opacity-60 pointer-events-none" />
-
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+      <div className="bg-[#FAF8F5] rounded-3xl p-4 sm:p-6 border border-[#E8E2D5] shadow-2xs relative overflow-hidden">
+        <div className="flex flex-col items-center justify-between gap-4 relative z-10">
           {/* Pet Visual Center */}
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center w-full">
             {/* Speech Bubble */}
-            <div className="mb-3 px-4 py-2 rounded-2xl bg-white border border-[#E2DACB] text-xs sm:text-sm font-semibold text-[#2C2C24] shadow-xs flex items-center gap-2">
-              <Smile className="w-4 h-4 text-[#C49B5C]" />
-              <span>{petFeedback || `สวัสดีฮับ! เค้าชื่อ ${pet.name} วันนี้มาลุยไปด้วยกันนะ`}</span>
+            <div className="mb-2 px-3.5 py-1.5 rounded-2xl bg-white border border-[#E8E2D5] text-xs font-semibold text-[#2C2C24] shadow-2xs flex items-center gap-2 max-w-xs text-center">
+              <Smile className="w-4 h-4 text-[#D49E35] shrink-0" />
+              <span className="truncate">{petFeedback || `สวัสดีฮับ! วันนี้ลุยไปด้วยกันนะ`}</span>
             </div>
 
             {/* Clickable Pet Frame with Hearts */}
             <div
               onClick={handlePet}
-              className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-3xl p-3 bg-white/80 border-2 border-[#E2DACB] shadow-md hover:shadow-lg transition-all transform hover:scale-[1.02] active:scale-95 cursor-pointer flex items-center justify-center group select-none"
+              className="relative w-44 h-44 sm:w-52 sm:h-52 rounded-3xl p-3 bg-white border border-[#E8E2D5] shadow-sm hover:shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center group select-none"
               title="คลิกเพื่อลูบหัวน้องเมฆ 💖"
             >
-              <img
-                src={currentPose.file}
-                alt={currentPose.name}
-                className="w-full h-full object-contain rounded-2xl drop-shadow-sm pointer-events-none"
-              />
+              <div className="w-full h-full flex items-center justify-center p-2">
+                <PixelCloud8Bit pose={activePose} size="lg" interactive={false} />
+              </div>
 
               {/* Heart particles */}
               <AnimatePresence>
@@ -195,76 +189,76 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
           </div>
 
           {/* Pet Stats & Status Dashboard */}
-          <div className="flex-1 w-full space-y-4">
-            <div className="bg-white/90 rounded-2xl p-4 border border-[#EAE4D9] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#7A786C] uppercase tracking-wider flex items-center gap-1.5">
-                  <Star className="w-3.5 h-3.5 text-[#C49B5C]" /> ระดับความสนิท (Affinity)
+          <div className="flex-1 w-full space-y-3">
+            <div className="bg-white/90 rounded-2xl p-3.5 border border-[#EAE4D9] space-y-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-bold text-[#7A786C] uppercase tracking-wider flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+                  <Star className="w-3.5 h-3.5 text-[#C49B5C] shrink-0" /> ระดับความสนิท
                 </span>
-                <span className="text-xs font-bold text-[#828D7A]">
-                  Lv.{pet.level} ({pet.affinity}/100%)
+                <span className="text-xs font-bold text-[#828D7A] shrink-0 whitespace-nowrap">
+                  Lv.{pet.level} ({pet.affinity}%)
                 </span>
               </div>
-              <div className="w-full h-3 bg-[#EFE9DE] rounded-full overflow-hidden">
+              <div className="w-full h-2.5 bg-[#EFE9DE] rounded-full overflow-hidden">
                 <div
                   className="h-full bg-linear-to-r from-[#828D7A] to-[#B8C9AE] rounded-full transition-all duration-500"
                   style={{ width: `${pet.affinity}%` }}
                 />
               </div>
-              <p className="text-[11px] text-[#7A786C]">
-                💡 ยิ่งโฟกัสทำงานเสร็จ น้องจะสะสมเลเวลและปลดล็อกสภาพอากาศใหม่ๆ
+              <p className="text-[10px] text-[#7A786C] leading-snug">
+                💡 ยิ่งโฟกัสเคลียร์งาน น้องจะสะสมเลเวลและปลดล็อกสภาพอากาศใหม่ๆ
               </p>
             </div>
 
             {/* Quick Currency & Freeze status */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white/90 rounded-2xl p-3 border border-[#EAE4D9] flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#FFF4E0] border border-[#F4E1BD] flex items-center justify-center shrink-0">
-                  <Sparkles className="w-5 h-5 text-[#B87A24]" />
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="bg-white/90 rounded-2xl p-2.5 border border-[#EAE4D9] flex items-center gap-2.5">
+                <div className="w-8.5 h-8.5 rounded-xl bg-[#FFF4E0] border border-[#F4E1BD] flex items-center justify-center shrink-0">
+                  <Sparkles className="w-4 h-4 text-[#B87A24]" />
                 </div>
-                <div>
-                  <div className="text-sm font-bold text-[#2C2C24]">{pet.stardust}</div>
-                  <div className="text-[10px] text-[#7A786C]">ละอองดาวสะสม</div>
+                <div className="min-w-0">
+                  <div className="text-sm font-bold text-[#2C2C24] leading-tight">{pet.stardust}</div>
+                  <div className="text-[10px] text-[#7A786C] truncate">ละอองดาวสะสม</div>
                 </div>
               </div>
 
-              <div className="bg-white/90 rounded-2xl p-3 border border-[#EAE4D9] flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#E8F2FA] border border-[#CEE0F0] flex items-center justify-center shrink-0">
-                  <ShieldAlert className="w-5 h-5 text-[#385E82]" />
+              <div className="bg-white/90 rounded-2xl p-2.5 border border-[#EAE4D9] flex items-center gap-2.5">
+                <div className="w-8.5 h-8.5 rounded-xl bg-[#E8F2FA] border border-[#CEE0F0] flex items-center justify-center shrink-0">
+                  <ShieldAlert className="w-4 h-4 text-[#385E82]" />
                 </div>
-                <div>
-                  <div className="text-sm font-bold text-[#2C2C24]">{pet.streakFreezes} ขวด</div>
-                  <div className="text-[10px] text-[#7A786C]">น้ำยาแช่แข็งสตรีค</div>
+                <div className="min-w-0">
+                  <div className="text-sm font-bold text-[#2C2C24] leading-tight">{pet.streakFreezes} ขวด</div>
+                  <div className="text-[10px] text-[#7A786C] truncate">แช่แข็งสตรีค</div>
                 </div>
               </div>
             </div>
 
             {/* Care Actions */}
-            <div className="space-y-2 pt-1">
+            <div className="space-y-1.5 pt-0.5">
               <span className="text-xs font-bold text-[#4A4A3E]">การดูแลน้องเมฆ:</span>
               <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={() => handleFeed('water')}
-                  className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-[#EAF2F8] hover:bg-[#D9EAF5] border border-[#D0E2EE] text-[#2C4A6F] transition active:scale-95 cursor-pointer text-xs font-semibold"
+                  className="flex flex-col items-center gap-1 p-2 rounded-2xl bg-[#EAF2F8] hover:bg-[#D9EAF5] border border-[#D0E2EE] text-[#2C4A6F] transition active:scale-95 cursor-pointer text-xs font-semibold"
                 >
                   <Droplet className="w-4 h-4 text-[#3A78B8]" />
-                  <span>รดละอองน้ำ</span>
+                  <span className="text-[11px] whitespace-nowrap">รดละอองน้ำ</span>
                 </button>
 
                 <button
                   onClick={() => handleFeed('tea')}
-                  className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-[#FFF4E8] hover:bg-[#FFEAD5] border border-[#F6DCBE] text-[#8C4A1E] transition active:scale-95 cursor-pointer text-xs font-semibold"
+                  className="flex flex-col items-center gap-1 p-2 rounded-2xl bg-[#FFF4E8] hover:bg-[#FFEAD5] border border-[#F6DCBE] text-[#8C4A1E] transition active:scale-95 cursor-pointer text-xs font-semibold"
                 >
                   <Coffee className="w-4 h-4 text-[#B85824]" />
-                  <span>ชงชาอุ่นๆ</span>
+                  <span className="text-[11px] whitespace-nowrap">ชงชาอุ่นๆ</span>
                 </button>
 
                 <button
                   onClick={onOpenPanic}
-                  className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-[#E8EFE8] hover:bg-[#D8E6D8] border border-[#CDE0CD] text-[#2E522E] transition active:scale-95 cursor-pointer text-xs font-semibold"
+                  className="flex flex-col items-center gap-1 p-2 rounded-2xl bg-[#E8EFE8] hover:bg-[#D8E6D8] border border-[#CDE0CD] text-[#2E522E] transition active:scale-95 cursor-pointer text-xs font-semibold"
                 >
                   <Wind className="w-4 h-4 text-[#4D784D]" />
-                  <span>ฝึกหายใจ 4-7-8</span>
+                  <span className="text-[11px] whitespace-nowrap">ฝึกหายใจ</span>
                 </button>
               </div>
             </div>
@@ -272,64 +266,68 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
         </div>
       </div>
 
-      {/* Choose Mascot Poses (Dynamic Switcher) */}
-      <div className="bg-[#FAF8F5] rounded-3xl p-6 border border-[#E2DACB] space-y-4">
+      {/* 8-bit Animated Poses Switcher */}
+      <div className="bg-[#FAF8F5] rounded-3xl p-4 border border-[#E8E2D5] space-y-3 shadow-2xs">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-[#2C2C24] font-heading flex items-center gap-2">
-              <span>🎭 ท่าทางและอารมณ์ของน้องก้อนเมฆ</span>
+            <h3 className="text-sm font-bold text-[#2C2C24] font-heading flex items-center gap-1.5">
+              <span>🎮 ท่าทาง 8-bit ของน้องเมฆ (3 Core Poses)</span>
             </h3>
-            <p className="text-xs text-[#7A786C]">
-              เปลี่ยนอารมณ์น้องเมฆให้เข้ากับสถานะการทำงานปัจจุบัน
+            <p className="text-[11px] text-[#7A786C]">
+              คลิกเพื่อทดสอบแอนิเมชันขยับได้ในแต่ละท่า
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {MASCOT_POSES.map((pose) => {
-            const isSelected = activePose === pose.id;
+        <div className="grid grid-cols-3 gap-2">
+          {PIXEL_POSES.map((poseItem) => {
+            const isSelected = activePose === poseItem.id;
             return (
-              <div
-                key={pose.id}
+              <button
+                key={poseItem.id}
                 onClick={() => {
-                  setActivePose(pose.id);
-                  setPetFeedback(`เปลี่ยนเป็นโหมด "${pose.name}" แล้วฮะ! ☁️`);
+                  setActivePose(poseItem.id);
+                  setPetFeedback(`เปลี่ยนเป็นท่า "${poseItem.name}" แล้วฮะ! ✨`);
                 }}
-                className={`flex flex-col items-center p-3 rounded-2xl border transition-all cursor-pointer ${
+                className={`flex flex-col items-center p-2 rounded-2xl border transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-white border-[#828D7A] shadow-md ring-2 ring-[#828D7A]/30'
-                    : 'bg-white/60 border-[#EAE4D9] hover:bg-white hover:border-[#D5CDC0]'
+                    ? 'bg-white border-[#6C7764] shadow-xs ring-2 ring-[#6C7764]/20'
+                    : 'bg-white/70 border-[#E8E2D5] hover:bg-white hover:border-[#D5CDC0]'
                 }`}
               >
-                <div className="w-20 h-20 rounded-xl overflow-hidden mb-2 bg-[#F9F7F2] p-1 flex items-center justify-center">
-                  <img src={pose.file} alt={pose.name} className="w-full h-full object-contain" />
+                <div className="w-13 h-13 rounded-xl mb-1 bg-[#FAF8F5] flex items-center justify-center p-0.5">
+                  <PixelCloud8Bit pose={poseItem.id} size="sm" interactive={false} />
                 </div>
-                <span className="text-xs font-bold text-[#2C2C24] text-center">{pose.name}</span>
-                <span className="text-[10px] text-[#7A786C] text-center line-clamp-1 mt-0.5">{pose.desc}</span>
-              </div>
+                <span className="text-[11px] font-bold text-[#2C2C24] text-center leading-tight whitespace-nowrap">
+                  {poseItem.name}
+                </span>
+                <span className="text-[9px] text-[#8A887A] text-center truncate w-full mt-0.5">
+                  {poseItem.desc}
+                </span>
+              </button>
             );
           })}
         </div>
       </div>
 
       {/* Wardrobe & Accessories */}
-      <div className="bg-[#FAF8F5] rounded-3xl p-6 border border-[#E2DACB] space-y-4">
+      <div className="bg-[#FAF8F5] rounded-3xl p-4 border border-[#E2DACB] space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-[#2C2C24] font-heading flex items-center gap-2">
+            <h3 className="text-sm font-bold text-[#2C2C24] font-heading flex items-center gap-1.5">
               <ShoppingBag className="w-4 h-4 text-[#828D7A]" />
-              <span>ตู้เสื้อผ้าและไอเท็มตกแต่ง (Wardrobe)</span>
+              <span>ตู้เสื้อผ้าและไอเท็มตกแต่ง</span>
             </h3>
-            <p className="text-xs text-[#7A786C]">
-              สะสมละอองดาวจากการเคลียร์งานเพื่อปลดล็อกไอเท็มน่ารักๆ ให้น้องเมฆ
+            <p className="text-[11px] text-[#7A786C]">
+              สะสมละอองดาวเพื่อปลดล็อกไอเท็มน่ารักๆ
             </p>
           </div>
-          <div className="text-xs font-bold text-[#B87A24] bg-[#FFF4E0] px-3 py-1 rounded-xl border border-[#F4E1BD]">
+          <div className="text-xs font-bold text-[#B87A24] bg-[#FFF4E0] px-2.5 py-0.5 rounded-xl border border-[#F4E1BD] shrink-0">
             {pet.stardust} 🪙
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+        <div className="grid grid-cols-3 gap-2">
           {ACCESSORIES.map((acc) => {
             const isEquipped = pet.equippedAccessory === acc.id || (!pet.equippedAccessory && acc.id === 'none');
             return (
@@ -341,7 +339,7 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
                     setPetFeedback(`ใส่ ${acc.name} ให้น้องเมฆเรียบร้อยแล้วฮะ! ✨`);
                   }
                 }}
-                className={`flex flex-col items-center p-3 rounded-2xl border text-center transition-all cursor-pointer ${
+                className={`flex flex-col items-center p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
                   isEquipped
                     ? 'bg-[#E2ECE0] border-[#828D7A] shadow-xs'
                     : acc.unlocked
@@ -349,45 +347,14 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
                     : 'bg-[#F2EEE9] border-[#E2DACB] opacity-60 cursor-not-allowed'
                 }`}
               >
-                <div className="text-2xl mb-1">{acc.icon}</div>
-                <div className="text-xs font-bold text-[#2C2C24] line-clamp-1">{acc.name}</div>
-                <div className="text-[10px] text-[#7A786C] mt-0.5">
-                  {isEquipped ? 'กำลังสวมใส่' : acc.unlocked ? 'ปลดล็อกแล้ว' : `${acc.price} ดาว`}
+                <div className="text-xl mb-0.5">{acc.icon}</div>
+                <div className="text-[11px] font-bold text-[#2C2C24] line-clamp-1">{acc.name}</div>
+                <div className="text-[9px] text-[#7A786C] mt-0.5">
+                  {isEquipped ? 'กำลังใส่' : acc.unlocked ? 'ปลดล็อก' : `${acc.price} ดาว`}
                 </div>
               </div>
             );
           })}
-        </div>
-      </div>
-
-      {/* Sticker Pack Gallery Showcase */}
-      <div className="bg-[#EFE9DE]/60 rounded-3xl p-6 border border-[#E2DACB] space-y-3">
-        <div className="flex items-center gap-2">
-          <Info className="w-4 h-4 text-[#828D7A]" />
-          <h4 className="text-xs font-bold text-[#2C2C24] uppercase tracking-wider">
-            คอลเลกชันสติ๊กเกอร์ของน้องเมฆ (Official Sticker Sheet)
-          </h4>
-        </div>
-        <p className="text-xs text-[#7A786C]">
-          สติ๊กเกอร์ทั้งหมดจะถูกปลดล็อกโดยอัตโนมัติเมื่อทำภารกิจรายวันและรักษาสถิติสตรีคต่อเนื่อง!
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-          <div className="rounded-2xl overflow-hidden border border-[#E2DACB] shadow-2xs bg-white p-2">
-            <img
-              src="/mascot/cloud_sticker_sheet_1789549157860.jpg"
-              alt="Sticker Sheet"
-              className="w-full h-44 object-contain rounded-xl"
-            />
-            <p className="text-[10px] text-center text-[#7A786C] font-semibold mt-1">Sticker Pack: Emotions & Workflows</p>
-          </div>
-          <div className="rounded-2xl overflow-hidden border border-[#E2DACB] shadow-2xs bg-white p-2">
-            <img
-              src="/mascot/04_sticker_pack_4in1.jpg"
-              alt="4 in 1 pack"
-              className="w-full h-44 object-contain rounded-xl"
-            />
-            <p className="text-[10px] text-center text-[#7A786C] font-semibold mt-1">Sticker Pack: 4-in-1 Daily Moods</p>
-          </div>
         </div>
       </div>
     </div>

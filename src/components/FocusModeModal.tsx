@@ -156,14 +156,17 @@ export const FocusModeModal: React.FC<FocusModeModalProps> = ({
   const totalSteps = task.microSteps.length;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#2C2C24]/60 backdrop-blur-md">
-      <div className="bg-[#FAF8F5] rounded-3xl max-w-2xl w-full max-h-[95vh] overflow-y-auto shadow-2xl border border-[#E2DACB] p-6 sm:p-8 relative">
+    <div className="absolute inset-0 z-50 flex flex-col justify-end bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-[#FAF8F5] rounded-t-[36px] w-full max-h-[94%] overflow-y-auto shadow-2xl border-t border-[#E2DACB] p-4.5 relative no-scrollbar animate-in slide-in-from-bottom duration-300">
+        {/* iOS Pull Handle */}
+        <div className="w-10 h-1 bg-[#2C2C24]/20 rounded-full mx-auto mb-2 shrink-0" />
+
         {/* Header Bar */}
-        <div className="flex items-center justify-between pb-4 border-b border-[#E2DACB]">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#EFE9DE] text-[#55634E] text-xs font-bold border border-[#E2DACB]">
-              <Sparkles className="w-3.5 h-3.5 text-[#828D7A]" />
-              <span>Focus Mode • พาให้ทำจนเสร็จ!</span>
+        <div className="flex items-center justify-between pb-3 border-b border-[#E2DACB]">
+          <div className="flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#EFE9DE] text-[#55634E] text-[11px] font-bold border border-[#E2DACB]">
+              <Sparkles className="w-3 h-3 text-[#828D7A]" />
+              <span>Focus Mode</span>
             </span>
           </div>
 

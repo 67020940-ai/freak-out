@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Task, UserStats, Badge, PetState } from './types';
 import { INITIAL_TASKS, INITIAL_STATS, INITIAL_BADGES } from './data/mockData';
-import { Header, AppTab } from './components/Header';
+import { AppTab } from './components/Header';
+import { MobileDeviceFrame } from './components/MobileDeviceFrame';
+import { MobileStatusBar } from './components/MobileStatusBar';
+import { MobileAppHeader } from './components/MobileAppHeader';
+import { MobileBottomTabBar } from './components/MobileBottomTabBar';
+import { MobileSmartPickView } from './components/MobileSmartPickView';
 import { TaskList } from './components/TaskList';
 import { SmartPickModal } from './components/SmartPickModal';
 import { FocusModeModal } from './components/FocusModeModal';
@@ -9,11 +14,12 @@ import { TaskInputModal } from './components/TaskInputModal';
 import { PanicCalmModal } from './components/PanicCalmModal';
 import { GamificationView } from './components/GamificationView';
 import { PricingModal } from './components/PricingModal';
-import { MascotCloud } from './components/MascotCloud';
 import { CloudPetView } from './components/CloudPetView';
 import { CalendarView } from './components/CalendarView';
 import { DailyRewardModal } from './components/DailyRewardModal';
 import { AdSimulationBanner } from './components/AdSimulationBanner';
+import { AuthOnboardingView } from './components/AuthOnboardingView';
+import { MindfulJournalModal } from './components/MindfulJournalModal';
 
 const INITIAL_PET: PetState = {
   name: 'นูเบ้',
@@ -26,6 +32,24 @@ const INITIAL_PET: PetState = {
 };
 
 export default function App() {
+  // Auth state
+  const [userName, setUserName] = useState<string>(() => {
+    try {
+      return localStorage.getItem('freakout_username') || 'Jay';
+    } catch {
+      return 'Jay';
+    }
+  });
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('freakout_authenticated');
+      return saved !== null ? saved === 'true' : true;
+    } catch {
+      return true;
+    }
+  });
+
   // Persistence via localStorage
   const [tasks, setTasks] = useState<Task[]>(() => {
     try {
@@ -79,6 +103,7 @@ export default function App() {
   const [isPanicModalOpen, setIsPanicModalOpen] = useState<boolean>(false);
   const [isPricingModalOpen, setIsPricingModalOpen] = useState<boolean>(false);
   const [isDailyRewardOpen, setIsDailyRewardOpen] = useState<boolean>(false);
+  const [isJournalOpen, setIsJournalOpen] = useState<boolean>(false);
 
   // Sync to localStorage
   useEffect(() => {
@@ -239,191 +264,180 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F9F7F2] text-[#2C2C24]">
-      {/* App Header */}
-      <Header
-        stats={stats}
-        pet={pet}
-        currentTab={currentTab}
-        onTabChange={(tab) => setCurrentTab(tab)}
-        onOpenNewTask={() => {
-          setEditingTask(null);
-          setIsNewTaskModalOpen(true);
-        }}
-        onOpenSmartPick={() => setIsSmartPickOpen(true)}
-        onOpenPanic={() => setIsPanicModalOpen(true)}
-        onOpenPricing={() => setIsPricingModalOpen(true)}
-        onOpenDailyReward={() => setIsDailyRewardOpen(true)}
-        isProUser={isProUser}
-        onToggleProMode={() => setIsProUser((prev) => !prev)}
-      />
+    <MobileDeviceFrame
+      isProUser={isProUser}
+      onToggleProMode={() => setIsProUser((prev) => !prev)}
+      onToggleAuth={() => {
+        const next = !isAuthenticated;
+        setIsAuthenticated(next);
+        localStorage.setItem('freakout_authenticated', String(next));
+      }}
+      isAuthenticated={isAuthenticated}
+    >
+      {/* iOS Mobile Status Bar */}
+      <MobileStatusBar />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
-        {/* Ad simulation banner for free users */}
-        <AdSimulationBanner
-          isProUser={isProUser}
-          onOpenPricing={() => setIsPricingModalOpen(true)}
-          onRewardGranted={() => {
-            setPet((prev) => ({ ...prev, stardust: prev.stardust + 30 }));
+      {/* Conditional Rendering: Auth/Onboarding vs Main App */}
+      {!isAuthenticated ? (
+        <AuthOnboardingView
+          onLogin={(name) => {
+            setUserName(name);
+            setIsAuthenticated(true);
+            localStorage.setItem('freakout_authenticated', 'true');
+            localStorage.setItem('freakout_username', name);
           }}
         />
+      ) : (
+        <>
+          {/* Mobile Top Bar */}
+          <MobileAppHeader
+            stats={stats}
+            pet={pet}
+            currentTab={currentTab}
+            onTabChange={(tab) => setCurrentTab(tab)}
+            onOpenPanic={() => setIsPanicModalOpen(true)}
+            onOpenPricing={() => setIsPricingModalOpen(true)}
+            onOpenDailyReward={() => setIsDailyRewardOpen(true)}
+            isProUser={isProUser}
+          />
 
-        {/* Tab 1: Tasks */}
-        {currentTab === 'tasks' && (
-          <TaskList
+          {/* Scrollable Screen Content */}
+          <main className="flex-1 overflow-y-auto px-4 py-3 relative no-scrollbar">
+            {/* Tab 1: Tasks (Clean, Intentional Home Dashboard) */}
+            {currentTab === 'tasks' && (
+              <TaskList
+                tasks={tasks}
+                userName={userName}
+                streakDays={stats.streakDays}
+                minutesFocusedTotal={stats.minutesFocusedTotal}
+                onToggleTask={handleToggleTask}
+                onToggleStep={handleToggleStep}
+                onStartFocus={handleStartFocus}
+                onEditTask={(task) => {
+                  setEditingTask(task);
+                  setIsNewTaskModalOpen(true);
+                }}
+                onDeleteTask={handleDeleteTask}
+                onOpenNewTask={() => {
+                  setEditingTask(null);
+                  setIsNewTaskModalOpen(true);
+                }}
+                onOpenSmartPick={() => {
+                  setCurrentTab('smart-pick');
+                }}
+                onOpenPanic={() => setIsPanicModalOpen(true)}
+                onOpenJournal={() => setIsJournalOpen(true)}
+              />
+            )}
+
+            {/* Tab 2: Calendar & Gap Detection */}
+            {currentTab === 'calendar' && (
+              <CalendarView
+                tasks={tasks}
+                onStartFocus={handleStartFocus}
+                isProUser={isProUser}
+                onOpenPricing={() => setIsPricingModalOpen(true)}
+              />
+            )}
+
+            {/* Tab 3: Dedicated Smart Pick View */}
+            {currentTab === 'smart-pick' && (
+              <MobileSmartPickView
+                tasks={tasks}
+                onStartFocus={handleStartFocus}
+                onOpenNewTask={() => {
+                  setEditingTask(null);
+                  setIsNewTaskModalOpen(true);
+                }}
+              />
+            )}
+
+            {/* Tab 4: Cloud Pet Sanctuary (นูเบ้) */}
+            {currentTab === 'cloud-pet' && (
+              <CloudPetView
+                pet={pet}
+                onUpdatePet={setPet}
+                onOpenPanic={() => setIsPanicModalOpen(true)}
+                streakDays={stats.streakDays}
+              />
+            )}
+
+            {/* Tab 5: Gamification, Badges & Streaks */}
+            {currentTab === 'gamification' && (
+              <GamificationView stats={stats} badges={badges} />
+            )}
+          </main>
+
+          {/* Docked Mobile Bottom Tab Bar */}
+          <MobileBottomTabBar
+            currentTab={currentTab}
+            onTabChange={(tab) => setCurrentTab(tab)}
+            onTriggerSmartPick={() => setCurrentTab('smart-pick')}
+          />
+
+          {/* Modals & Overlays */}
+          <SmartPickModal
+            isOpen={isSmartPickOpen}
+            onClose={() => setIsSmartPickOpen(false)}
             tasks={tasks}
-            onToggleTask={handleToggleTask}
-            onToggleStep={handleToggleStep}
             onStartFocus={handleStartFocus}
-            onEditTask={(task) => {
-              setEditingTask(task);
-              setIsNewTaskModalOpen(true);
-            }}
-            onDeleteTask={handleDeleteTask}
             onOpenNewTask={() => {
+              setIsSmartPickOpen(false);
               setEditingTask(null);
               setIsNewTaskModalOpen(true);
             }}
-            onOpenSmartPick={() => setIsSmartPickOpen(true)}
           />
-        )}
 
-        {/* Tab 2: Cloud Pet Sanctuary */}
-        {currentTab === 'cloud-pet' && (
-          <CloudPetView
-            pet={pet}
-            onUpdatePet={setPet}
+          <FocusModeModal
+            isOpen={!!activeFocusTask}
+            task={activeFocusTask}
+            onClose={() => setActiveFocusTask(null)}
+            onCompleteTask={handleCompleteFocusTask}
+            onToggleStep={handleToggleStep}
             onOpenPanic={() => setIsPanicModalOpen(true)}
-            streakDays={stats.streakDays}
           />
-        )}
 
-        {/* Tab 3: Calendar & Timeline */}
-        {currentTab === 'calendar' && (
-          <CalendarView
-            tasks={tasks}
-            onStartFocus={handleStartFocus}
+          <TaskInputModal
+            isOpen={isNewTaskModalOpen}
+            onClose={() => {
+              setIsNewTaskModalOpen(false);
+              setEditingTask(null);
+            }}
+            onSaveTask={handleSaveTask}
+            initialTask={editingTask}
+          />
+
+          <PanicCalmModal
+            isOpen={isPanicModalOpen}
+            onClose={() => setIsPanicModalOpen(false)}
+          />
+
+          <PricingModal
+            isOpen={isPricingModalOpen}
+            onClose={() => setIsPricingModalOpen(false)}
             isProUser={isProUser}
-            onOpenPricing={() => setIsPricingModalOpen(true)}
+            onSelectPlan={(planId) => {
+              setIsProUser(true);
+              setIsPricingModalOpen(false);
+            }}
           />
-        )}
 
-        {/* Tab 4: Smart Pick */}
-        {currentTab === 'smart-pick' && (
-          <div className="max-w-2xl mx-auto space-y-6">
-            <div className="bg-[#FAF8F5] rounded-3xl p-6 sm:p-8 border border-[#E2DACB] shadow-2xs text-center">
-              <MascotCloud size="lg" mood="cheering" useArtwork={true} bubbleText="บอกระดับพลังงานมาได้เลย เค้าจะเลือกงานให้เอง!" />
-              <h2 className="text-2xl font-bold font-heading text-[#2C2C24] mt-4">
-                AI & Smart Recommendation Engine
-              </h2>
-              <p className="text-xs sm:text-sm text-[#6E6E60] max-w-md mx-auto mt-1 mb-6">
-                ฟังก์ชันหลักตามแนวคิด freak out: วิเคราะห์งานตามความเร่งด่วน ความสำคัญ เวลาที่มี และระดับพลังงานของผู้ใช้
-              </p>
-              <button
-                onClick={() => setIsSmartPickOpen(true)}
-                className="px-6 py-3 rounded-2xl bg-[#828D7A] hover:bg-[#6C7764] text-white font-bold text-sm shadow-md transition active:scale-95 cursor-pointer"
-              >
-                เปิดเครื่องมือช่วยเลือกงาน (Smart Pick) 🎯
-              </button>
-            </div>
+          <DailyRewardModal
+            isOpen={isDailyRewardOpen}
+            onClose={() => setIsDailyRewardOpen(false)}
+            onClaim={handleClaimDailyReward}
+            streakDays={stats.streakDays}
+            freezesAvailable={pet.streakFreezes}
+          />
 
-            {/* Quick Tips */}
-            <div className="bg-[#EFE9DE]/70 rounded-3xl p-6 border border-[#E2DACB] space-y-3">
-              <h3 className="text-sm font-bold text-[#2C2C24] uppercase tracking-wider">
-                💡 กฎ 2 นาทีสยบ Overthinking:
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-[#2C2C24]">
-                <div className="bg-[#FAF8F5] p-3 rounded-2xl border border-[#E2DACB] shadow-2xs">
-                  <span className="font-bold text-[#55634E]">1. ก้าวแรกสุดจิ๋ว:</span> อย่าคิดถึงงานทั้งก้อน ให้เริ่มแค่เปิดไฟล์หรือหยิบปากกา
-                </div>
-                <div className="bg-[#FAF8F5] p-3 rounded-2xl border border-[#E2DACB] shadow-2xs">
-                  <span className="font-bold text-[#55634E]">2. ทำแบบร่างห่วยๆ:</span> ร่างแรกไม่จำเป็นต้องสมบูรณ์แบบ แค่ทำให้มีตัวตนขึ้นมาก่อน
-                </div>
-                <div className="bg-[#FAF8F5] p-3 rounded-2xl border border-[#E2DACB] shadow-2xs">
-                  <span className="font-bold text-[#55634E]">3. Low Energy Mode:</span> วันที่เหนื่อยล้า ให้เลือกงานเบาๆ 5-10 นาที
-                </div>
-                <div className="bg-[#FAF8F5] p-3 rounded-2xl border border-[#E2DACB] shadow-2xs">
-                  <span className="font-bold text-[#55634E]">4. ปล่อยวางความกังวล:</span> ใช้ปุ่ม SOS ฝึกหายใจเมื่อรู้สึกเริ่มคิดวน
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Tab 5: Gamification & Badges */}
-        {currentTab === 'gamification' && (
-          <GamificationView stats={stats} badges={badges} />
-        )}
-      </main>
-
-      {/* Hallmark Ft1 Minimal Status Bar Footer */}
-      <footer className="border-t border-[#EAE4D9] bg-[#FAF8F5]/90 py-6 text-xs text-[#7A786C]">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <span className="font-heading font-bold text-[#2C2C24] tracking-tight">freak out</span>
-            <span className="text-[#8A8A7A]">•</span>
-            <span className="font-medium text-[#5F7554]">Less thinking, More doing</span>
-            <span className="hidden sm:inline text-[#E2DACB]">|</span>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono bg-[#EAE8F5] text-[#5C4D82] border border-[#DDD5EF]">
-              Hallmark · Workbench
-            </span>
-          </div>
-          <div className="text-[11px] text-[#8A887A]">
-            Tactile Habit & Anti-Burnout Companion • ออกแบบสำหรับคนรุ่นใหม่และคนวัยทำงาน 🌿
-          </div>
-        </div>
-      </footer>
-
-      {/* Modals */}
-      <TaskInputModal
-        isOpen={isNewTaskModalOpen}
-        onClose={() => {
-          setIsNewTaskModalOpen(false);
-          setEditingTask(null);
-        }}
-        onSaveTask={handleSaveTask}
-        initialTask={editingTask}
-      />
-
-      <SmartPickModal
-        isOpen={isSmartPickOpen}
-        onClose={() => setIsSmartPickOpen(false)}
-        tasks={tasks}
-        onStartFocus={handleStartFocus}
-        onOpenNewTask={() => {
-          setIsSmartPickOpen(false);
-          setIsNewTaskModalOpen(true);
-        }}
-      />
-
-      <FocusModeModal
-        isOpen={!!activeFocusTask}
-        task={activeFocusTask}
-        onClose={() => setActiveFocusTask(null)}
-        onCompleteTask={handleCompleteFocusTask}
-        onToggleStep={handleToggleStep}
-        onOpenPanic={() => setIsPanicModalOpen(true)}
-      />
-
-      <PanicCalmModal
-        isOpen={isPanicModalOpen}
-        onClose={() => setIsPanicModalOpen(false)}
-      />
-
-      <PricingModal
-        isOpen={isPricingModalOpen}
-        onClose={() => setIsPricingModalOpen(false)}
-        isProUser={isProUser}
-        onUpgradePro={() => setIsProUser(true)}
-      />
-
-      <DailyRewardModal
-        isOpen={isDailyRewardOpen}
-        onClose={() => setIsDailyRewardOpen(false)}
-        streakDays={stats.streakDays}
-        onClaimReward={handleClaimDailyReward}
-      />
-    </div>
+          <MindfulJournalModal
+            isOpen={isJournalOpen}
+            onClose={() => setIsJournalOpen(false)}
+            minutesFocused={stats.minutesFocusedTotal}
+            tasksCompleted={stats.tasksCompletedTotal}
+          />
+        </>
+      )}
+    </MobileDeviceFrame>
   );
 }
