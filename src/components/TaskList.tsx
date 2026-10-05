@@ -484,13 +484,15 @@ export const TaskList: React.FC<TaskListProps> = ({
       )}
 
       {/* Mobile Floating Action Button (FAB) */}
-      <button
-        onClick={onOpenNewTask}
-        className="absolute bottom-4 right-4 z-30 w-13 h-13 rounded-full bg-[#6C7764] hover:bg-[#586350] active:scale-90 text-white flex items-center justify-center shadow-lg shadow-[#6C7764]/30 border-2 border-white transition-all cursor-pointer"
-        title="ระบายงานใหม่ (+)"
-      >
-        <Plus className="w-6 h-6 stroke-[2.5]" />
-      </button>
+      <div className="sticky bottom-4 flex justify-end pointer-events-none z-20">
+        <button
+          onClick={onOpenNewTask}
+          className="pointer-events-auto w-13 h-13 rounded-full bg-[#6C7764] hover:bg-[#586350] active:scale-90 text-white flex items-center justify-center shadow-lg shadow-[#6C7764]/30 border-2 border-white transition-all cursor-pointer mr-1"
+          title="ระบายงานใหม่ (+)"
+        >
+          <Plus className="w-6 h-6 stroke-[2.5]" />
+        </button>
+      </div>
     </div>
   );
 };

@@ -14,7 +14,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
   onTriggerSmartPick,
 }) => {
   return (
-    <nav className="sticky bottom-0 left-0 right-0 z-30 shrink-0 bg-[#FAF8F5]/95 backdrop-blur-lg border-t border-[#EAE4D9] pb-safe pt-1.5 px-3 select-none">
+    <nav className="w-full shrink-0 z-30 bg-[#FAF8F5]/95 backdrop-blur-lg border-t border-[#EAE4D9] pb-safe pt-1.5 px-3 select-none mt-auto">
       <div className="flex items-center justify-around max-w-lg mx-auto relative">
         {/* Tab 1: Tasks */}
         <button

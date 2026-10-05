@@ -289,91 +289,93 @@ export default function App() {
         />
       ) : (
         <>
-          {/* Mobile Top Bar */}
-          <MobileAppHeader
-            stats={stats}
-            pet={pet}
-            currentTab={currentTab}
-            onTabChange={(tab) => setCurrentTab(tab)}
-            onOpenPanic={() => setIsPanicModalOpen(true)}
-            onOpenPricing={() => setIsPricingModalOpen(true)}
-            onOpenDailyReward={() => setIsDailyRewardOpen(true)}
-            isProUser={isProUser}
-          />
+          <div className="flex-1 min-h-0 flex flex-col w-full relative overflow-hidden">
+            {/* Mobile Top Bar */}
+            <MobileAppHeader
+              stats={stats}
+              pet={pet}
+              currentTab={currentTab}
+              onTabChange={(tab) => setCurrentTab(tab)}
+              onOpenPanic={() => setIsPanicModalOpen(true)}
+              onOpenPricing={() => setIsPricingModalOpen(true)}
+              onOpenDailyReward={() => setIsDailyRewardOpen(true)}
+              isProUser={isProUser}
+            />
 
-          {/* Scrollable Screen Content */}
-          <main className="flex-1 overflow-y-auto px-4 py-3 relative no-scrollbar">
-            {/* Tab 1: Tasks (Clean, Intentional Home Dashboard) */}
-            {currentTab === 'tasks' && (
-              <TaskList
-                tasks={tasks}
-                userName={userName}
-                streakDays={stats.streakDays}
-                minutesFocusedTotal={stats.minutesFocusedTotal}
-                onToggleTask={handleToggleTask}
-                onToggleStep={handleToggleStep}
-                onStartFocus={handleStartFocus}
-                onEditTask={(task) => {
-                  setEditingTask(task);
-                  setIsNewTaskModalOpen(true);
-                }}
-                onDeleteTask={handleDeleteTask}
-                onOpenNewTask={() => {
-                  setEditingTask(null);
-                  setIsNewTaskModalOpen(true);
-                }}
-                onOpenSmartPick={() => {
-                  setCurrentTab('smart-pick');
-                }}
-                onOpenPanic={() => setIsPanicModalOpen(true)}
-                onOpenJournal={() => setIsJournalOpen(true)}
-              />
-            )}
+            {/* Scrollable Screen Content */}
+            <main className="flex-1 min-h-0 overflow-y-auto px-4 py-3 relative no-scrollbar">
+              {/* Tab 1: Tasks (Clean, Intentional Home Dashboard) */}
+              {currentTab === 'tasks' && (
+                <TaskList
+                  tasks={tasks}
+                  userName={userName}
+                  streakDays={stats.streakDays}
+                  minutesFocusedTotal={stats.minutesFocusedTotal}
+                  onToggleTask={handleToggleTask}
+                  onToggleStep={handleToggleStep}
+                  onStartFocus={handleStartFocus}
+                  onEditTask={(task) => {
+                    setEditingTask(task);
+                    setIsNewTaskModalOpen(true);
+                  }}
+                  onDeleteTask={handleDeleteTask}
+                  onOpenNewTask={() => {
+                    setEditingTask(null);
+                    setIsNewTaskModalOpen(true);
+                  }}
+                  onOpenSmartPick={() => {
+                    setCurrentTab('smart-pick');
+                  }}
+                  onOpenPanic={() => setIsPanicModalOpen(true)}
+                  onOpenJournal={() => setIsJournalOpen(true)}
+                />
+              )}
 
-            {/* Tab 2: Calendar & Gap Detection */}
-            {currentTab === 'calendar' && (
-              <CalendarView
-                tasks={tasks}
-                onStartFocus={handleStartFocus}
-                isProUser={isProUser}
-                onOpenPricing={() => setIsPricingModalOpen(true)}
-              />
-            )}
+              {/* Tab 2: Calendar & Gap Detection */}
+              {currentTab === 'calendar' && (
+                <CalendarView
+                  tasks={tasks}
+                  onStartFocus={handleStartFocus}
+                  isProUser={isProUser}
+                  onOpenPricing={() => setIsPricingModalOpen(true)}
+                />
+              )}
 
-            {/* Tab 3: Dedicated Smart Pick View */}
-            {currentTab === 'smart-pick' && (
-              <MobileSmartPickView
-                tasks={tasks}
-                onStartFocus={handleStartFocus}
-                onOpenNewTask={() => {
-                  setEditingTask(null);
-                  setIsNewTaskModalOpen(true);
-                }}
-              />
-            )}
+              {/* Tab 3: Dedicated Smart Pick View */}
+              {currentTab === 'smart-pick' && (
+                <MobileSmartPickView
+                  tasks={tasks}
+                  onStartFocus={handleStartFocus}
+                  onOpenNewTask={() => {
+                    setEditingTask(null);
+                    setIsNewTaskModalOpen(true);
+                  }}
+                />
+              )}
 
-            {/* Tab 4: Cloud Pet Sanctuary (นูเบ้) */}
-            {currentTab === 'cloud-pet' && (
-              <CloudPetView
-                pet={pet}
-                onUpdatePet={setPet}
-                onOpenPanic={() => setIsPanicModalOpen(true)}
-                streakDays={stats.streakDays}
-              />
-            )}
+              {/* Tab 4: Cloud Pet Sanctuary (นูเบ้) */}
+              {currentTab === 'cloud-pet' && (
+                <CloudPetView
+                  pet={pet}
+                  onUpdatePet={setPet}
+                  onOpenPanic={() => setIsPanicModalOpen(true)}
+                  streakDays={stats.streakDays}
+                />
+              )}
 
-            {/* Tab 5: Gamification, Badges & Streaks */}
-            {currentTab === 'gamification' && (
-              <GamificationView stats={stats} badges={badges} />
-            )}
-          </main>
+              {/* Tab 5: Gamification, Badges & Streaks */}
+              {currentTab === 'gamification' && (
+                <GamificationView stats={stats} badges={badges} />
+              )}
+            </main>
 
-          {/* Docked Mobile Bottom Tab Bar */}
-          <MobileBottomTabBar
-            currentTab={currentTab}
-            onTabChange={(tab) => setCurrentTab(tab)}
-            onTriggerSmartPick={() => setCurrentTab('smart-pick')}
-          />
+            {/* Docked Mobile Bottom Tab Bar */}
+            <MobileBottomTabBar
+              currentTab={currentTab}
+              onTabChange={(tab) => setCurrentTab(tab)}
+              onTriggerSmartPick={() => setCurrentTab('smart-pick')}
+            />
+          </div>
 
           {/* Modals & Overlays */}
           <SmartPickModal
