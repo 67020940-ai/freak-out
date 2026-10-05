@@ -53,7 +53,7 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
         >
           <div className="relative shrink-0">
             <div className="w-9 h-9 rounded-xl overflow-hidden bg-white border border-[#E8E2D5] shadow-2xs flex items-center justify-center p-0.5">
-              <PixelCloud8Bit pose="idle" size="sm" interactive={false} />
+              <PixelCloud8Bit pose="idle" size="sm" accessory={pet.equippedAccessory} interactive={false} />
             </div>
             <span className="absolute -bottom-1 -right-1 px-1 py-0.2 rounded-full bg-[#6C7764] text-white text-[9px] font-bold shadow-2xs border border-[#FAF8F5]">
               L{pet.level}

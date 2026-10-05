@@ -28,7 +28,7 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
   onStartFocus,
   onOpenNewTask,
 }) => {
-  const [selectedEnergy, setSelectedEnergy] = useState<EnergyLevel>('medium');
+  const [selectedEnergy, setSelectedEnergy] = useState<EnergyLevel>('okay');
   const [availableMinutes, setAvailableMinutes] = useState<number>(25);
   const [isThinking, setIsThinking] = useState(false);
 
@@ -77,56 +77,41 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
         </p>
       </div>
 
-      {/* Energy Level Selector (Tactile Cards) */}
+      {/* Energy Level Selector (5 Levels matching Screenshot 2) */}
       <div className="bg-[#FAF8F5] rounded-3xl p-4 border border-[#E8E2D5] shadow-2xs space-y-2.5">
-        <label className="block text-xs font-bold text-[#2C2C24] uppercase tracking-wider">
-          1. ระดับพลังงานของคุณตอนนี้
-        </label>
-        <div className="grid grid-cols-3 gap-2">
-          {/* Low */}
-          <button
-            type="button"
-            onClick={() => handleEnergyChange('low')}
-            className={`p-3 rounded-2xl flex flex-col items-center justify-center text-center transition-all cursor-pointer border ${
-              selectedEnergy === 'low'
-                ? 'bg-[#EBF0E8] border-[#828D7A] text-[#3B5433] shadow-xs scale-102 font-bold'
-                : 'bg-white border-[#E8E2D5] text-[#7A786C] hover:bg-[#F3EFE6]'
-            }`}
-          >
-            <BatteryLow className={`w-5 h-5 mb-1 ${selectedEnergy === 'low' ? 'text-[#5F7554]' : 'text-[#8A887A]'}`} />
-            <span className="text-xs">หมดแรง</span>
-            <span className="text-[10px] opacity-75">งานเบา 5-10น.</span>
-          </button>
-
-          {/* Medium */}
-          <button
-            type="button"
-            onClick={() => handleEnergyChange('medium')}
-            className={`p-3 rounded-2xl flex flex-col items-center justify-center text-center transition-all cursor-pointer border ${
-              selectedEnergy === 'medium'
-                ? 'bg-[#FFF9E6] border-[#D49E35] text-[#8A5C1E] shadow-xs scale-102 font-bold'
-                : 'bg-white border-[#E8E2D5] text-[#7A786C] hover:bg-[#F3EFE6]'
-            }`}
-          >
-            <BatteryMedium className={`w-5 h-5 mb-1 ${selectedEnergy === 'medium' ? 'text-[#B07248]' : 'text-[#8A887A]'}`} />
-            <span className="text-xs">ปานกลาง</span>
-            <span className="text-[10px] opacity-75">ลุยงานปกติ</span>
-          </button>
-
-          {/* High */}
-          <button
-            type="button"
-            onClick={() => handleEnergyChange('high')}
-            className={`p-3 rounded-2xl flex flex-col items-center justify-center text-center transition-all cursor-pointer border ${
-              selectedEnergy === 'high'
-                ? 'bg-[#FDECE8] border-[#E05A47] text-[#9A4A38] shadow-xs scale-102 font-bold'
-                : 'bg-white border-[#E8E2D5] text-[#7A786C] hover:bg-[#F3EFE6]'
-            }`}
-          >
-            <Zap className={`w-5 h-5 mb-1 ${selectedEnergy === 'high' ? 'text-[#BC5E48]' : 'text-[#8A887A]'}`} />
-            <span className="text-xs">พลังเต็ม</span>
-            <span className="text-[10px] opacity-75">ลุยงานสำคัญ</span>
-          </button>
+        <div className="flex items-center justify-between">
+          <label className="block text-xs font-bold text-[#2C2C24] uppercase tracking-wider">
+            1. ระดับพลังงานของคุณตอนนี้
+          </label>
+        </div>
+        <div className="grid grid-cols-5 gap-1.5">
+          {[
+            { id: 'depleted' as EnergyLevel, name: '1. หมดแรง', emoji: '🪫', desc: '5-10น.' },
+            { id: 'tired' as EnergyLevel, name: '2. ล้า ๆ', emoji: '🥱', desc: 'งานเบา' },
+            { id: 'okay' as EnergyLevel, name: '3. พอไหว', emoji: '🌿', desc: 'ขนาดกลาง' },
+            { id: 'ready' as EnergyLevel, name: '4. พร้อมลุย', emoji: '⚡', desc: 'โฟกัสดี' },
+            { id: 'full' as EnergyLevel, name: '5. พลังเต็ม!', emoji: '🔥', desc: 'จัดเต็ม' },
+          ].map((item) => {
+            const isSelected = selectedEnergy === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => handleEnergyChange(item.id)}
+                className={`p-2 rounded-2xl flex flex-col items-center justify-center text-center transition-all cursor-pointer border ${
+                  isSelected
+                    ? 'bg-[#6C7764] text-white border-[#6C7764] shadow-xs font-bold ring-2 ring-[#6C7764]/20 scale-102'
+                    : 'bg-white border-[#E8E2D5] text-[#7A786C] hover:bg-[#FAF8F5]'
+                }`}
+              >
+                <span className="text-base mb-0.5">{item.emoji}</span>
+                <span className="text-[10px] whitespace-nowrap leading-tight">{item.name}</span>
+                <span className={`text-[8px] mt-0.5 ${isSelected ? 'text-white/80' : 'text-[#8A887A]'}`}>
+                  {item.desc}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

@@ -1,6 +1,7 @@
-export type EnergyLevel = 'low' | 'medium' | 'high';
+export type EnergyLevel = 'depleted' | 'tired' | 'okay' | 'ready' | 'full' | 'low' | 'medium' | 'high';
 export type UrgencyLevel = 'low' | 'medium' | 'high';
-export type TaskCategory = 'study' | 'work' | 'personal' | 'project' | 'life';
+export type TaskSize = 'small' | 'medium' | 'large';
+export type TaskCategory = 'personal' | 'work' | 'freelance' | 'education' | 'study' | 'project' | 'life';
 
 export interface MicroStep {
   id: string;
@@ -14,9 +15,17 @@ export interface Task {
   title: string;
   description?: string;
   category: TaskCategory;
-  energy: EnergyLevel;
-  urgency: UrgencyLevel;
-  importance: UrgencyLevel;
+  energy?: EnergyLevel;
+  urgency?: UrgencyLevel;
+  importance?: UrgencyLevel;
+  size?: TaskSize;
+  flagged?: boolean;
+  tags?: string[];
+  startDate?: string;
+  deadline?: string;
+  time?: string;
+  location?: string;
+  imageUrl?: string;
   estimatedMinutes: number;
   completed: boolean;
   completedAt?: string;

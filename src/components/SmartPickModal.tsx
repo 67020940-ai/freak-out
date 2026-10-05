@@ -19,11 +19,11 @@ export const SmartPickModal: React.FC<SmartPickModalProps> = ({
   onStartFocus,
   onOpenNewTask,
 }) => {
-  const [selectedEnergy, setSelectedEnergy] = useState<EnergyLevel>('medium');
+  const [selectedEnergy, setSelectedEnergy] = useState<EnergyLevel>('okay');
   const [availableMinutes, setAvailableMinutes] = useState<number>(25);
   const [isCalculating, setIsCalculating] = useState<boolean>(false);
   const [recommendation, setRecommendation] = useState<{ task: Task; reasonTh: string } | null>(() =>
-    recommendBestTask(tasks, 'medium', 25)
+    recommendBestTask(tasks, 'okay', 25)
   );
 
   if (!isOpen) return null;
@@ -81,48 +81,34 @@ export const SmartPickModal: React.FC<SmartPickModalProps> = ({
             <label className="block text-xs font-bold text-[#2C2C24] uppercase tracking-wider mb-2">
               1. ตอนนี้คุณมีระดับพลังงานแค่ไหน?
             </label>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => handleEnergySelect('low')}
-                className={`p-3 rounded-2xl border text-center transition cursor-pointer ${
-                  selectedEnergy === 'low'
-                    ? 'bg-[#EBF0E8] border-[#828D7A] ring-2 ring-[#828D7A]/30 font-bold shadow-2xs'
-                    : 'bg-[#F9F7F2] border-[#E2DACB] hover:bg-[#EFE9DE]'
-                }`}
-              >
-                <div className="text-lg">🪫</div>
-                <div className="text-xs font-bold text-[#485942] mt-1">Low Energy</div>
-                <div className="text-[10px] text-[#6E6E60]">หมดแรง / ชิลๆ</div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleEnergySelect('medium')}
-                className={`p-3 rounded-2xl border text-center transition cursor-pointer ${
-                  selectedEnergy === 'medium'
-                    ? 'bg-[#F6EFEA] border-[#B88E76] ring-2 ring-[#B88E76]/30 font-bold shadow-2xs'
-                    : 'bg-[#F9F7F2] border-[#E2DACB] hover:bg-[#EFE9DE]'
-                }`}
-              >
-                <div className="text-lg">🔋</div>
-                <div className="text-xs font-bold text-[#8C6048] mt-1">Mid Energy</div>
-                <div className="text-[10px] text-[#6E6E60]">พร้อมทำงานทั่วไป</div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleEnergySelect('high')}
-                className={`p-3 rounded-2xl border text-center transition cursor-pointer ${
-                  selectedEnergy === 'high'
-                    ? 'bg-[#F5ECE5] border-[#9A6246] ring-2 ring-[#9A6246]/30 font-bold shadow-2xs'
-                    : 'bg-[#F9F7F2] border-[#E2DACB] hover:bg-[#EFE9DE]'
-                }`}
-              >
-                <div className="text-lg">⚡</div>
-                <div className="text-xs font-bold text-[#9A6246] mt-1">High Energy</div>
-                <div className="text-[10px] text-[#6E6E60]">ไฟแรง สมาธิเต็มร้อย</div>
-              </button>
+            <div className="grid grid-cols-5 gap-1.5">
+              {[
+                { id: 'depleted' as EnergyLevel, name: '1. หมดแรง', emoji: '🪫', desc: '5-10น.' },
+                { id: 'tired' as EnergyLevel, name: '2. ล้า ๆ', emoji: '🥱', desc: 'งานเบา' },
+                { id: 'okay' as EnergyLevel, name: '3. พอไหว', emoji: '🌿', desc: 'ขนาดกลาง' },
+                { id: 'ready' as EnergyLevel, name: '4. พร้อมลุย', emoji: '⚡', desc: 'โฟกัสดี' },
+                { id: 'full' as EnergyLevel, name: '5. พลังเต็ม!', emoji: '🔥', desc: 'จัดเต็ม' },
+              ].map((item) => {
+                const isSelected = selectedEnergy === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => handleEnergySelect(item.id)}
+                    className={`p-2 rounded-2xl flex flex-col items-center justify-center text-center transition-all cursor-pointer border ${
+                      isSelected
+                        ? 'bg-[#6C7764] text-white border-[#6C7764] shadow-xs font-bold ring-2 ring-[#6C7764]/20 scale-102'
+                        : 'bg-white border-[#E8E2D5] text-[#7A786C] hover:bg-[#FAF8F5]'
+                    }`}
+                  >
+                    <span className="text-base mb-0.5">{item.emoji}</span>
+                    <span className="text-[10px] whitespace-nowrap leading-tight">{item.name}</span>
+                    <span className={`text-[8px] mt-0.5 ${isSelected ? 'text-white/80' : 'text-[#8A887A]'}`}>
+                      {item.desc}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

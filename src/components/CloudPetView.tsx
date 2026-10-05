@@ -34,13 +34,76 @@ const PIXEL_POSES: { id: PixelCloudPose; name: string; desc: string }[] = [
 ];
 
 const ACCESSORIES = [
-  { id: 'none', name: 'ปกติ (Original)', icon: '☁️', price: 0, unlocked: true },
-  { id: 'glasses', name: 'แว่นเด็กเนิร์ด', icon: '👓', price: 50, unlocked: true },
-  { id: 'grad_cap', name: 'หมวกรับปริญญา', icon: '🎓', price: 150, unlocked: true },
-  { id: 'headphones', name: 'หูฟังตัดเสียงรบกวน', icon: '🎧', price: 200, unlocked: true },
-  { id: 'crown', name: 'มงกุฎ Focus King', icon: '👑', price: 500, unlocked: false },
-  { id: 'coffee', name: 'แก้วชานมไข่มุก', icon: '🧋', price: 100, unlocked: true },
+  { id: 'none', name: 'ปกติ (Original)', desc: 'ร่างธรรมชาติ ไร้สิ่งปรุงแต่ง', price: 0, unlocked: true },
+  { id: 'glasses', name: 'แว่นเด็กเนิร์ด', desc: 'เพิ่มความฉลาด +10%', price: 50, unlocked: true },
+  { id: 'grad_cap', name: 'หมวกรับปริญญา', desc: 'ลุยทีซิสให้จบไวๆ', price: 150, unlocked: true },
+  { id: 'headphones', name: 'หูฟังตัดเสียงรบกวน', desc: 'ตัดโลกภายนอก โฟกัส 100%', price: 200, unlocked: true },
+  { id: 'crown', name: 'มงกุฎ Focus King', desc: 'ราชาแห่งการไม่ผัดวัน', price: 500, unlocked: false },
+  { id: 'coffee', name: 'แก้วชานมไข่มุก', desc: 'เติมน้ำตาล เติมกำลังใจ', price: 100, unlocked: true },
 ];
+
+const AccessoryBadgeIcon: React.FC<{ id: string }> = ({ id }) => {
+  switch (id) {
+    case 'glasses':
+      return (
+        <div className="w-8 h-8 rounded-xl bg-[#E8F0F8] border border-[#C5D7E8] flex items-center justify-center shadow-2xs">
+          <svg className="w-4.5 h-4.5 text-[#2C3E50]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="6" cy="14" r="4" fill="#BFDBFE" fillOpacity="0.4" />
+            <circle cx="18" cy="14" r="4" fill="#BFDBFE" fillOpacity="0.4" />
+            <path d="M10 14h4" />
+            <path d="M2 12l2-4" />
+            <path d="M22 12l-2-4" />
+          </svg>
+        </div>
+      );
+    case 'grad_cap':
+      return (
+        <div className="w-8 h-8 rounded-xl bg-[#F0EBF8] border border-[#DACDEC] flex items-center justify-center shadow-2xs">
+          <svg className="w-4.5 h-4.5 text-[#583D72]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z" fill="#E9D5FF" fillOpacity="0.5" />
+            <path d="M6 12v5c3 3 9 3 12 0v-5" />
+          </svg>
+        </div>
+      );
+    case 'headphones':
+      return (
+        <div className="w-8 h-8 rounded-xl bg-[#E8F5E9] border border-[#C8E6C9] flex items-center justify-center shadow-2xs">
+          <svg className="w-4.5 h-4.5 text-[#2E7D32]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+            <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" fill="#A5D6A7" fillOpacity="0.5" />
+          </svg>
+        </div>
+      );
+    case 'crown':
+      return (
+        <div className="w-8 h-8 rounded-xl bg-[#FFF8E1] border border-[#FFE082] flex items-center justify-center shadow-2xs">
+          <svg className="w-4.5 h-4.5 text-[#D49E35]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="12 2 15 8 21 9 17 14 18 20 12 17 6 20 7 14 3 9 9 8 12 2" fill="#FDE047" fillOpacity="0.6" />
+          </svg>
+        </div>
+      );
+    case 'coffee':
+      return (
+        <div className="w-8 h-8 rounded-xl bg-[#FFF3E0] border border-[#FFE0B2] flex items-center justify-center shadow-2xs">
+          <svg className="w-4.5 h-4.5 text-[#B85824]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" fill="#FED7AA" fillOpacity="0.5" />
+            <line x1="6" y1="1" x2="6" y2="4" />
+            <line x1="10" y1="1" x2="10" y2="4" />
+            <line x1="14" y1="1" x2="14" y2="4" />
+          </svg>
+        </div>
+      );
+    default:
+      return (
+        <div className="w-8 h-8 rounded-xl bg-[#FAF8F5] border border-[#E8E2D5] flex items-center justify-center shadow-2xs">
+          <svg className="w-4.5 h-4.5 text-[#6C7764]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" fill="#E8ECE5" />
+          </svg>
+        </div>
+      );
+  }
+};
 
 export const CloudPetView: React.FC<CloudPetViewProps> = ({
   pet,
@@ -123,7 +186,7 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
               title="คลิกเพื่อลูบหัวน้องเมฆ 💖"
             >
               <div className="w-full h-full flex items-center justify-center p-2">
-                <PixelCloud8Bit pose={activePose} size="lg" interactive={false} />
+                <PixelCloud8Bit pose={activePose} size="lg" accessory={pet.equippedAccessory} interactive={false} />
               </div>
 
               {/* Heart particles */}
@@ -296,7 +359,7 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
                 }`}
               >
                 <div className="w-13 h-13 rounded-xl mb-1 bg-[#FAF8F5] flex items-center justify-center p-0.5">
-                  <PixelCloud8Bit pose={poseItem.id} size="sm" interactive={false} />
+                  <PixelCloud8Bit pose={poseItem.id} size="sm" accessory={pet.equippedAccessory} interactive={false} />
                 </div>
                 <span className="text-[11px] font-bold text-[#2C2C24] text-center leading-tight whitespace-nowrap">
                   {poseItem.name}
@@ -319,7 +382,7 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
               <span>ตู้เสื้อผ้าและไอเท็มตกแต่ง</span>
             </h3>
             <p className="text-[11px] text-[#7A786C]">
-              สะสมละอองดาวเพื่อปลดล็อกไอเท็มน่ารักๆ
+              เปลี่ยนชุดและไอเท็มให้น้องเมฆได้ทันที ✨
             </p>
           </div>
           <div className="text-xs font-bold text-[#B87A24] bg-[#FFF4E0] px-2.5 py-0.5 rounded-xl border border-[#F4E1BD] shrink-0">
@@ -336,21 +399,36 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
                 onClick={() => {
                   if (acc.unlocked) {
                     onUpdatePet((prev) => ({ ...prev, equippedAccessory: acc.id }));
-                    setPetFeedback(`ใส่ ${acc.name} ให้น้องเมฆเรียบร้อยแล้วฮะ! ✨`);
+                    setPetFeedback(`ใส่ "${acc.name}" ให้น้องเมฆเรียบร้อยแล้วฮะ! ✨`);
                   }
                 }}
                 className={`flex flex-col items-center p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
                   isEquipped
-                    ? 'bg-[#E2ECE0] border-[#828D7A] shadow-xs'
+                    ? 'bg-[#EBF0E8] border-[#6C7764] ring-2 ring-[#6C7764]/20 shadow-xs'
                     : acc.unlocked
-                    ? 'bg-white border-[#EAE4D9] hover:bg-white/80'
+                    ? 'bg-white border-[#EAE4D9] hover:bg-white/90 hover:border-[#D5CDC0]'
                     : 'bg-[#F2EEE9] border-[#E2DACB] opacity-60 cursor-not-allowed'
                 }`}
               >
-                <div className="text-xl mb-0.5">{acc.icon}</div>
+                <div className="mb-1.5 flex items-center justify-center">
+                  <AccessoryBadgeIcon id={acc.id} />
+                </div>
                 <div className="text-[11px] font-bold text-[#2C2C24] line-clamp-1">{acc.name}</div>
-                <div className="text-[9px] text-[#7A786C] mt-0.5">
-                  {isEquipped ? 'กำลังใส่' : acc.unlocked ? 'ปลดล็อก' : `${acc.price} ดาว`}
+                <div className="text-[9px] text-[#7A786C] mt-0.5 line-clamp-1">{acc.desc}</div>
+                <div className="mt-1.5">
+                  {isEquipped ? (
+                    <span className="text-[9px] font-bold text-[#3B5433] bg-[#DDE9D9] px-2 py-0.5 rounded-full">
+                      ✓ กำลังใส่
+                    </span>
+                  ) : acc.unlocked ? (
+                    <span className="text-[9px] font-semibold text-[#6C7764] bg-[#FAF8F5] px-2 py-0.5 rounded-full border border-[#E2DACB]">
+                      แตะเพื่อใส่
+                    </span>
+                  ) : (
+                    <span className="text-[9px] font-semibold text-[#8C8A7D]">
+                      🔒 {acc.price} ดาว
+                    </span>
+                  )}
                 </div>
               </div>
             );

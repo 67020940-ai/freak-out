@@ -17,59 +17,82 @@ export function recommendBestTask(
     let score = 0;
     const reasons: string[] = [];
 
-    // 1. Energy compatibility
-    if (currentEnergy === 'low') {
-      if (t.energy === 'low') {
+    // 1. Energy & Size compatibility (5-level scale matching user mood)
+    if (currentEnergy === 'depleted' || currentEnergy === 'low') {
+      if (t.size === 'small' || t.estimatedMinutes <= 15 || t.energy === 'low') {
         score += 50;
-        reasons.push('เหมาะกับตอนพลังงานน้อย ทำง่าย ไม่เปลืองแรงสมอง');
-      } else if (t.energy === 'medium') {
-        score += 20;
+        reasons.push('เหมาะกับตอนหมดแรง ทำง่าย ใช้เวลาน้อย ไม่เปลืองแรงสมอง');
+      } else if (t.size === 'medium' || t.energy === 'medium') {
+        score += 15;
       } else {
-        score -= 30; // Avoid high energy tasks when exhausted
+        score -= 35; // Avoid big draining tasks when depleted
       }
-    } else if (currentEnergy === 'medium') {
-      if (t.energy === 'medium') {
-        score += 40;
-        reasons.push('ระดับพลังงานพอดีกับงานนี้');
-      } else if (t.energy === 'low') {
+    } else if (currentEnergy === 'tired') {
+      if (t.size === 'small' || t.estimatedMinutes <= 15) {
+        score += 45;
+        reasons.push('งานเบาๆ ช่วยให้ค่อยเป็นค่อยไป ไม่กดดัน');
+      } else if (t.size === 'medium') {
+        score += 30;
+      } else {
+        score -= 20;
+      }
+    } else if (currentEnergy === 'okay' || currentEnergy === 'medium') {
+      if (t.size === 'medium' || t.energy === 'medium') {
+        score += 45;
+        reasons.push('ระดับพลังงานพอดีคำ เหมาะกับการเคลียร์งานนี้');
+      } else if (t.size === 'small' || t.energy === 'low') {
         score += 35;
-        reasons.push('เคลียร์ได้ไวเพื่อบูสต์โมเมนตัม');
+        reasons.push('เคลียร์ได้ไวเพื่อสะสมกำลังใจ');
       } else {
         score += 25;
       }
-    } else {
-      // High energy: tackle big high energy / important tasks!
-      if (t.energy === 'high') {
-        score += 50;
-        reasons.push('คุณกำลังมีพลังเต็มเปี่ยม เหมาะกับการลุยงานสำคัญชิ้นใหญ่!');
-      } else if (t.energy === 'medium') {
-        score += 35;
+    } else if (currentEnergy === 'ready') {
+      if (t.size === 'large' || t.flagged || t.size === 'medium') {
+        score += 45;
+        reasons.push('สมองแล่น โฟกัสพร้อมลุยงานสำคัญชิ้นนี้ได้เต็มที่');
       } else {
-        score += 20;
+        score += 30;
+      }
+    } else {
+      // 'full' or 'high': Tackle big high-impact tasks!
+      if (t.size === 'large' || t.energy === 'high') {
+        score += 55;
+        reasons.push('คุณกำลังมีพลังเต็มเปี่ยม เหมาะกับการลุยงานสำคัญชิ้นใหญ่ที่สุด!');
+      } else if (t.flagged) {
+        score += 45;
+        reasons.push('พลังเต็มร้อย ลุยงานปักธงให้เสร็จสวยๆ');
+      } else {
+        score += 25;
       }
     }
 
-    // 2. Time fit
+    // 2. Flagged bonus
+    if (t.flagged) {
+      score += 30;
+      reasons.push('งานนี้ปักธง 🚩 สำคัญเป็นพิเศษ');
+    }
+
+    // 3. Time fit
     if (t.estimatedMinutes <= availableMinutes) {
       score += 40;
-      reasons.push(`เวลา ${t.estimatedMinutes} นาที พอดีกับเวลาว่าง ${availableMinutes} นาที`);
+      reasons.push(`เวลา ~${t.estimatedMinutes} นาที พอดีกับเวลาว่าง ${availableMinutes} นาที`);
     } else if (t.estimatedMinutes <= availableMinutes + 10) {
       score += 15;
     } else {
       score -= 25; // Exceeds available time too much
     }
 
-    // 3. Urgency & Importance
+    // 4. Urgency & Importance
     if (t.urgency === 'high') {
       score += 30;
       reasons.push('งานนี้มีความด่วนสูง ควรจัดการก่อน');
     }
     if (t.importance === 'high') {
-      score += 25;
+      score += 20;
       reasons.push('เป็นงานสำคัญที่มีผลกระทบมาก');
     }
 
-    // 4. Overthinking boost: if it's prone to overthinking, give extra push to start
+    // 5. Overthinking boost: if it's prone to overthinking, give extra push to start
     if (t.isOverthinkingProne) {
       score += 15;
       reasons.push('งานนี้อาจทำให้คุณคิดวน แค่เริ่มก้าวแรกจะโล่งขึ้นทันที!');

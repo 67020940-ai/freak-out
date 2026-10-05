@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Task, TaskCategory, EnergyLevel } from '../types';
+import { Task, TaskCategory, EnergyLevel, TaskSize } from '../types';
 import {
   CheckCircle2,
   Circle,
@@ -28,7 +28,9 @@ import {
   Calendar as CalendarIcon,
   Smile,
   SlidersHorizontal,
-  ChevronRight
+  ChevronRight,
+  MapPin,
+  Tag
 } from 'lucide-react';
 import { PixelCloud8Bit } from './PixelCloud8Bit';
 import confetti from 'canvas-confetti';
@@ -49,6 +51,20 @@ interface TaskListProps {
   onOpenJournal?: () => void;
 }
 
+const ENERGY_OPTIONS: {
+  id: EnergyLevel;
+  label: string;
+  shortName: string;
+  emoji: string;
+  desc: string;
+}[] = [
+  { id: 'depleted', label: '1. หมดแรง', shortName: '1. หมดแรง', emoji: '🪫', desc: 'งานเบา 5-10 นาที' },
+  { id: 'tired', label: '2. ล้า ๆ', shortName: '2. ล้า ๆ', emoji: '🥱', desc: 'ค่อยเป็นค่อยไป' },
+  { id: 'okay', label: '3. พอไหว', shortName: '3. พอไหว', emoji: '🌿', desc: 'งานขนาดกลางปกติ' },
+  { id: 'ready', label: '4. พร้อมลุย', shortName: '4. พร้อมลุย', emoji: '⚡', desc: 'สมองแล่น สมาธิดี' },
+  { id: 'full', label: '5. พลังเต็ม!', shortName: '5. พลังเต็ม!', emoji: '🔥', desc: 'ลุยงานใหญ่จัดเต็ม!' },
+];
+
 export const TaskList: React.FC<TaskListProps> = ({
   tasks,
   userName = 'Jay',
@@ -66,22 +82,10 @@ export const TaskList: React.FC<TaskListProps> = ({
 }) => {
   const [activeFilterTab, setActiveFilterTab] = useState<'all' | 'today' | 'overthink'>('today');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [currentVibeEnergy, setCurrentVibeEnergy] = useState<EnergyLevel>('medium');
-  const [selectedDate, setSelectedDate] = useState<number>(4);
+  const [currentVibeEnergy, setCurrentVibeEnergy] = useState<EnergyLevel>('okay');
   const [expandedTasks, setExpandedTasks] = useState<Record<string, boolean>>({});
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showSearch, setShowSearch] = useState<boolean>(false);
-
-  // Week days (Inspired by Save this & Instagram references)
-  const weekDays = [
-    { day: 'จ.', date: 29, isToday: false },
-    { day: 'อ.', date: 30, isToday: false },
-    { day: 'พ.', date: 1, isToday: false },
-    { day: 'พฤ.', date: 2, isToday: false },
-    { day: 'ศ.', date: 3, isToday: false },
-    { day: 'ส.', date: 4, isToday: true },
-    { day: 'อา.', date: 5, isToday: false },
-  ];
 
   const toggleExpand = (taskId: string) => {
     setExpandedTasks((prev) => ({
@@ -103,13 +107,16 @@ export const TaskList: React.FC<TaskListProps> = ({
 
   // Filter tasks based on search, category, and active tab
   const filteredTasks = tasks.filter((t) => {
-    if (selectedCategory !== 'all' && t.category !== selectedCategory) return false;
+    if (selectedCategory === 'flagged' && !t.flagged) return false;
+    if (selectedCategory !== 'all' && selectedCategory !== 'flagged' && t.category !== selectedCategory) return false;
     if (activeFilterTab === 'overthink' && !t.isOverthinkingProne) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return (
         t.title.toLowerCase().includes(q) ||
-        (t.description && t.description.toLowerCase().includes(q))
+        (t.description && t.description.toLowerCase().includes(q)) ||
+        (t.tags && t.tags.some(tag => tag.toLowerCase().includes(q))) ||
+        (t.location && t.location.toLowerCase().includes(q))
       );
     }
     return true;
@@ -118,45 +125,45 @@ export const TaskList: React.FC<TaskListProps> = ({
   const pendingTasks = filteredTasks.filter((t) => !t.completed);
   const completedTasks = filteredTasks.filter((t) => t.completed);
 
-  // Top focus task (Hero Spotlight Card - Task Management reference)
-  const topFocusTask = pendingTasks.find((t) => t.urgency === 'high') || pendingTasks[0];
+  // Top focus task (Hero Spotlight Card)
+  const topFocusTask = pendingTasks.find((t) => t.flagged || t.urgency === 'high') || pendingTasks[0];
 
   const getCategoryBadge = (cat: TaskCategory) => {
     switch (cat) {
+      case 'education':
       case 'study':
-        return { label: 'เรียน & วิจัย', emoji: '📚', style: 'bg-[#EBF0E8] text-[#3B5433] border-[#CFDFCB]' };
+        return { label: 'Education', emoji: '📚', style: 'bg-[#EBF0E8] text-[#3B5433] border-[#CFDFCB]' };
       case 'work':
-        return { label: 'การทำงาน', emoji: '💼', style: 'bg-[#FAF0E6] text-[#8A5C1E] border-[#E8DEC9]' };
+        return { label: 'Work', emoji: '💼', style: 'bg-[#FAF0E6] text-[#8A5C1E] border-[#E8DEC9]' };
+      case 'freelance':
       case 'project':
-        return { label: 'โปรเจกต์', emoji: '🚀', style: 'bg-[#E8F0F8] text-[#2F5275] border-[#CADDEC]' };
+        return { label: 'Freelance', emoji: '🎨', style: 'bg-[#E8F0F8] text-[#2F5275] border-[#CADDEC]' };
       case 'personal':
-        return { label: 'ส่วนตัว', emoji: '🧸', style: 'bg-[#F4EFE6] text-[#6E6D62] border-[#E2DACB]' };
       case 'life':
-        return { label: 'ชีวิต & สุขภาพ', emoji: '🌿', style: 'bg-[#EFE9DE] text-[#55634E] border-[#DED7C8]' };
+      default:
+        return { label: 'ส่วนตัว', emoji: '🧸', style: 'bg-[#F4EFE6] text-[#6E6D62] border-[#E2DACB]' };
     }
   };
 
-  const getEnergyBadge = (energy: EnergyLevel) => {
-    switch (energy) {
-      case 'low':
+  const getSizeBadge = (size?: TaskSize) => {
+    switch (size) {
+      case 'small':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#EBF0E8] text-[#3B5433] border border-[#CFDFCB]">
-            <BatteryLow className="w-3 h-3 text-[#5F7554]" />
-            <span>แรงน้อย</span>
+          <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-semibold bg-[#EBF0E8] text-[#3B5433] border border-[#CFDFCB]">
+            งานเล็ก 🌱
+          </span>
+        );
+      case 'large':
+        return (
+          <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-semibold bg-[#FDECE8] text-[#9A4A38] border border-[#F6D7D0]">
+            งานใหญ่ 🌳
           </span>
         );
       case 'medium':
+      default:
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FFF9E6] text-[#8A5C1E] border border-[#F4E1BD]">
-            <BatteryMedium className="w-3 h-3 text-[#B07248]" />
-            <span>ปานกลาง</span>
-          </span>
-        );
-      case 'high':
-        return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FDECE8] text-[#9A4A38] border border-[#F6D7D0]">
-            <Zap className="w-3 h-3 text-[#BC5E48]" />
-            <span>ไฟแรง</span>
+          <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-semibold bg-[#FFF9E6] text-[#8A5C1E] border border-[#F4E1BD]">
+            งานกลาง 🌿
           </span>
         );
     }
@@ -164,7 +171,7 @@ export const TaskList: React.FC<TaskListProps> = ({
 
   return (
     <div className="space-y-4 pb-24 select-none">
-      {/* 1. Serene Date & Personal Greeting */}
+      {/* 1. Header & Greeting */}
       <div className="flex items-center justify-between pt-1">
         <div>
           <span className="text-[11px] font-semibold text-[#8C8A7D] uppercase tracking-wider block">
@@ -184,12 +191,52 @@ export const TaskList: React.FC<TaskListProps> = ({
         </button>
       </div>
 
-      {/* 2. Hero Single Focus Task (The One Thing to Do Now) */}
+      {/* 2. User Energy Scale (5 Levels matching Screenshot 2) */}
+      <div className="bg-[#FAF8F5] rounded-3xl p-3.5 border border-[#E8E2D5] shadow-2xs space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-[#2C2C24] uppercase tracking-wider">
+              ระดับพลังงานของคุณ:
+            </span>
+            <span className="text-xs font-bold text-[#6C7764]">
+              {ENERGY_OPTIONS.find((e) => e.id === currentVibeEnergy)?.label}
+            </span>
+          </div>
+          <span className="text-[11px] text-[#7A786C]">
+            {ENERGY_OPTIONS.find((e) => e.id === currentVibeEnergy)?.desc}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-5 gap-1.5">
+          {ENERGY_OPTIONS.map((opt) => {
+            const isSelected = currentVibeEnergy === opt.id;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setCurrentVibeEnergy(opt.id)}
+                className={`py-2 px-1 rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer border ${
+                  isSelected
+                    ? 'bg-[#6C7764] text-white border-[#6C7764] shadow-xs ring-2 ring-[#6C7764]/20 font-bold'
+                    : 'bg-white border-[#E8E2D5] text-[#7A786C] hover:bg-[#FAF8F5]'
+                }`}
+              >
+                <span className="text-base mb-0.5">{opt.emoji}</span>
+                <span className="text-[10px] whitespace-nowrap leading-tight">
+                  {opt.shortName}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 3. Hero Single Focus Task (The One Thing to Do Now) */}
       {topFocusTask && (
         <div className="bg-[#6C7764] text-white rounded-3xl p-4.5 shadow-sm space-y-3 relative overflow-hidden">
           <div className="flex items-center justify-between text-xs">
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-bold backdrop-blur-xs">
-              🎯 งานสำคัญตอนนี้
+              🎯 งานสำคัญตอนนี้ {topFocusTask.flagged && '🚩'}
             </span>
             <div className="flex items-center gap-1 text-white/90 text-xs font-mono">
               <Clock className="w-3 h-3" />
@@ -229,7 +276,31 @@ export const TaskList: React.FC<TaskListProps> = ({
         </div>
       )}
 
-      {/* 3. Quiet Filter Bar */}
+      {/* 4. Category Chips Filter */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+        {[
+          { id: 'all', label: 'ทั้งหมด' },
+          { id: 'personal', label: 'ส่วนตัว 🧸' },
+          { id: 'work', label: 'Work 💼' },
+          { id: 'freelance', label: 'Freelance 🎨' },
+          { id: 'education', label: 'Education 📚' },
+          { id: 'flagged', label: '🚩 ปักธง' },
+        ].map((cat) => (
+          <button
+            key={cat.id}
+            onClick={() => setSelectedCategory(cat.id)}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer border ${
+              selectedCategory === cat.id
+                ? 'bg-[#2C2C24] text-white border-[#2C2C24]'
+                : 'bg-white border-[#E8E2D5] text-[#7A786C] hover:bg-[#FAF8F5]'
+            }`}
+          >
+            {cat.label}
+          </button>
+        ))}
+      </div>
+
+      {/* 5. Status Filter Bar (Pending / All / Overthink) + Search */}
       <div className="flex items-center justify-between border-b border-[#EAE4D9] pb-1 pt-1">
         <div className="flex items-center gap-3">
           <button
@@ -281,7 +352,7 @@ export const TaskList: React.FC<TaskListProps> = ({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ค้นหาชื่องาน..."
+            placeholder="ค้นหาชื่องาน, แท็ก, หรือสถานที่..."
             autoFocus
             className="w-full pl-8.5 pr-8 py-1.5 rounded-xl bg-white border border-[#E8E2D5] text-xs text-[#2C2C24] placeholder:text-[#8A8A7A] outline-none focus:border-[#6C7764]"
           />
@@ -296,7 +367,7 @@ export const TaskList: React.FC<TaskListProps> = ({
         </div>
       )}
 
-      {/* 4. Task List & Micro-steps */}
+      {/* 6. Task List & Micro-steps */}
       <div className="space-y-2.5 pt-1">
         <div className="flex items-center justify-between px-1">
           <span className="text-xs font-bold uppercase tracking-wider text-[#2C2C24]">
@@ -327,7 +398,9 @@ export const TaskList: React.FC<TaskListProps> = ({
                 <div
                   key={task.id}
                   className={`bg-white rounded-2xl border transition-all shadow-2xs hover:shadow-xs p-3.5 space-y-2.5 ${
-                    task.isOverthinkingProne
+                    task.flagged
+                      ? 'border-[#D49E35]/60 bg-gradient-to-r from-white via-white to-[#FFFDF7]'
+                      : task.isOverthinkingProne
                       ? 'border-[#828D7A]/50 bg-gradient-to-r from-white via-white to-[#F4F6F3]'
                       : 'border-[#E8E2D5]'
                   }`}
@@ -343,15 +416,27 @@ export const TaskList: React.FC<TaskListProps> = ({
                     </button>
 
                     <div className="flex-1 min-w-0" onClick={() => toggleExpand(task.id)}>
-                      <div className="flex items-center gap-1.5 text-[11px] text-[#7A786C] mb-1">
-                        <span className="font-semibold text-[#4A4940]">{catInfo.emoji} {catInfo.label}</span>
-                        <span>•</span>
-                        <span className="font-mono">{task.estimatedMinutes} นาที</span>
+                      {/* Badges Row */}
+                      <div className="flex flex-wrap items-center gap-1.5 text-[11px] mb-1.5">
+                        {task.flagged && (
+                          <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-bold bg-[#FFF4E0] text-[#9E6E15] border border-[#F4E1BD]">
+                            🚩 ปักธง
+                          </span>
+                        )}
+                        <span className="font-semibold px-2 py-0.2 rounded-full bg-[#FAF8F5] border border-[#E8E2D5] text-[#4A4940] text-[10px]">
+                          {catInfo.emoji} {catInfo.label}
+                        </span>
+                        {getSizeBadge(task.size)}
+                        {task.urgency === 'high' && (
+                          <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-bold bg-[#FDECE8] text-[#C23A25] border border-[#F6D7D0]">
+                            🔥 งานรีบ
+                          </span>
+                        )}
+                        <span className="font-mono text-[#7A786C] text-[10px]">{task.estimatedMinutes} นาที</span>
                         {task.isOverthinkingProne && (
-                          <>
-                            <span>•</span>
-                            <span className="text-[#9E745E] font-medium">คิดวน</span>
-                          </>
+                          <span className="text-[#9E745E] font-medium text-[10px] bg-[#FAF3EE] px-1.5 py-0.2 rounded-full border border-[#EADBD0]">
+                            🧠 คิดวน
+                          </span>
                         )}
                       </div>
 
@@ -364,7 +449,42 @@ export const TaskList: React.FC<TaskListProps> = ({
                           {task.description}
                         </p>
                       )}
+
+                      {/* Metadata: Dates, Location, Tags */}
+                      <div className="flex flex-wrap items-center gap-2 mt-1.5 text-[10px] text-[#7A786C]">
+                        {task.deadline && (
+                          <span className="inline-flex items-center gap-1 text-[#8C4A1E] font-medium bg-[#FFF5EE] px-2 py-0.5 rounded-lg border border-[#F6DEC9]">
+                            <CalendarIcon className="w-3 h-3 text-[#B85824]" />
+                            <span>เดดไลน์: {task.deadline}</span>
+                            {task.time && <span>({task.time})</span>}
+                          </span>
+                        )}
+                        {task.location && (
+                          <span className="inline-flex items-center gap-1">
+                            <MapPin className="w-3 h-3 text-[#6C7764]" />
+                            <span>{task.location}</span>
+                          </span>
+                        )}
+                        {task.tags && task.tags.length > 0 && (
+                          <div className="flex items-center gap-1 flex-wrap">
+                            {task.tags.map((t) => (
+                              <span key={t} className="px-1.5 py-0.2 rounded-md bg-[#FAF8F5] border border-[#E8E2D5] text-[#6C7764] font-medium">
+                                {t}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
+
+                    {/* Thumbnail if image is attached */}
+                    {task.imageUrl && (
+                      <img
+                        src={task.imageUrl}
+                        alt="attachment"
+                        className="w-12 h-12 rounded-xl object-cover border border-[#E8E2D5] shrink-0"
+                      />
+                    )}
 
                     <button
                       onClick={() => onStartFocus(task)}
@@ -488,7 +608,7 @@ export const TaskList: React.FC<TaskListProps> = ({
         <button
           onClick={onOpenNewTask}
           className="pointer-events-auto w-13 h-13 rounded-full bg-[#6C7764] hover:bg-[#586350] active:scale-90 text-white flex items-center justify-center shadow-lg shadow-[#6C7764]/30 border-2 border-white transition-all cursor-pointer mr-1"
-          title="ระบายงานใหม่ (+)"
+          title="สร้างงานใหม่ (+)"
         >
           <Plus className="w-6 h-6 stroke-[2.5]" />
         </button>
