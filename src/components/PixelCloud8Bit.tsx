@@ -22,12 +22,12 @@ export interface CloudColorThemeItem {
 }
 
 export const CLOUD_COLOR_THEME_LIST: CloudColorThemeItem[] = [
-  { id: 'white', name: 'ขาวธรรมชาติ', colorHex: '#FFFFFF', body: '#FFFFFF', shade: '#EAE3D5', desc: 'คลาสสิก ปุยเมฆ' },
-  { id: 'blue', name: 'ฟ้าพาสเทล', colorHex: '#BAE6FD', body: '#E0F2FE', shade: '#BAE6FD', desc: 'สงบ สบายตา' },
-  { id: 'pink', name: 'ชมพูซากุระ', colorHex: '#FBCFE8', body: '#FCE7F3', shade: '#FBCFE8', desc: 'สดใส ใจฟู' },
-  { id: 'purple', name: 'ม่วงลาเวนเดอร์', colorHex: '#E9D5FF', body: '#F3E8FF', shade: '#E9D5FF', desc: 'ผ่อนคลาย สมาธิ' },
-  { id: 'peach', name: 'ส้มพีชหวาน', colorHex: '#FED7AA', body: '#FFEDD5', shade: '#FED7AA', desc: 'อบอุ่น มีพลัง' },
-  { id: 'green', name: 'เขียวมิ้นต์', colorHex: '#BBF7D0', body: '#DCFCE7', shade: '#BBF7D0', desc: 'สดชื่น เยียวยา' },
+  { id: 'white', name: 'ขาวธรรมชาติ (Linen)', colorHex: '#FDFBF7', body: '#FFFFFF', shade: '#EFEBE1', desc: 'คลาสสิก อบอุ่น สบายตา' },
+  { id: 'sage', name: 'เขียวเสจ (Sage Mist)', colorHex: '#D8E2D3', body: '#EDF3EB', shade: '#D2DEC9', desc: 'ปลอบประโลม ลดเครียด' },
+  { id: 'terracotta', name: 'พีชเอิร์ธโทน (Terracotta)', colorHex: '#F3D9CE', body: '#FCF2EE', shade: '#EED0C3', desc: 'อบอุ่น สร้างแรงบันดาลใจ' },
+  { id: 'dusk', name: 'ฟ้าหม่นตอนเช้า (Morning Dusk)', colorHex: '#D2DFEC', body: '#E8F1F8', shade: '#C8D9E7', desc: 'สมองปลอดโปร่ง ไร้กังวล' },
+  { id: 'oatmeal', name: 'ข้าวโอ๊ต (Warm Oatmeal)', colorHex: '#EAE1D1', body: '#F7F3EB', shade: '#E3D8C4', desc: 'ผ่อนคลาย เรียบง่าย สไตล์เซน' },
+  { id: 'lavender', name: 'ม่วงตุ่น (Lavender Haze)', colorHex: '#DFD8EB', body: '#F2EEF8', shade: '#D4CADA', desc: 'เพิ่มสมาธิ ชวนคิดบวก' },
 ];
 
 export const CLOUD_COLOR_THEMES = CLOUD_COLOR_THEME_LIST;

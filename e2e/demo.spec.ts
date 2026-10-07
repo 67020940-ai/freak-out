@@ -10,20 +10,21 @@ test.describe('Freak Out! Pitch Hero Flow Walkthrough', () => {
     await page.goto('/?reset=1');
     await delay(800);
 
-    // ตรวจสอบว่าแอปเปิดขึ้นมาและแสดงหมอกจางๆ
-    await expect(page.getByText(/หมอกจางๆ/i).first()).toBeVisible();
+    // ตรวจสอบว่าแอปเปิดขึ้นมาและแสดงคำทักทายกับบรรยากาศที่สงบ
     await expect(page.getByText(/โฟกัสทีละอย่างนะ/i)).toBeVisible();
+    await expect(page.getByText(/บรรยากาศ: ปลอดโปร่ง สงบนิ่ง/i).first()).toBeVisible();
 
-    // 2. เลือกระดับพลังงาน "2. ล้า ๆ" (Overwhelmed & Tired)
-    const energyTiredBtn = page.getByRole('button', { name: /2. ล้า ๆ/i });
-    await expect(energyTiredBtn).toBeVisible();
-    await energyTiredBtn.click();
-    await delay(600);
-
-    // 3. กดแท็บ Smart Pick เพื่อให้ระบบช่วยตัดทางเลือกเหลือ 1 งาน
+    // 2. กดแท็บ Smart Pick เพื่อให้ระบบ Cognitive Companion ช่วยตัดทางเลือกเหลือ 1 งาน
     const smartPickTab = page.getByTitle(/AI Smart Pick/i);
     await smartPickTab.click();
     await delay(700);
+
+    // เลือกสภาพใจ: 'สมองล้า / คิดวน' ในขั้นตอนที่ 1
+    const tiredMindBtn = page.getByRole('button', { name: /สมองล้า \/ คิดวน/i });
+    if (await tiredMindBtn.isVisible()) {
+      await tiredMindBtn.click();
+      await delay(500);
+    }
 
     // ยืนยันว่าหน้า Smart Pick แนะนำงานอีเมล (demo-email)
     await expect(page.getByText(/ส่งอีเมลขอเลื่อนส่งรายงานกับอาจารย์/i).first()).toBeVisible();

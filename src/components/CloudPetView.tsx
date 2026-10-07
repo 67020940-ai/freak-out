@@ -118,7 +118,9 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
   const [petFeedback, setPetFeedback] = useState<string | null>(null);
   const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
 
-  // Petting interaction
+  const [isBouncing, setIsBouncing] = useState(false);
+
+  // Petting interaction with lively squish and bounce movement
   const handlePet = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -127,6 +129,14 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
     const newHeart = { id: Date.now(), x, y };
     setHearts((prev) => [...prev.slice(-4), newHeart]);
 
+    // Trigger lively spring bounce & switch pose temporarily
+    setIsBouncing(true);
+    setActivePose('celebrate');
+    setTimeout(() => {
+      setIsBouncing(false);
+      setActivePose('idle');
+    }, 600);
+
     onUpdatePet((prev) => ({
       ...prev,
       affinity: Math.min(100, prev.affinity + 2),
@@ -134,11 +144,11 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
     }));
 
     const feedbackPhrases = [
-      'งุ้ยยย อบอุ่นจังเลย ✨',
-      'ลุยงานด้วยกันต่อน้า! 💖',
-      'สมองโล่งขึ้นเยอะเลยฮะ ☁️',
-      'พร้อมลุยภารกิจแล้ว! 🚀',
-      'ขอบคุณที่ดูแลเค้าน้า 🌸'
+      'อบอุ่นจังเลยนะ',
+      'ลุยงานด้วยกันต่อนะ',
+      'สมองโล่งขึ้นเยอะเลย',
+      'พร้อมลุยภารกิจถัดไปแล้ว',
+      'ขอบคุณที่แวะมาทักทายนะ'
     ];
     setPetFeedback(feedbackPhrases[Math.floor(Math.random() * feedbackPhrases.length)]);
   };
@@ -151,13 +161,20 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
       colors: type === 'water' ? ['#70B8FF', '#A0D2FF', '#FFFFFF'] : ['#E8A87C', '#C38D9E', '#E27D60'],
     });
 
+    setIsBouncing(true);
+    setActivePose('celebrate');
+    setTimeout(() => {
+      setIsBouncing(false);
+      setActivePose('idle');
+    }, 700);
+
     onUpdatePet((prev) => ({
       ...prev,
       affinity: Math.min(100, prev.affinity + 10),
       stardust: prev.stardust + 5,
     }));
 
-    setPetFeedback(type === 'water' ? 'สดชื่นเหมือนฝนตกใหม่ๆ เลย! 💧' : 'พลังงานโฟกัสชาร์จเต็มเปี่ยม! ☕');
+    setPetFeedback(type === 'water' ? 'สดชื่นเหมือนฝนตกใหม่ๆ เลย' : 'ชาร์จพลังโฟกัสเต็มเปี่ยม');
   };
 
   const handleSaveName = () => {
@@ -176,15 +193,21 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
           <div className="flex flex-col items-center w-full">
             {/* Speech Bubble */}
             <div className="mb-2 px-3.5 py-1.5 rounded-2xl bg-white border border-[#E8E2D5] text-xs font-semibold text-[#2C2C24] shadow-2xs flex items-center gap-2 max-w-xs text-center">
-              <Smile className="w-4 h-4 text-[#D49E35] shrink-0" />
-              <span className="truncate">{petFeedback || `สวัสดีฮับ! วันนี้ลุยไปด้วยกันนะ`}</span>
+              <Smile className="w-4 h-4 text-[#828D7A] shrink-0" />
+              <span className="truncate">{petFeedback || `สวัสดี วันนี้ค่อยๆ ทำทีละอย่างนะ`}</span>
             </div>
 
-            {/* Clickable Pet Frame with Hearts */}
-            <div
+            {/* Clickable Pet Frame with Spring Physics Squish & Bounce Movement */}
+            <motion.div
               onClick={handlePet}
+              animate={isBouncing ? {
+                scale: [1, 1.18, 0.92, 1.08, 1],
+                y: [0, -16, 4, -6, 0],
+                rotate: [0, -4, 4, -2, 0]
+              } : { scale: 1, y: 0, rotate: 0 }}
+              transition={{ duration: 0.55, ease: "easeOut" }}
               className="relative w-44 h-44 sm:w-52 sm:h-52 rounded-3xl p-3 bg-white border border-[#E8E2D5] shadow-sm hover:shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center group select-none"
-              title="คลิกเพื่อลูบหัวน้องเมฆ"
+              title="แตะเพื่อลูบหัวน้องเมฆ"
             >
               <div className="w-full h-full flex items-center justify-center p-2">
                 <PixelCloud8Bit pose={activePose} size="lg" accessory={pet.equippedAccessory} color={pet.color || 'white'} interactive={false} />
@@ -202,16 +225,16 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
                     style={{ left: h.x, top: h.y }}
                     className="absolute pointer-events-none text-rose-500 font-bold text-lg"
                   >
-                    💖
+                    ♥
                   </motion.div>
                 ))}
               </AnimatePresence>
 
               {/* Little prompt */}
               <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-[#8C8A7D] font-medium bg-white/90 px-2 py-0.5 rounded-full border border-[#EAE4D9] opacity-80 group-hover:opacity-100 transition">
-                แตะเพื่อลูบหัว ✨
+                แตะเพื่อลูบหัว
               </div>
-            </div>
+            </motion.div>
 
             {/* Pet Name & Title */}
             <div className="mt-4 flex items-center gap-2">

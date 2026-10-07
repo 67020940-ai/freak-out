@@ -199,52 +199,45 @@ export const TaskList: React.FC<TaskListProps> = ({
       {/* Atmospheric Mirror: Dynamic sky condition based on tasks completed today */}
       {(() => {
         const completedCount = completedTasks.length;
-        let skyGradient = 'from-[#ECEAE5] via-[#E8E4DC] to-[#DFD9CD]';
-        let skyBorder = 'border-[#D8D0C0]';
-        let skyTitle = '🌫️ หมอกจางๆ (Hazy Fog)';
-        let skyDesc = 'ยังไม่ได้เริ่มโฟกัสวันนี้ ค่อยๆ ก้าวทีละ 2 นาทีนะ';
+        let skyGradient = 'from-[#F5F2EB] to-[#ECE7DE]';
+        let skyBorder = 'border-[#E4DCD0]';
+        let skyTitle = 'บรรยากาศ: ปลอดโปร่ง สงบนิ่ง';
+        let skyDesc = 'ก้าวทีละ 1 เรื่องเล็กๆ ไม่ต้องรีบ สมองจะค่อยๆ ผ่อนคลาย';
         let pose: 'idle' | 'focus' | 'celebrate' = 'idle';
 
         if (completedCount === 1) {
-          skyGradient = 'from-[#E0EFF8] via-[#E8F4F8] to-[#FAF8F5]';
-          skyBorder = 'border-[#CFE4F0]';
-          skyTitle = '⛅ ท้องฟ้าเริ่มเปิด (Clearing Sky)';
-          skyDesc = 'สำเร็จไป 1 งานแล้ว! สมองเริ่มโล่งขึ้นอย่างเห็นได้ชัด';
+          skyGradient = 'from-[#EDF4F7] to-[#E3ECF2]';
+          skyBorder = 'border-[#D2DFE8]';
+          skyTitle = 'บรรยากาศ: ท้องฟ้าเริ่มเปิดกว้าง';
+          skyDesc = 'สำเร็จไป 1 งานแล้ว สมองโล่งขึ้นอย่างชัดเจน';
           pose = 'focus';
         } else if (completedCount >= 2) {
-          skyGradient = 'from-[#FFF7D6] via-[#EAF4ED] to-[#E5F0FA]';
-          skyBorder = 'border-[#F0E4B8]';
-          skyTitle = '🌈 ฟ้าใสแดดออก & สายรุ้ง (Zen Rainbow)';
-          skyDesc = `เคลียร์สำเร็จ ${completedCount} งานแล้ว! วันนี้คุณเก่งมากๆ เลย`;
+          skyGradient = 'from-[#F3F7EE] to-[#E5EFE0]';
+          skyBorder = 'border-[#CDE0C5]';
+          skyTitle = 'บรรยากาศ: สมาธิบริสุทธิ์ วันนี้ทำได้ยอดเยี่ยม';
+          skyDesc = `เคลียร์สำเร็จไป ${completedCount} งานแล้ว พักผ่อนและชื่นชมตัวเองได้เต็มที่`;
           pose = 'celebrate';
         }
 
         return (
           <div
             key={celebrateKey}
-            className={`relative rounded-3xl p-4 bg-gradient-to-br ${skyGradient} border ${skyBorder} shadow-2xs overflow-hidden transition-all duration-700 animate-in fade-in`}
+            className={`relative rounded-3xl p-5 bg-gradient-to-br ${skyGradient} border ${skyBorder} shadow-2xs overflow-hidden transition-all duration-700 animate-in fade-in`}
           >
-            {/* Subtle decorative rainbow arc when 2+ tasks completed */}
-            {completedCount >= 2 && (
-              <div className="absolute -top-12 -right-8 w-44 h-44 rounded-full border-8 border-rose-300/40 border-t-amber-300/40 border-r-emerald-300/40 border-b-sky-300/40 pointer-events-none blur-[1px]" />
-            )}
-
-            <div className="flex items-center justify-between gap-3 relative z-10">
-              <div className="flex items-center gap-3">
-                <div className="w-14 h-14 bg-white/70 backdrop-blur-xs rounded-2xl border border-white/80 shadow-2xs flex items-center justify-center p-1 shrink-0">
+            <div className="flex items-center justify-between gap-4 relative z-10">
+              <div className="flex items-center gap-3.5">
+                <div className="w-13 h-13 bg-white/80 backdrop-blur-xs rounded-2xl border border-white/90 shadow-2xs flex items-center justify-center p-1 shrink-0">
                   <PixelCloud8Bit pose={pose} size="sm" accessory={petAccessory} interactive={false} />
                 </div>
                 <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-bold text-[#2C2C24]">{skyTitle}</span>
-                  </div>
-                  <p className="text-[11px] text-[#6E6D62] mt-0.5 leading-snug">{skyDesc}</p>
+                  <h3 className="text-sm font-bold font-heading text-[#2C2C24] leading-snug">{skyTitle}</h3>
+                  <p className="text-xs text-[#6E6D62] mt-1 leading-relaxed">{skyDesc}</p>
                 </div>
               </div>
 
               <div className="text-right shrink-0">
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-white/80 border border-[#E2DACB] text-[#55634E] shadow-2xs">
-                  เสร็จ {completedCount} งาน
+                <span className="text-[11px] font-mono font-bold px-3 py-1 rounded-full bg-white/90 border border-[#E2DACB] text-[#55634E] shadow-2xs">
+                  {completedCount} สำเร็จ
                 </span>
               </div>
             </div>
@@ -252,21 +245,15 @@ export const TaskList: React.FC<TaskListProps> = ({
         );
       })()}
 
-      {/* 2. User Energy Scale - Vertical Capsule Gauge (Screenshot 23.19.31) */}
-      <EnergyGaugeSlider
-        value={currentVibeEnergy}
-        onChange={handleSelectEnergy}
-      />
-
-      {/* 3. Hero Single Focus Task (The One Thing to Do Now) */}
+      {/* 2. Hero Single Focus Task (The One Thing to Do Now) */}
       {topFocusTask && (
-        <div className="bg-[#6C7764] text-white rounded-3xl p-4.5 shadow-sm space-y-3 relative overflow-hidden">
+        <div className="bg-[#6C7764] text-white rounded-3xl p-5 shadow-sm space-y-3.5 relative overflow-hidden">
           <div className="flex items-center justify-between text-xs">
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-bold backdrop-blur-xs">
-              งานสำคัญตอนนี้ {topFocusTask.flagged && '★'}
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-white text-[11px] font-semibold backdrop-blur-xs">
+              งานสำคัญที่สุดตอนนี้ {topFocusTask.flagged && '★'}
             </span>
-            <div className="flex items-center gap-1 text-white/90 text-xs font-mono">
-              <Clock className="w-3 h-3" />
+            <div className="flex items-center gap-1.5 text-white/90 text-xs font-mono">
+              <Clock className="w-3.5 h-3.5" />
               <span>~{topFocusTask.estimatedMinutes} นาที</span>
             </div>
           </div>
@@ -307,11 +294,11 @@ export const TaskList: React.FC<TaskListProps> = ({
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
         {[
           { id: 'all', label: 'ทั้งหมด' },
-          { id: 'personal', label: 'ส่วนตัว 🧸' },
-          { id: 'work', label: 'Work 💼' },
-          { id: 'freelance', label: 'Freelance 🎨' },
-          { id: 'education', label: 'Education 📚' },
-          { id: 'flagged', label: '🚩 ปักธง' },
+          { id: 'personal', label: 'ส่วนตัว' },
+          { id: 'work', label: 'งาน' },
+          { id: 'freelance', label: 'ฟรีแลนซ์' },
+          { id: 'education', label: 'การเรียน' },
+          { id: 'flagged', label: 'ปักธง' },
         ].map((cat) => (
           <button
             key={cat.id}

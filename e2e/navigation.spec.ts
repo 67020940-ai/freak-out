@@ -20,11 +20,6 @@ test.describe('Freak Out! App Navigation & Feature Tests', () => {
     // ตรวจสอบปุ่มฉุกเฉิน SOS
     const sosBtn = page.getByRole('button', { name: /SOS/i });
     await expect(sosBtn).toBeVisible();
-
-    // ตรวจสอบปุ่มระดับพลังงาน (1-5)
-    await expect(page.getByRole('button', { name: /1. หมดแรง/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /3. พอไหว/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /5. พลังเต็ม/i })).toBeVisible();
   });
 
   test('2. สลับแท็บเมนูด้านล่างได้ครบทุกหน้า (Bottom Navigation)', async ({ page }) => {
@@ -85,14 +80,14 @@ test.describe('Freak Out! App Navigation & Feature Tests', () => {
     }
   });
 
-  test('5. ทดสอบการเปลี่ยนระดับพลังงาน (Energy Selector)', async ({ page }) => {
-    // เลือกระดับพลังงาน "4. พร้อมลุย"
-    const readyEnergyBtn = page.getByRole('button', { name: /4. พร้อมลุย/i });
-    await readyEnergyBtn.click();
+  test('5. ทดสอบเปิด Modal สลับ Focus Spaces (Notion-style Spaces)', async ({ page }) => {
+    // กดปุ่มสลับ Space ที่ Header
+    const spaceBtn = page.getByRole('button', { name: /ห้องหลัก/i });
+    await expect(spaceBtn).toBeVisible();
+    await spaceBtn.click();
 
-    // เลือกระดับพลังงาน "1. หมดแรง"
-    const exhaustedEnergyBtn = page.getByRole('button', { name: /1. หมดแรง/i });
-    await exhaustedEnergyBtn.click();
-    await expect(exhaustedEnergyBtn).toBeVisible();
+    // ยืนยันว่าหน้าต่างสลับ Focus Spaces ปรากฏขึ้น
+    await expect(page.getByText(/Focus Spaces/i).first()).toBeVisible();
+    await expect(page.getByText(/Thesis & Research Lab/i).first()).toBeVisible();
   });
 });

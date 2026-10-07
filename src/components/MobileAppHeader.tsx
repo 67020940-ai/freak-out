@@ -14,6 +14,8 @@ interface MobileAppHeaderProps {
   onOpenPricing: () => void;
   onOpenDailyReward: () => void;
   isProUser: boolean;
+  activeSpaceName?: string;
+  onOpenSpaces?: () => void;
 }
 
 export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
@@ -25,6 +27,8 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
   onOpenPricing,
   onOpenDailyReward,
   isProUser,
+  activeSpaceName = 'ห้องหลัก',
+  onOpenSpaces,
 }) => {
   const secretTap = useSecretTap(resetToDemo);
 
@@ -50,36 +54,59 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
   return (
     <header className="px-4 py-3 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#EAE4D9] shrink-0 z-30 select-none">
       <div className="flex items-center justify-between gap-3 w-full">
-        {/* Left: Mascot Pet Avatar & Name */}
-        <button
-          onClick={() => {
-            secretTap();
-            onTabChange('cloud-pet');
-          }}
-          className="flex items-center gap-2.5 group p-0.5 rounded-2xl hover:bg-[#EFE9DE] transition active:scale-95 text-left cursor-pointer shrink-0"
-          title="ห้องของน้องนูเบ้"
-        >
-          <div className="relative shrink-0">
-            <div className="w-9 h-9 rounded-xl overflow-hidden bg-white border border-[#E8E2D5] shadow-2xs flex items-center justify-center p-0.5">
-              <PixelCloud8Bit pose="idle" size="sm" accessory={pet.equippedAccessory} interactive={false} />
+        {/* Left: Mascot Pet Avatar & Space Switcher (Notion-style) */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              secretTap();
+              onTabChange('cloud-pet');
+            }}
+            className="flex items-center gap-2 group p-0.5 rounded-2xl hover:bg-[#EFE9DE] transition active:scale-95 text-left cursor-pointer shrink-0"
+            title="ห้องของน้องนูเบ้"
+          >
+            <div className="relative shrink-0">
+              <div className="w-9 h-9 rounded-xl overflow-hidden bg-white border border-[#E8E2D5] shadow-2xs flex items-center justify-center p-0.5">
+                <PixelCloud8Bit pose="idle" size="sm" accessory={pet.equippedAccessory} color={pet.color || 'white'} interactive={false} />
+              </div>
+              <span className="absolute -bottom-1 -right-1 px-1 py-0.2 rounded-full bg-[#6C7764] text-white text-[9px] font-bold shadow-2xs border border-[#FAF8F5]">
+                L{pet.level}
+              </span>
             </div>
-            <span className="absolute -bottom-1 -right-1 px-1 py-0.2 rounded-full bg-[#6C7764] text-white text-[9px] font-bold shadow-2xs border border-[#FAF8F5]">
-              L{pet.level}
-            </span>
-          </div>
+          </button>
 
-          <div className="shrink-0">
-            <span className="font-heading font-bold text-sm text-[#2C2C24] whitespace-nowrap block">
-              {pet.name}
+          {/* Notion-style Space Selector Button */}
+          <button
+            onClick={onOpenSpaces}
+            className="flex flex-col text-left px-2 py-1 rounded-xl hover:bg-[#EFE9DE] transition cursor-pointer"
+            title="สลับ Focus Space (Notion Workspace)"
+          >
+            <div className="flex items-center gap-1">
+              <span className="font-heading font-bold text-xs text-[#2C2C24] leading-tight truncate max-w-[130px]">
+                {activeSpaceName}
+              </span>
+              <span className="text-[10px] text-[#8C8A7D]">▾</span>
+            </div>
+            <span className="text-[10px] text-[#7A786C] flex items-center gap-1">
+              <span>{isProUser ? 'PRO Workspace' : 'Free Canvas'}</span>
             </span>
-            <span className="text-[10px] text-[#7A786C] whitespace-nowrap">
-              เพื่อนคู่คิด
-            </span>
-          </div>
-        </button>
+          </button>
+        </div>
 
-        {/* Right: Essential Focus Actions Only (Stardust + SOS) */}
+        {/* Right: Pro Badge / Stardust + SOS */}
         <div className="flex items-center gap-2 shrink-0">
+          {/* Pro Mode Badge / Upgrade Trigger */}
+          <button
+            onClick={onOpenPricing}
+            className={`px-2 py-1 rounded-xl text-[10px] font-bold border transition cursor-pointer flex items-center gap-1 ${
+              isProUser
+                ? 'bg-[#FFF4E0] border-[#F4E1BD] text-[#B87A24] shadow-2xs'
+                : 'bg-[#F2EEE9] border-[#E2DACB] text-[#7A786C] hover:bg-[#EAE4D9]'
+            }`}
+            title={isProUser ? 'คุณเป็นสมาชิก Freak Out PRO' : 'อัปเกรดเป็น PRO'}
+          >
+            <Crown className="w-3 h-3 fill-current" />
+            <span>{isProUser ? 'PRO' : 'FREE'}</span>
+          </button>
           {/* Daily Reward / Stardust */}
           <button
             onClick={onOpenDailyReward}

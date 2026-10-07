@@ -186,7 +186,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({
             }`}
           >
             <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#C49B5C] text-white shadow-2xs">
-              ยอดนิยม 🔥
+              แผนแนะนำ
             </div>
             <div>
               <span className="text-xs font-bold text-[#B87A24] uppercase">Freak Out Pro</span>
@@ -197,26 +197,29 @@ export const PricingModal: React.FC<PricingModalProps> = ({
                 </span>
               </div>
               <p className="text-[11px] text-[#7A786C] mt-1">
-                ผู้ช่วยส่วนตัวอัจฉริยะ ซิงค์ปฏิทิน และฟีเจอร์พรีเมียมครบวงจร
+                ปลดล็อกระบบ Focus Spaces สไตล์ Notion, AI De-clutter ไม่จำกัด และกันนัดซ้อนใน Google Calendar
               </p>
 
               <div className="space-y-2 mt-4 text-xs text-[#2C2C24]">
                 <div className="flex items-center gap-1.5 font-bold text-[#3B5433]">
                   <Check className="w-3.5 h-3.5 text-[#5F7554] shrink-0" />
-                  <span>ไร้โฆษณาทุกรูปแบบ 100%</span>
+                  <span>สร้าง Focus Spaces (ห้องทำงานแยกตามบริบท) ไม่จำกัด</span>
+                </div>
+                <div className="flex items-center gap-1.5 font-bold text-[#55634E]">
+                  <Zap className="w-3.5 h-3.5 text-[#6C7764] shrink-0" />
+                  <span>AI Cognitive Copilot & Decompose ไม่จำกัด</span>
                 </div>
                 <div className="flex items-center gap-1.5 font-bold text-[#7C5CA5]">
-                  <Zap className="w-3.5 h-3.5 text-[#7C5CA5] shrink-0" />
-                  <span>Two-Way Calendar Sync & Focus Shield</span>
-                  <span className="text-[9px] bg-[#F1EBF7] text-[#7C5CA5] px-1.5 py-0.2 rounded-full ml-auto">Roadmap</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Shield className="w-3.5 h-3.5 text-[#828D7A] shrink-0" />
-                  <span>น้ำยาแช่แข็งสตรีค (Streak Freeze) ฟรีทุกเดือน</span>
+                  <Shield className="w-3.5 h-3.5 text-[#7C5CA5] shrink-0" />
+                  <span>Google Calendar Auto-Shielding ป้องกันนัดซ้อนอัตโนมัติ</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-[#C49B5C] shrink-0" />
-                  <span>ปลดล็อกร่างวิวัฒนาการพิเศษของน้องเมฆ</span>
+                  <span>ปลดล็อกโทนสีธรรมชาติ Nordic Earth ทั้งหมดของน้องเมฆ</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[#3B5433]">
+                  <Check className="w-3.5 h-3.5 text-[#5F7554] shrink-0" />
+                  <span>ไร้โฆษณา สะอาดตา 100%</span>
                 </div>
               </div>
             </div>

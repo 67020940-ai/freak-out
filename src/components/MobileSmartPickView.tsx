@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Task, EnergyLevel } from '../types';
 import { recommendBestTask } from '../utils/aiHelper';
 import { MascotCloud } from './MascotCloud';
-import { EnergyGaugeSlider } from './EnergyGaugeSlider';
 import {
   Brain,
   Clock,
@@ -10,7 +9,12 @@ import {
   Sparkles,
   ArrowRight,
   CheckCircle2,
-  Plus
+  Plus,
+  MessageCircle,
+  HelpCircle,
+  Send,
+  Zap,
+  RotateCcw
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -23,6 +27,20 @@ interface MobileSmartPickViewProps {
   onOpenNewTask: () => void;
 }
 
+type MentalStateOption = {
+  id: string;
+  label: string;
+  sub: string;
+  bias: 'easy' | 'urgent' | 'creative' | 'quick';
+};
+
+const MENTAL_STATE_OPTIONS: MentalStateOption[] = [
+  { id: 'overwhelmed', label: 'สมองล้า / คิดวน', sub: 'ไม่อยากใช้พลังสมองเยอะ', bias: 'easy' },
+  { id: 'deadline', label: 'กังวลเดดไลน์', sub: 'อยากเคลียร์สิ่งที่ค้างคาใจ', bias: 'urgent' },
+  { id: 'lazy_start', label: 'ขี้เกียจเริ่ม / ผัดวัน', sub: 'ขอแค่งานจิ๋ว 5 นาทีให้เริ่มได้', bias: 'quick' },
+  { id: 'clear_focus', label: 'พร้อมมีสมาธิ', sub: 'อยากลุยงานชิ้นสำคัญ', bias: 'creative' },
+];
+
 export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
   tasks,
   energy = 'okay',
@@ -31,30 +49,53 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
   onStartFocus,
   onOpenNewTask,
 }) => {
-  const [selectedEnergy, setSelectedEnergy] = useState<EnergyLevel>(energy);
+  const [mentalState, setMentalState] = useState<string>('overwhelmed');
   const [availableMinutes, setAvailableMinutes] = useState<number>(25);
   const [isThinking, setIsThinking] = useState(false);
   const [isDecomposing, setIsDecomposing] = useState(false);
 
-  // Sync external energy prop changes
-  React.useEffect(() => {
-    setSelectedEnergy(energy);
-  }, [energy]);
+  // Conversational Mind Offload State
+  const [conversationStep, setConversationStep] = useState<1 | 2 | 3>(1);
+  const [customWorryText, setCustomWorryText] = useState('');
+  const [aiCustomAdvice, setAiCustomAdvice] = useState<string | null>(null);
 
   const pendingTasks = tasks.filter((t) => !t.completed);
-  const recommendation = recommendBestTask(tasks, selectedEnergy, availableMinutes);
 
-  const handleEnergyChange = (newEnergy: EnergyLevel) => {
-    setSelectedEnergy(newEnergy);
-    onEnergyChange?.(newEnergy);
+  // Filter tasks bias based on selected mental state
+  const selectedStateObj = MENTAL_STATE_OPTIONS.find((o) => o.id === mentalState) || MENTAL_STATE_OPTIONS[0];
+
+  const effectiveEnergy: EnergyLevel =
+    selectedStateObj.bias === 'easy' || selectedStateObj.bias === 'quick'
+      ? 'depleted'
+      : selectedStateObj.bias === 'urgent'
+      ? 'ready'
+      : 'full';
+
+  const recommendation = recommendBestTask(tasks, effectiveEnergy, availableMinutes);
+
+  const handleSelectMentalState = (stateId: string) => {
+    setMentalState(stateId);
+    setConversationStep(2);
     setIsThinking(true);
-    setTimeout(() => setIsThinking(false), 250);
+    setTimeout(() => setIsThinking(false), 300);
   };
 
-  const handleTimeChange = (time: number) => {
-    setAvailableMinutes(time);
+  const handleSelectTime = (mins: number) => {
+    setAvailableMinutes(mins);
+    setConversationStep(3);
     setIsThinking(true);
-    setTimeout(() => setIsThinking(false), 250);
+    setTimeout(() => setIsThinking(false), 300);
+  };
+
+  const handleCustomWorrySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customWorryText.trim()) return;
+    setIsThinking(true);
+    setTimeout(() => {
+      setAiCustomAdvice(`เข้าใจเลยนะที่รู้สึกว่า "${customWorryText}" ลองตัดความกังวลทิ้งไปก่อน แล้วหยิบ 1 งานนี้มาเริ่มเพียง 2 นาทีแรก`);
+      setIsThinking(false);
+      setConversationStep(3);
+    }, 400);
   };
 
   const handleDecomposePickedTask = async () => {
@@ -79,56 +120,138 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
     onStartFocus(task);
   };
 
+  const handleResetFlow = () => {
+    setConversationStep(1);
+    setAiCustomAdvice(null);
+    setCustomWorryText('');
+  };
+
   return (
-    <div className="space-y-4 pb-6">
-      {/* Hero Mascot Header */}
-      <div className="bg-[#FAF8F5] rounded-3xl p-4 border border-[#E8E2D5] shadow-2xs text-center relative overflow-hidden">
-        <div className="flex items-center justify-center gap-3">
+    <div className="space-y-4 pb-8 select-none">
+      {/* 1. Conversational Companion Header */}
+      <div className="bg-[#FAF8F5] rounded-3xl p-5 border border-[#E8E2D5] shadow-2xs space-y-3 relative overflow-hidden">
+        <div className="flex items-center gap-3.5">
           <MascotCloud
-            mood="thinking"
-            size="md"
-            useArtwork={true}
-            bubbleText="เหนื่อยมั้ย? ส่งงานมาให้เค้าช่วยคัด 1 งานนะ"
+            mood={conversationStep === 3 ? 'celebrate' : 'thinking'}
+            size="sm"
+            useArtwork={false}
           />
-        </div>
-        <h2 className="text-lg font-bold font-heading text-[#2C2C24] mt-2">
-          AI Smart Pick
-        </h2>
-        <p className="text-xs text-[#7A786C] max-w-xs mx-auto mt-0.5">
-          ลดอาการคิดเยอะ (Analysis Paralysis) โดยเลือกให้เหลือเพียง 1 งานที่เหมาะที่สุด
-        </p>
-      </div>
+          <div className="flex-1">
+            <span className="text-[10px] font-bold text-[#828D7A] uppercase tracking-wider block">
+              Cognitive Companion
+            </span>
+            <h2 className="text-base font-bold font-heading text-[#2C2C24]">
+              {conversationStep === 1
+                ? 'ตอนนี้รู้สึกหนักหัวเรื่องอะไรเป็นพิเศษ?'
+                : conversationStep === 2
+                ? 'อยากให้เวลากับตัวเองกี่นาทีดี?'
+                : 'คัดมาให้เหลือเพียง 1 งานแล้ว'}
+            </h2>
+          </div>
 
-      {/* Energy Level Selector (Vertical Capsule Gauge) */}
-      <EnergyGaugeSlider
-        value={selectedEnergy}
-        onChange={handleEnergyChange}
-      />
-
-      {/* Available Time Selector */}
-      <div className="bg-[#FAF8F5] rounded-3xl p-4 border border-[#E8E2D5] shadow-2xs space-y-2.5">
-        <label className="block text-xs font-bold text-[#2C2C24] uppercase tracking-wider">
-          2. มีเวลาว่างตอนนี้กี่นาที?
-        </label>
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-          {[15, 25, 45, 60].map((mins) => (
+          {conversationStep > 1 && (
             <button
-              key={mins}
-              type="button"
-              onClick={() => handleTimeChange(mins)}
-              className={`flex-1 min-w-[70px] py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
-                availableMinutes === mins
-                  ? 'bg-[#6C7764] text-white border-[#6C7764] shadow-xs'
-                  : 'bg-white border-[#E8E2D5] text-[#7A786C] hover:bg-[#F3EFE6]'
-              }`}
+              onClick={handleResetFlow}
+              className="p-1.5 rounded-xl hover:bg-[#EAE4D9] text-[#8C8A7D] hover:text-[#2C2C24] transition cursor-pointer"
+              title="เริ่มคุยใหม่"
             >
-              {mins} นาที
+              <RotateCcw className="w-4 h-4" />
             </button>
-          ))}
+          )}
+        </div>
+
+        {/* Interactive Step 1: Mind Offloader Question */}
+        {conversationStep === 1 && (
+          <div className="space-y-2 pt-1 animate-in fade-in duration-200">
+            <div className="grid grid-cols-2 gap-2">
+              {MENTAL_STATE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => handleSelectMentalState(opt.id)}
+                  className={`p-3 rounded-2xl border text-left transition cursor-pointer ${
+                    mentalState === opt.id
+                      ? 'bg-white border-[#6C7764] shadow-xs ring-2 ring-[#6C7764]/20'
+                      : 'bg-white/80 border-[#E8E2D5] hover:bg-white hover:border-[#D5CDC0]'
+                  }`}
+                >
+                  <span className="text-xs font-bold text-[#2C2C24] block leading-snug">
+                    {opt.label}
+                  </span>
+                  <span className="text-[10px] text-[#7A786C] block mt-0.5 leading-tight">
+                    {opt.sub}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* Optional write-in box to vent thoughts */}
+            <form onSubmit={handleCustomWorrySubmit} className="pt-1 flex items-center gap-2">
+              <input
+                type="text"
+                value={customWorryText}
+                onChange={(e) => setCustomWorryText(e.target.value)}
+                placeholder="หรือพิมพ์ระบายสั้นๆ เช่น กลัวงานออกมาไม่ดี..."
+                className="flex-1 px-3 py-2 rounded-xl border border-[#E2DACB] bg-white text-xs text-[#2C2C24] outline-none placeholder:text-[#9A988D] focus:border-[#6C7764]"
+              />
+              <button
+                type="submit"
+                disabled={!customWorryText.trim()}
+                className="p-2 rounded-xl bg-[#6C7764] hover:bg-[#586350] text-white disabled:opacity-40 transition cursor-pointer"
+              >
+                <Send className="w-3.5 h-3.5" />
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* Interactive Step 2: Time Duration Selection */}
+        {conversationStep === 2 && (
+          <div className="space-y-2 pt-1 animate-in fade-in duration-200">
+            <p className="text-xs text-[#7A786C]">
+              ไม่ต้องเยอะ แค่เริ่มสั้นๆ ไม่กดดันตัวเอง:
+            </p>
+            <div className="grid grid-cols-4 gap-2">
+              {[15, 25, 45, 60].map((mins) => (
+                <button
+                  key={mins}
+                  type="button"
+                  onClick={() => handleSelectTime(mins)}
+                  className={`p-2.5 rounded-2xl border text-center transition cursor-pointer ${
+                    availableMinutes === mins
+                      ? 'bg-[#6C7764] text-white border-[#6C7764] font-bold shadow-xs'
+                      : 'bg-white border-[#E8E2D5] text-[#2C2C24] hover:bg-[#FAF8F5]'
+                  }`}
+                >
+                  <span className="text-xs font-bold block">{mins} นาที</span>
+                  <span className={`text-[9px] block mt-0.5 ${availableMinutes === mins ? 'text-white/80' : 'text-[#8A887A]'}`}>
+                    {mins === 15 ? 'ก้าวสั้นๆ' : mins === 25 ? '1 รอบ' : 'เน้นๆ'}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step Indicator Progress Bar */}
+        <div className="flex items-center gap-1.5 pt-1">
+          <div className={`h-1 flex-1 rounded-full transition-colors ${conversationStep >= 1 ? 'bg-[#6C7764]' : 'bg-[#EAE4D9]'}`} />
+          <div className={`h-1 flex-1 rounded-full transition-colors ${conversationStep >= 2 ? 'bg-[#6C7764]' : 'bg-[#EAE4D9]'}`} />
+          <div className={`h-1 flex-1 rounded-full transition-colors ${conversationStep >= 3 ? 'bg-[#6C7764]' : 'bg-[#EAE4D9]'}`} />
         </div>
       </div>
 
-      {/* The Single Chosen Task Card (Zero Toxic Overwhelm) */}
+      {/* AI Advice Bubble if user typed a custom worry */}
+      {aiCustomAdvice && (
+        <div className="p-3.5 rounded-2xl bg-[#F4EFE6] border border-[#E5DEC9] text-xs text-[#5C5B50] flex items-start gap-2.5 animate-in fade-in">
+          <MessageCircle className="w-4 h-4 text-[#828D7A] shrink-0 mt-0.5" />
+          <p className="leading-relaxed text-[#2C2C24] font-medium">
+            {aiCustomAdvice}
+          </p>
+        </div>
+      )}
+
+      {/* 2. The Single Chosen Task Card (Breathing Room & Tactile Focus) */}
       <div className="space-y-2">
         <div className="flex items-center justify-between px-1">
           <span className="text-xs font-bold uppercase tracking-wider text-[#6C7764]">
@@ -144,9 +267,9 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
         {recommendation ? (
           <div className={`bg-[#FAF8F5] rounded-3xl p-5 border-2 border-[#828D7A] shadow-md space-y-4 transition-opacity ${isThinking ? 'opacity-50' : 'opacity-100'}`}>
             <div>
-              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#EBF0E8] text-[#3B5433] border border-[#CFDFCB]">
-                  เหมาะกับระดับพลังงาน
+                  คัดเลือกตามสภาพใจ: {selectedStateObj.label}
                 </span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white text-[#7A786C] border border-[#E8E2D5]">
                   {recommendation.task.estimatedMinutes} นาที
@@ -162,14 +285,14 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
                 {recommendation.task.title}
               </h3>
               {recommendation.task.description && (
-                <p className="text-xs text-[#7A786C] mt-1 leading-relaxed">
+                <p className="text-xs text-[#7A786C] mt-1.5 leading-relaxed">
                   {recommendation.task.description}
                 </p>
               )}
             </div>
 
             {/* AI Rationale Box */}
-            <div className="p-3 rounded-2xl bg-[#F4EFE6] border border-[#E5DEC9] text-xs text-[#5C5B50] flex items-start gap-2">
+            <div className="p-3.5 rounded-2xl bg-[#F4EFE6] border border-[#E5DEC9] text-xs text-[#5C5B50]">
               <p className="leading-relaxed">
                 <strong className="text-[#2C2C24]">เหตุผลที่แนะนำ:</strong> {recommendation.reasonTh}
               </p>
@@ -177,26 +300,26 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
 
             {/* Micro Steps Preview or AI Decompose CTA */}
             {recommendation.task.microSteps && recommendation.task.microSteps.length > 0 ? (
-              <div className="space-y-1.5 pt-1">
+              <div className="space-y-2 pt-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-[#7A786C]">
+                  <span className="text-xs font-bold text-[#7A786C]">
                     ก้าวเล็กๆ 2 นาทีแรก:
                   </span>
                   <button
                     type="button"
                     onClick={handleDecomposePickedTask}
                     disabled={isDecomposing}
-                    className="text-[10px] text-[#55634E] hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                    className="text-[11px] text-[#55634E] hover:underline font-semibold flex items-center gap-1 cursor-pointer"
                   >
-                    <Sparkles className={`w-3 h-3 ${isDecomposing ? 'animate-spin' : ''}`} />
+                    <Sparkles className={`w-3.5 h-3.5 ${isDecomposing ? 'animate-spin' : ''}`} />
                     <span>{isDecomposing ? 'กำลังย่อยใหม่...' : 'ย่อยใหม่ด้วย AI'}</span>
                   </button>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   {recommendation.task.microSteps.slice(0, 3).map((step, idx) => (
                     <div
                       key={step.id}
-                      className="flex items-center gap-2 p-2 rounded-xl bg-white border border-[#EAE4D9] text-xs text-[#2C2C24]"
+                      className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white border border-[#EAE4D9] text-xs text-[#2C2C24]"
                     >
                       <span className="w-4 h-4 rounded-full bg-[#EBF0E8] text-[#3B5433] text-[10px] font-bold flex items-center justify-center shrink-0">
                         {idx + 1}
@@ -213,7 +336,7 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
                   type="button"
                   onClick={handleDecomposePickedTask}
                   disabled={isDecomposing}
-                  className="w-full py-2 px-3 rounded-xl bg-[#EFE9DE] hover:bg-[#E5DDD0] text-[#55634E] text-xs font-semibold border border-[#E2DACB] flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  className="w-full py-2.5 px-3 rounded-xl bg-[#EFE9DE] hover:bg-[#E5DDD0] text-[#55634E] text-xs font-semibold border border-[#E2DACB] flex items-center justify-center gap-1.5 transition cursor-pointer"
                 >
                   <Sparkles className={`w-3.5 h-3.5 text-[#6C7764] ${isDecomposing ? 'animate-spin' : ''}`} />
                   <span>{isDecomposing ? 'กำลังให้ AI ย่อยก้าวแรก 2 นาที...' : 'ให้ AI ช่วยย่อยก้าวแรก (ลดการคิดเยอะ)'}</span>
@@ -249,13 +372,13 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
         )}
       </div>
 
-      {/* Quick 2-Minute Anti-Overthinking Rule Card */}
-      <div className="bg-[#EFE9DE]/80 rounded-2xl p-3.5 border border-[#E2DACB] text-xs space-y-1.5">
-        <div className="font-bold text-[#2C2C24] flex items-center gap-1.5">
+      {/* 3. Hallmark Gentle Tip Card */}
+      <div className="bg-[#EFE9DE]/80 rounded-2xl p-4 border border-[#E2DACB] text-xs space-y-1.5">
+        <div className="font-bold text-[#2C2C24]">
           กฎ 2 นาทีสยบ Overthinking:
         </div>
         <p className="text-[#6E6D62] text-[11px] leading-relaxed">
-          อย่าเพิ่งคิดถึงปลายทาง แค่เปิดไฟล์หรือหยิบปากกาขึ้นมาใน 2 นาทีแรก สมองจะสลับจากโหมดกังวลเป็นโหมดลงมือทำโดยอัตโนมัติ
+          อย่าเพิ่งคิดถึงผลลัพธ์ปลายทาง แค่เปิดไฟล์หรือหยิบสมุดขึ้นมาใน 2 นาทีแรก สมองจะสลับจากโหมดกังวลเป็นโหมดลงมือทำโดยอัตโนมัติ
         </p>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Task, UserStats, Badge, PetState, EnergyLevel, MicroStep, AppTab, AppSettings } from './types';
+import { Task, UserStats, Badge, PetState, EnergyLevel, MicroStep, AppTab, AppSettings, FocusSpace } from './types';
 import { INITIAL_TASKS, INITIAL_STATS, INITIAL_BADGES } from './data/mockData';
 import { MobileDeviceFrame } from './components/MobileDeviceFrame';
 import { MobileStatusBar } from './components/MobileStatusBar';
@@ -20,6 +20,7 @@ import { AdSimulationBanner } from './components/AdSimulationBanner';
 import { AuthOnboardingView } from './components/AuthOnboardingView';
 import { MindfulJournalModal } from './components/MindfulJournalModal';
 import { SettingsView } from './components/SettingsView';
+import { SpacesDrawerModal, DEFAULT_SPACES } from './components/SpacesDrawerModal';
 
 const INITIAL_PET: PetState = {
   name: 'นูเบ้',
@@ -118,6 +119,17 @@ export default function App() {
     }
   });
 
+  const [spaces, setSpaces] = useState<FocusSpace[]>(() => {
+    try {
+      const saved = localStorage.getItem('freakout_spaces');
+      return saved ? JSON.parse(saved) : DEFAULT_SPACES;
+    } catch {
+      return DEFAULT_SPACES;
+    }
+  });
+  const [activeSpaceId, setActiveSpaceId] = useState<string>('space-general');
+  const [isSpacesDrawerOpen, setIsSpacesDrawerOpen] = useState<boolean>(false);
+
   const [currentTab, setCurrentTab] = useState<AppTab>('tasks');
   // Track by id so Focus Mode always renders the live task (step ticks update instantly)
   const [activeFocusTaskId, setActiveFocusTaskId] = useState<string | null>(null);
@@ -133,6 +145,15 @@ export default function App() {
   const [isPricingModalOpen, setIsPricingModalOpen] = useState<boolean>(false);
   const [isDailyRewardOpen, setIsDailyRewardOpen] = useState<boolean>(false);
   const [isJournalOpen, setIsJournalOpen] = useState<boolean>(false);
+
+  // Sync spaces to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('freakout_spaces', JSON.stringify(spaces));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [spaces]);
 
   // Sync to localStorage
   useEffect(() => {
@@ -355,6 +376,8 @@ export default function App() {
               onOpenPricing={() => setIsPricingModalOpen(true)}
               onOpenDailyReward={() => setIsDailyRewardOpen(true)}
               isProUser={isProUser}
+              activeSpaceName={spaces.find((s) => s.id === activeSpaceId)?.name || 'ห้องหลัก (General)'}
+              onOpenSpaces={() => setIsSpacesDrawerOpen(true)}
             />
 
             {/* Scrollable Screen Content */}
@@ -518,6 +541,24 @@ export default function App() {
             onClose={() => setIsJournalOpen(false)}
             minutesFocused={stats.minutesFocusedTotal}
             tasksCompleted={stats.tasksCompletedTotal}
+          />
+
+          <SpacesDrawerModal
+            isOpen={isSpacesDrawerOpen}
+            onClose={() => setIsSpacesDrawerOpen(false)}
+            spaces={spaces}
+            activeSpaceId={activeSpaceId}
+            onSelectSpace={setActiveSpaceId}
+            onAddSpace={(newSpace) => {
+              const createdSpace = {
+                ...newSpace,
+                id: `space-${Date.now()}`,
+              };
+              setSpaces((prev) => [...prev, createdSpace]);
+              setActiveSpaceId(createdSpace.id);
+            }}
+            isProUser={isProUser}
+            onOpenPricing={() => setIsPricingModalOpen(true)}
           />
         </>
       )}

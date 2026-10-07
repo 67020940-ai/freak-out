@@ -86,6 +86,15 @@ export interface CalendarEvent {
   isFocusShield?: boolean;
 }
 
+export interface FocusSpace {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+  accentColor: string;
+  isProOnly?: boolean;
+}
+
 export type AppTab = 'tasks' | 'cloud-pet' | 'calendar' | 'smart-pick' | 'gamification' | 'settings';
 
 

@@ -35,6 +35,8 @@
     background-color: var(--bg);
     color: var(--ink);
     font-family: var(--font-body);
+    line-height: 1.6;
+    letter-spacing: 0.01em;
     /* Subtle paper texture */
     background-image: radial-gradient(rgba(44, 44, 36, 0.04) 1px, transparent 1px);
     background-size: 24px 24px;
@@ -45,7 +47,8 @@
   h1, h2, h3, h4, h5, h6, .font-heading {
     font-family: var(--font-display);
     font-style: normal !important;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
     overflow-wrap: anywhere;
     min-width: 0;
   }
