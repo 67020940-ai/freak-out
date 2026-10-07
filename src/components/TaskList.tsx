@@ -40,6 +40,10 @@ interface TaskListProps {
   userName?: string;
   streakDays?: number;
   minutesFocusedTotal?: number;
+  energy?: EnergyLevel;
+  onEnergyChange?: (energy: EnergyLevel) => void;
+  petAccessory?: string;
+  celebrateKey?: number;
   onToggleTask: (taskId: string) => void;
   onToggleStep: (taskId: string, stepId: string) => void;
   onStartFocus: (task: Task) => void;
@@ -70,6 +74,10 @@ export const TaskList: React.FC<TaskListProps> = ({
   userName = 'Jay',
   streakDays = 5,
   minutesFocusedTotal = 120,
+  energy = 'okay',
+  onEnergyChange,
+  petAccessory,
+  celebrateKey = 0,
   onToggleTask,
   onToggleStep,
   onStartFocus,
@@ -82,10 +90,20 @@ export const TaskList: React.FC<TaskListProps> = ({
 }) => {
   const [activeFilterTab, setActiveFilterTab] = useState<'all' | 'today' | 'overthink'>('today');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [currentVibeEnergy, setCurrentVibeEnergy] = useState<EnergyLevel>('okay');
+  const [currentVibeEnergy, setCurrentVibeEnergy] = useState<EnergyLevel>(energy);
   const [expandedTasks, setExpandedTasks] = useState<Record<string, boolean>>({});
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showSearch, setShowSearch] = useState<boolean>(false);
+
+  // Sync external energy prop
+  React.useEffect(() => {
+    setCurrentVibeEnergy(energy);
+  }, [energy]);
+
+  const handleSelectEnergy = (lvl: EnergyLevel) => {
+    setCurrentVibeEnergy(lvl);
+    onEnergyChange?.(lvl);
+  };
 
   const toggleExpand = (taskId: string) => {
     setExpandedTasks((prev) => ({
@@ -191,6 +209,62 @@ export const TaskList: React.FC<TaskListProps> = ({
         </button>
       </div>
 
+      {/* Atmospheric Mirror: Dynamic sky condition based on tasks completed today */}
+      {(() => {
+        const completedCount = completedTasks.length;
+        let skyGradient = 'from-[#ECEAE5] via-[#E8E4DC] to-[#DFD9CD]';
+        let skyBorder = 'border-[#D8D0C0]';
+        let skyTitle = '🌫️ หมอกจางๆ (Hazy Fog)';
+        let skyDesc = 'ยังไม่ได้เริ่มโฟกัสวันนี้ ค่อยๆ ก้าวทีละ 2 นาทีนะ';
+        let pose: 'idle' | 'focus' | 'celebrate' = 'idle';
+
+        if (completedCount === 1) {
+          skyGradient = 'from-[#E0EFF8] via-[#E8F4F8] to-[#FAF8F5]';
+          skyBorder = 'border-[#CFE4F0]';
+          skyTitle = '⛅ ท้องฟ้าเริ่มเปิด (Clearing Sky)';
+          skyDesc = 'สำเร็จไป 1 งานแล้ว! สมองเริ่มโล่งขึ้นอย่างเห็นได้ชัด';
+          pose = 'focus';
+        } else if (completedCount >= 2) {
+          skyGradient = 'from-[#FFF7D6] via-[#EAF4ED] to-[#E5F0FA]';
+          skyBorder = 'border-[#F0E4B8]';
+          skyTitle = '🌈 ฟ้าใสแดดออก & สายรุ้ง (Zen Rainbow)';
+          skyDesc = `เคลียร์สำเร็จ ${completedCount} งานแล้ว! วันนี้คุณเก่งมากๆ เลย`;
+          pose = 'celebrate';
+        }
+
+        return (
+          <div
+            key={celebrateKey}
+            className={`relative rounded-3xl p-4 bg-gradient-to-br ${skyGradient} border ${skyBorder} shadow-2xs overflow-hidden transition-all duration-700 animate-in fade-in`}
+          >
+            {/* Subtle decorative rainbow arc when 2+ tasks completed */}
+            {completedCount >= 2 && (
+              <div className="absolute -top-12 -right-8 w-44 h-44 rounded-full border-8 border-rose-300/40 border-t-amber-300/40 border-r-emerald-300/40 border-b-sky-300/40 pointer-events-none blur-[1px]" />
+            )}
+
+            <div className="flex items-center justify-between gap-3 relative z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 bg-white/70 backdrop-blur-xs rounded-2xl border border-white/80 shadow-2xs flex items-center justify-center p-1 shrink-0">
+                  <PixelCloud8Bit pose={pose} size="sm" accessory={petAccessory} interactive={false} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-[#2C2C24]">{skyTitle}</span>
+                  </div>
+                  <p className="text-[11px] text-[#6E6D62] mt-0.5 leading-snug">{skyDesc}</p>
+                </div>
+              </div>
+
+              <div className="text-right shrink-0">
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-white/80 border border-[#E2DACB] text-[#55634E] shadow-2xs">
+                  เสร็จ {completedCount} งาน
+                </span>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* 2. User Energy Scale (5 Levels matching Screenshot 2) */}
       <div className="bg-[#FAF8F5] rounded-3xl p-3.5 border border-[#E8E2D5] shadow-2xs space-y-2">
         <div className="flex items-center justify-between">
@@ -214,7 +288,7 @@ export const TaskList: React.FC<TaskListProps> = ({
               <button
                 key={opt.id}
                 type="button"
-                onClick={() => setCurrentVibeEnergy(opt.id)}
+                onClick={() => handleSelectEnergy(opt.id)}
                 className={`py-2 px-1 rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer border ${
                   isSelected
                     ? 'bg-[#6C7764] text-white border-[#6C7764] shadow-xs ring-2 ring-[#6C7764]/20 font-bold'

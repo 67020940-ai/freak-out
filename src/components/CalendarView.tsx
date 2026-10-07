@@ -63,6 +63,27 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   const [focusShieldEnabled, setFocusShieldEnabled] = useState(true);
   const [bufferMinutes, setBufferMinutes] = useState(15);
 
+  const [showOAuthModal, setShowOAuthModal] = useState<'google' | 'apple' | null>(null);
+  const [isOAuthLoading, setIsOAuthLoading] = useState(false);
+
+  const handleConnectGoogle = () => {
+    if (googleConnected) {
+      setGoogleConnected(false);
+    } else {
+      setShowOAuthModal('google');
+    }
+  };
+
+  const handleConfirmOAuth = () => {
+    setIsOAuthLoading(true);
+    setTimeout(() => {
+      setIsOAuthLoading(false);
+      if (showOAuthModal === 'google') setGoogleConnected(true);
+      if (showOAuthModal === 'apple') setAppleConnected(true);
+      setShowOAuthModal(null);
+    }, 600);
+  };
+
   // Find a pending task that fits the gap (e.g. <= 30 mins)
   const recommendedTask = tasks.find((t) => !t.completed && t.estimatedMinutes <= 45) || tasks[0];
 
@@ -80,6 +101,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               <span className="px-2 py-0.2 rounded-full text-[9px] font-bold bg-[#EBF0E8] text-[#3B5433] border border-[#CFDFCB]">
                 AI Context-Aware
               </span>
+              <span className="px-1.5 py-0.2 rounded-full text-[9px] font-semibold bg-[#FFF4E0] text-[#8A5C1E] border border-[#F4E1BD]">
+                Demo Data
+              </span>
             </div>
             <p className="text-[11px] text-[#7A786C]">
               สแกนตารางเรียน/งานอัตโนมัติ เพื่อหาช่องว่างสมองโล่ง
@@ -92,6 +116,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-[#5F7554]" />
             <span className="text-xs font-bold text-[#2C2C24]">Focus Shield</span>
+            <span className="text-[9px] bg-[#EAE4D9] text-[#6E6D62] px-1.5 py-0.2 rounded-full font-mono">
+              Roadmap: Calendar API
+            </span>
           </div>
           <span className="text-[11px] text-[#5F7554] font-semibold bg-[#EBF0E8] px-2 py-0.5 rounded-full">
             {focusShieldEnabled ? 'บล็อกเวลา Do Not Disturb' : 'ปิด'}
@@ -101,50 +128,115 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
       {/* Sync Accounts */}
       <div className="bg-[#FAF8F5] rounded-3xl p-4 border border-[#E8E2D5] shadow-2xs space-y-2">
-        <span className="text-[11px] font-bold text-[#7A786C] uppercase tracking-wider block">
-          🔗 ปฏิทินที่เชื่อมต่อ
-        </span>
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-bold text-[#7A786C] uppercase tracking-wider block">
+            🔗 ปฏิทินที่เชื่อมต่อ
+          </span>
+          <span className="text-[10px] text-[#8A887A] font-medium">
+            (กดเพื่อจำลองการเชื่อมต่อ)
+          </span>
+        </div>
         <div className="grid grid-cols-3 gap-2">
           {/* Google */}
-          <div className="p-2.5 bg-white rounded-xl border border-[#EAE4D9] flex items-center justify-between">
+          <button
+            type="button"
+            onClick={handleConnectGoogle}
+            className={`p-2.5 rounded-xl border flex items-center justify-between transition cursor-pointer text-left ${
+              googleConnected ? 'bg-white border-[#CFDFCB]' : 'bg-[#F3EFE6] border-[#E2DACB] opacity-75'
+            }`}
+          >
             <span className="text-xs font-bold text-[#2C2C24]">📅 Google</span>
-            <input
-              type="checkbox"
-              checked={googleConnected}
-              onChange={() => setGoogleConnected(!googleConnected)}
-              className="rounded text-[#6C7764] cursor-pointer"
-            />
-          </div>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+              googleConnected ? 'bg-[#EBF0E8] text-[#3B5433]' : 'bg-white text-[#7A786C]'
+            }`}>
+              {googleConnected ? 'เชื่อมแล้ว' : 'เชื่อมต่อ'}
+            </span>
+          </button>
 
           {/* Apple */}
-          <div className="p-2.5 bg-white rounded-xl border border-[#EAE4D9] flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setAppleConnected(!appleConnected)}
+            className={`p-2.5 rounded-xl border flex items-center justify-between transition cursor-pointer text-left ${
+              appleConnected ? 'bg-white border-[#CFDFCB]' : 'bg-[#F3EFE6] border-[#E2DACB] opacity-75'
+            }`}
+          >
             <span className="text-xs font-bold text-[#2C2C24]">🍏 Apple</span>
-            <input
-              type="checkbox"
-              checked={appleConnected}
-              onChange={() => setAppleConnected(!appleConnected)}
-              className="rounded text-[#6C7764] cursor-pointer"
-            />
-          </div>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+              appleConnected ? 'bg-[#EBF0E8] text-[#3B5433]' : 'bg-white text-[#7A786C]'
+            }`}>
+              {appleConnected ? 'เชื่อมแล้ว' : 'เชื่อมต่อ'}
+            </span>
+          </button>
 
           {/* Outlook */}
-          <div className="p-2.5 bg-white rounded-xl border border-[#EAE4D9] flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => {
+              if (!isProUser) {
+                onOpenPricing();
+              } else {
+                setOutlookConnected(!outlookConnected);
+              }
+            }}
+            className="p-2.5 bg-white rounded-xl border border-[#EAE4D9] flex items-center justify-between cursor-pointer text-left"
+          >
             <span className="text-xs font-bold text-[#2C2C24]">💼 Outlook</span>
-            <input
-              type="checkbox"
-              checked={outlookConnected}
-              onChange={() => {
-                if (!isProUser) {
-                  onOpenPricing();
-                } else {
-                  setOutlookConnected(!outlookConnected);
-                }
-              }}
-              className="rounded text-[#6C7764] cursor-pointer"
-            />
-          </div>
+            <span className="text-[10px] text-[#B87A24] font-bold">Pro</span>
+          </button>
         </div>
       </div>
+
+      {/* Mock OAuth Modal */}
+      {showOAuthModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in">
+          <div className="bg-white rounded-3xl p-5 max-w-xs w-full shadow-2xl border border-[#E2DACB] space-y-4">
+            <div className="text-center space-y-1">
+              <span className="text-3xl">📅</span>
+              <h3 className="font-heading font-bold text-base text-[#2C2C24]">
+                เชื่อมต่อ {showOAuthModal === 'google' ? 'Google Calendar' : 'Apple Calendar'}
+              </h3>
+              <p className="text-xs text-[#7A786C]">
+                Freak Out ขออนุญาตอ่านตารางเรียน/นัดหมาย เพื่อค้นหาช่องว่างเวลาและสร้างบล็อกสมาธิ
+              </p>
+            </div>
+
+            <div className="bg-[#FAF8F5] p-3 rounded-2xl border border-[#EAE4D9] text-xs space-y-1.5 text-[#5C5B50]">
+              <div className="flex items-center gap-1.5 font-semibold text-[#2C2C24]">
+                <span>🔒</span> ความปลอดภัยของข้อมูล:
+              </div>
+              <p className="text-[11px] leading-relaxed">
+                ในเวอร์ชันทดสอบนี้ เป็นหน้าจำลองสิทธิ์ (OAuth Demo Simulation) โดยข้อมูลตารางเรียนจะถูกประมวลผลบนเครื่องของคุณเท่านั้น
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setShowOAuthModal(null)}
+                className="flex-1 py-2 px-3 rounded-xl bg-[#FAF8F5] text-xs font-semibold text-[#6E6E60] border border-[#E2DACB] cursor-pointer"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmOAuth}
+                disabled={isOAuthLoading}
+                className="flex-1 py-2 px-3 rounded-xl bg-[#6C7764] hover:bg-[#586350] text-xs font-bold text-white shadow-xs transition cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                {isOAuthLoading ? (
+                  <>
+                    <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>กำลังเชื่อมต่อ...</span>
+                  </>
+                ) : (
+                  <span>อนุญาตและเชื่อมต่อ</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Calm Timeline View */}
       <div className="bg-[#FAF8F5] rounded-3xl p-4 border border-[#E2DACB] space-y-4">

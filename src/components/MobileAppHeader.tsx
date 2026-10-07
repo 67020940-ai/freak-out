@@ -3,6 +3,8 @@ import { UserStats, PetState } from '../types';
 import { Sparkles, Flame, Wind, Crown, Gift } from 'lucide-react';
 import { AppTab } from './Header';
 import { PixelCloud8Bit } from './PixelCloud8Bit';
+import { useSecretTap } from '../utils/useSecretTap';
+import { resetToDemo } from '../utils/demoMode';
 
 interface MobileAppHeaderProps {
   stats: UserStats;
@@ -25,6 +27,8 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
   onOpenDailyReward,
   isProUser,
 }) => {
+  const secretTap = useSecretTap(resetToDemo);
+
   const getTabTitle = () => {
     switch (currentTab) {
       case 'tasks':
@@ -47,7 +51,10 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
       <div className="flex items-center justify-between gap-3 w-full">
         {/* Left: Mascot Pet Avatar & Name */}
         <button
-          onClick={() => onTabChange('cloud-pet')}
+          onClick={() => {
+            secretTap();
+            onTabChange('cloud-pet');
+          }}
           className="flex items-center gap-2.5 group p-0.5 rounded-2xl hover:bg-[#EFE9DE] transition active:scale-95 text-left cursor-pointer shrink-0"
           title="ห้องของน้องนูเบ้"
         >

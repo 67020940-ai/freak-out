@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { MascotCloud } from './MascotCloud';
 import confetti from 'canvas-confetti';
+import { focusTickMs } from '../utils/demoMode';
 
 interface FocusModeModalProps {
   isOpen: boolean;
@@ -35,12 +36,11 @@ export const FocusModeModal: React.FC<FocusModeModalProps> = ({
   onToggleStep,
   onOpenPanic,
 }) => {
-  if (!isOpen || !task) return null;
-
-  const [timeLeft, setTimeLeft] = useState<number>((task.estimatedMinutes || 25) * 60);
+  const [timeLeft, setTimeLeft] = useState<number>((task?.estimatedMinutes || 25) * 60);
   const [isActive, setIsActive] = useState<boolean>(false);
   const [soundscape, setSoundscape] = useState<'none' | 'rain' | 'whitenoise' | 'lofi'>('none');
   const [mascotQuote, setMascotQuote] = useState<string>('You got this! ก้าวแรกสำคัญที่สุดนะ 🎧');
+  const [timerDone, setTimerDone] = useState(false);
 
   // Audio simulation via Web Audio API synth for cozy focus sound
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -49,11 +49,13 @@ export const FocusModeModal: React.FC<FocusModeModalProps> = ({
   useEffect(() => {
     let timer: any = null;
     if (isActive && timeLeft > 0) {
+      // Demo mode compresses time (1 minute = 3 seconds); display still counts real mm:ss.
       timer = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
+        setTimeLeft((prev) => Math.max(0, prev - 1));
+      }, focusTickMs());
     } else if (timeLeft === 0 && isActive) {
       setIsActive(false);
+      setTimerDone(true);
       confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 } });
       setMascotQuote('หมดเวลาโฟกัสแล้ว! เก่งมากๆ เลยนะ 🥳');
     }

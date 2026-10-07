@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Task, UserStats, Badge, PetState } from './types';
+import { Task, UserStats, Badge, PetState, EnergyLevel, MicroStep } from './types';
 import { INITIAL_TASKS, INITIAL_STATS, INITIAL_BADGES } from './data/mockData';
 import { AppTab } from './components/Header';
 import { MobileDeviceFrame } from './components/MobileDeviceFrame';
@@ -96,7 +96,13 @@ export default function App() {
   });
 
   const [currentTab, setCurrentTab] = useState<AppTab>('tasks');
-  const [activeFocusTask, setActiveFocusTask] = useState<Task | null>(null);
+  // Track by id so Focus Mode always renders the live task (step ticks update instantly)
+  const [activeFocusTaskId, setActiveFocusTaskId] = useState<string | null>(null);
+  const activeFocusTask = tasks.find((t) => t.id === activeFocusTaskId) ?? null;
+  // Shared between Home and Smart Pick so the energy chosen on Home carries over
+  const [energy, setEnergy] = useState<EnergyLevel>('okay');
+  // Bumped when a focus session completes so Home can play the sky-clearing moment
+  const [celebrateKey, setCelebrateKey] = useState(0);
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState<boolean>(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isSmartPickOpen, setIsSmartPickOpen] = useState<boolean>(false);
@@ -180,41 +186,53 @@ export default function App() {
 
   // Toggle Task Completion
   const handleToggleTask = (taskId: string) => {
+    const target = tasks.find((t) => t.id === taskId);
+    if (!target) return;
+    const nextCompleted = !target.completed;
+    if (nextCompleted) {
+      awardXp(50, target.isOverthinkingProne, target.estimatedMinutes);
+    }
     setTasks((prev) =>
-      prev.map((t) => {
-        if (t.id === taskId) {
-          const nextCompleted = !t.completed;
-          if (nextCompleted) {
-            awardXp(50, t.isOverthinkingProne, t.estimatedMinutes);
-          }
-          return {
-            ...t,
-            completed: nextCompleted,
-            completedAt: nextCompleted ? new Date().toISOString() : undefined,
-          };
-        }
-        return t;
-      })
+      prev.map((t) =>
+        t.id === taskId
+          ? {
+              ...t,
+              completed: nextCompleted,
+              completedAt: nextCompleted ? new Date().toISOString() : undefined,
+            }
+          : t
+      )
     );
   };
 
-  // Toggle MicroStep Completion
+  // Replace a task's micro-steps (AI breakdown from Smart Pick)
+  const handleUpdateSteps = (taskId: string, microSteps: MicroStep[]) => {
+    setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, microSteps } : t)));
+  };
+
+  // Toggle MicroStep Completion (ticking the last step completes the task)
   const handleToggleStep = (taskId: string, stepId: string) => {
+    const target = tasks.find((t) => t.id === taskId);
+    if (!target) return;
+    const updatedSteps = target.microSteps.map((s) =>
+      s.id === stepId ? { ...s, completed: !s.completed } : s
+    );
+    const allDone = updatedSteps.length > 0 && updatedSteps.every((s) => s.completed);
+    const becomesCompleted = allDone && !target.completed;
+    if (becomesCompleted) {
+      awardXp(50, target.isOverthinkingProne, target.estimatedMinutes);
+    }
     setTasks((prev) =>
-      prev.map((t) => {
-        if (t.id === taskId) {
-          const updatedSteps = t.microSteps.map((s) =>
-            s.id === stepId ? { ...s, completed: !s.completed } : s
-          );
-          const allDone = updatedSteps.length > 0 && updatedSteps.every((s) => s.completed);
-          return {
-            ...t,
-            microSteps: updatedSteps,
-            completed: allDone ? true : t.completed,
-          };
-        }
-        return t;
-      })
+      prev.map((t) =>
+        t.id === taskId
+          ? {
+              ...t,
+              microSteps: updatedSteps,
+              completed: allDone ? true : t.completed,
+              completedAt: becomesCompleted ? new Date().toISOString() : t.completedAt,
+            }
+          : t
+      )
     );
   };
 
@@ -247,11 +265,16 @@ export default function App() {
   };
 
   const handleStartFocus = (task: Task) => {
-    setActiveFocusTask(task);
+    setActiveFocusTaskId(task.id);
   };
 
+  // Idempotent: ticking every step may already have completed the task.
   const handleCompleteFocusTask = (task: Task) => {
-    handleToggleTask(task.id);
+    const current = tasks.find((t) => t.id === task.id);
+    if (current && !current.completed) handleToggleTask(task.id);
+    setPet((prev) => ({ ...prev, mood: 'celebrate' }));
+    setCurrentTab('tasks');
+    setCelebrateKey((k) => k + 1);
   };
 
   const handleClaimDailyReward = (reward: { stardust: number; xp: number; freezes?: number }) => {
@@ -311,6 +334,10 @@ export default function App() {
                   userName={userName}
                   streakDays={stats.streakDays}
                   minutesFocusedTotal={stats.minutesFocusedTotal}
+                  energy={energy}
+                  onEnergyChange={setEnergy}
+                  petAccessory={pet.equippedAccessory}
+                  celebrateKey={celebrateKey}
                   onToggleTask={handleToggleTask}
                   onToggleStep={handleToggleStep}
                   onStartFocus={handleStartFocus}
@@ -345,6 +372,9 @@ export default function App() {
               {currentTab === 'smart-pick' && (
                 <MobileSmartPickView
                   tasks={tasks}
+                  energy={energy}
+                  onEnergyChange={setEnergy}
+                  onUpdateSteps={handleUpdateSteps}
                   onStartFocus={handleStartFocus}
                   onOpenNewTask={() => {
                     setEditingTask(null);
@@ -390,14 +420,17 @@ export default function App() {
             }}
           />
 
-          <FocusModeModal
-            isOpen={!!activeFocusTask}
-            task={activeFocusTask}
-            onClose={() => setActiveFocusTask(null)}
-            onCompleteTask={handleCompleteFocusTask}
-            onToggleStep={handleToggleStep}
-            onOpenPanic={() => setIsPanicModalOpen(true)}
-          />
+          {activeFocusTask && (
+            <FocusModeModal
+              key={activeFocusTask.id}
+              isOpen
+              task={activeFocusTask}
+              onClose={() => setActiveFocusTaskId(null)}
+              onCompleteTask={handleCompleteFocusTask}
+              onToggleStep={handleToggleStep}
+              onOpenPanic={() => setIsPanicModalOpen(true)}
+            />
+          )}
 
           <TaskInputModal
             isOpen={isNewTaskModalOpen}

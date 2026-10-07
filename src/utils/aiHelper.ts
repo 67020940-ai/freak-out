@@ -113,7 +113,7 @@ export function recommendBestTask(
 }
 
 /**
- * Break down any task title/description into tiny 2-5 minute micro-steps
+ * Break down any task title/description into tiny 2-5 minute micro-steps (offline template fallback).
  */
 export function generateMicroSteps(taskTitle: string, category: string): MicroStep[] {
   const t = taskTitle.toLowerCase();
@@ -160,4 +160,39 @@ export function generateMicroSteps(taskTitle: string, category: string): MicroSt
     { id: `step-${Date.now()}-3`, title: 'ทำส่วนต่อไปแบบไม่ต้องกังวลความสมบูรณ์แบบ', completed: false, estimatedMinutes: 10 },
     { id: `step-${Date.now()}-4`, title: 'ตรวจเช็คความเรียบร้อยรอบสุดท้าย', completed: false, estimatedMinutes: 3 },
   ];
+}
+
+/**
+ * Call Gemini 2.5 Flash via /api/decompose to generate tailor-made micro-steps.
+ * If venue Wi-Fi is down, API key is missing, or network fails, gracefully
+ * fall back to generateMicroSteps() so the app never blocks or errors out.
+ */
+export async function decomposeTaskWithAI(
+  taskTitle: string,
+  category: string
+): Promise<{ steps: MicroStep[]; source: 'gemini' | 'offline-template' }> {
+  try {
+    const res = await fetch('/api/decompose', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ taskTitle, category }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data.steps) && data.steps.length > 0) {
+        const steps: MicroStep[] = data.steps.map((s: any, idx: number) => ({
+          id: `step-ai-${Date.now()}-${idx}`,
+          title: String(s.title || `ขั้นตอนที่ ${idx + 1}`),
+          completed: false,
+          estimatedMinutes: Number(s.estimatedMinutes) || 3,
+        }));
+        return { steps, source: 'gemini' };
+      }
+    }
+  } catch {
+    // Network failed or offline: silently fall back
+  }
+
+  return { steps: generateMicroSteps(taskTitle, category), source: 'offline-template' };
 }

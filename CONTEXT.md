@@ -22,13 +22,14 @@
 ## 2. Technical Architecture & Stack
 
 ```
-Frontend:     React 19 + TypeScript + Vite 6
-Styling:      Tailwind CSS v4 + Hallmark Tactile Linen & Sage tokens
-Motion:       Motion (Framer Motion 12) + Custom Keyframes (float, wiggle)
-AI Engine:    Google GenAI SDK (@google/genai) — Gemini 1.5 Flash
-State:        React Hooks + LocalStorage Persistence (Offline-First)
-Mobile Path:  Capacitor 6 (iOS Swift / Android Kotlin)
-Monetization: RevenueCat (Apple StoreKit 2 + Google Play Billing)
+Frontend:        React 19 + TypeScript + Vite 6
+Typography:      Self-hosted offline fonts via @fontsource (Mitr, Prompt, Playfair, Plus Jakarta Sans)
+Styling:         Tailwind CSS v4 + Hallmark Tactile Linen & Sage tokens
+Motion:          Motion (Framer Motion 12) + Custom Keyframes (float, wiggle)
+AI Engine:       Google GenAI (@google/genai) — Gemini 2.5 Flash via /api/decompose with smart fallback
+State:           React Hooks + LocalStorage Persistence (Offline-First) + Demo Reset Engine
+Roadmap Mobile:  Capacitor 6 (iOS Swift / Android Kotlin)
+Roadmap Billing: RevenueCat (Apple StoreKit 2 + Google Play Billing)
 ```
 
 ---

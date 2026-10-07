@@ -208,6 +208,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({
                 <div className="flex items-center gap-1.5 font-bold text-[#7C5CA5]">
                   <Zap className="w-3.5 h-3.5 text-[#7C5CA5] shrink-0" />
                   <span>Two-Way Calendar Sync & Focus Shield</span>
+                  <span className="text-[9px] bg-[#F1EBF7] text-[#7C5CA5] px-1.5 py-0.2 rounded-full ml-auto">Roadmap</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Shield className="w-3.5 h-3.5 text-[#828D7A] shrink-0" />

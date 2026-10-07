@@ -1,4 +1,13 @@
-/* Hallmark · genre: playful · macrostructure: Workbench · theme: Linen & Sage · pre-emit critique: P5 H4 E5 S4 R5 V5 */
+/* Self-hosted offline typography via @fontsource */
+@import "@fontsource/mitr/400.css";
+@import "@fontsource/mitr/600.css";
+@import "@fontsource/prompt/400.css";
+@import "@fontsource/prompt/600.css";
+@import "@fontsource/playfair-display/600.css";
+@import "@fontsource/playfair-display/700.css";
+@import "@fontsource/plus-jakarta-sans/500.css";
+@import "@fontsource/plus-jakarta-sans/700.css";
+
 @import "tailwindcss";
 
 :root {
@@ -47,7 +56,7 @@
   }
 
   .font-brand {
-    font-family: 'Playfair Display', 'Cinzel', 'Georgia', serif;
+    font-family: 'Playfair Display', 'Georgia', serif;
     font-style: normal !important;
   }
 }

@@ -17,7 +17,7 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
-import { generateMicroSteps } from '../utils/aiHelper';
+import { generateMicroSteps, decomposeTaskWithAI } from '../utils/aiHelper';
 
 interface TaskInputModalProps {
   isOpen: boolean;
@@ -104,6 +104,7 @@ export const TaskInputModal: React.FC<TaskInputModalProps> = ({
   const [microSteps, setMicroSteps] = useState<MicroStep[]>(
     initialTask?.microSteps || []
   );
+  const [isDecomposing, setIsDecomposing] = useState(false);
 
   if (!isOpen) return null;
 
@@ -131,10 +132,15 @@ export const TaskInputModal: React.FC<TaskInputModalProps> = ({
     setTags(tags.filter((t) => t !== tagToRemove));
   };
 
-  const handleAutoDecompose = () => {
-    if (!title.trim()) return;
-    const generated = generateMicroSteps(title, category);
-    setMicroSteps(generated);
+  const handleAutoDecompose = async () => {
+    if (!title.trim() || isDecomposing) return;
+    setIsDecomposing(true);
+    try {
+      const { steps } = await decomposeTaskWithAI(title, category);
+      setMicroSteps(steps);
+    } finally {
+      setIsDecomposing(false);
+    }
   };
 
   const handleAddStep = () => {
@@ -571,11 +577,11 @@ export const TaskInputModal: React.FC<TaskInputModalProps> = ({
               <button
                 type="button"
                 onClick={handleAutoDecompose}
-                disabled={!title.trim()}
+                disabled={!title.trim() || isDecomposing}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#EFE9DE] hover:bg-[#E5DDD0] text-[#55634E] text-xs font-semibold transition disabled:opacity-50 cursor-pointer border border-[#E2DACB]"
               >
-                <Sparkles className="w-3.5 h-3.5 text-[#6C7764]" />
-                <span>AI ช่วยย่อยขั้น</span>
+                <Sparkles className={`w-3.5 h-3.5 text-[#6C7764] ${isDecomposing ? 'animate-spin' : ''}`} />
+                <span>{isDecomposing ? 'กำลังย่อยขั้น...' : 'AI ช่วยย่อยขั้น'}</span>
               </button>
             </div>
 

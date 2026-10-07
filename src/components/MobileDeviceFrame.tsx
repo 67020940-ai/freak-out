@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Smartphone, Monitor, Crown, Sparkles, RefreshCw, Volume2 } from 'lucide-react';
+import { useSecretTap } from '../utils/useSecretTap';
+import { resetToDemo } from '../utils/demoMode';
 
 interface MobileDeviceFrameProps {
   children: React.ReactNode;
@@ -20,6 +22,7 @@ export const MobileDeviceFrame: React.FC<MobileDeviceFrameProps> = ({
   const [scaleMode, setScaleMode] = useState<'fit' | '100' | '90' | '80'>('fit');
   const [calculatedFitScale, setCalculatedFitScale] = useState(0.85);
   const [isMobileScreen, setIsMobileScreen] = useState(false);
+  const secretTap = useSecretTap(resetToDemo);
 
   useEffect(() => {
     const handleResize = () => {
@@ -54,7 +57,10 @@ export const MobileDeviceFrame: React.FC<MobileDeviceFrameProps> = ({
       {/* Top Floating Control Bar for Demo / Prototype Presentation */}
       <aside aria-label="Prototype controls" className="mb-4 flex flex-wrap items-center justify-center gap-2.5 bg-[#FAF8F5]/95 backdrop-blur-md px-4 py-2 rounded-full border border-[#DED7C8] shadow-md z-50">
         <div className="flex items-center gap-2 shrink-0">
-          <span className="font-heading font-bold text-xs tracking-tight text-[#2C2C24]">
+          <span
+            onClick={secretTap}
+            className="font-heading font-bold text-xs tracking-tight text-[#2C2C24] cursor-default"
+          >
             Freak Out!
           </span>
           <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#EBF0E8] text-[#485342] font-mono font-semibold border border-[#CFDFCB]">

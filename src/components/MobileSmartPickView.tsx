@@ -19,24 +19,37 @@ import confetti from 'canvas-confetti';
 
 interface MobileSmartPickViewProps {
   tasks: Task[];
+  energy?: EnergyLevel;
+  onEnergyChange?: (energy: EnergyLevel) => void;
+  onUpdateSteps?: (taskId: string, steps: import('../types').MicroStep[]) => void;
   onStartFocus: (task: Task) => void;
   onOpenNewTask: () => void;
 }
 
 export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
   tasks,
+  energy = 'okay',
+  onEnergyChange,
+  onUpdateSteps,
   onStartFocus,
   onOpenNewTask,
 }) => {
-  const [selectedEnergy, setSelectedEnergy] = useState<EnergyLevel>('okay');
+  const [selectedEnergy, setSelectedEnergy] = useState<EnergyLevel>(energy);
   const [availableMinutes, setAvailableMinutes] = useState<number>(25);
   const [isThinking, setIsThinking] = useState(false);
+  const [isDecomposing, setIsDecomposing] = useState(false);
+
+  // Sync external energy prop changes
+  React.useEffect(() => {
+    setSelectedEnergy(energy);
+  }, [energy]);
 
   const pendingTasks = tasks.filter((t) => !t.completed);
   const recommendation = recommendBestTask(tasks, selectedEnergy, availableMinutes);
 
-  const handleEnergyChange = (energy: EnergyLevel) => {
-    setSelectedEnergy(energy);
+  const handleEnergyChange = (newEnergy: EnergyLevel) => {
+    setSelectedEnergy(newEnergy);
+    onEnergyChange?.(newEnergy);
     setIsThinking(true);
     setTimeout(() => setIsThinking(false), 250);
   };
@@ -45,6 +58,18 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
     setAvailableMinutes(time);
     setIsThinking(true);
     setTimeout(() => setIsThinking(false), 250);
+  };
+
+  const handleDecomposePickedTask = async () => {
+    if (!recommendation || isDecomposing) return;
+    setIsDecomposing(true);
+    try {
+      const { decomposeTaskWithAI } = await import('../utils/aiHelper');
+      const { steps } = await decomposeTaskWithAI(recommendation.task.title, recommendation.task.category);
+      onUpdateSteps?.(recommendation.task.id, steps);
+    } finally {
+      setIsDecomposing(false);
+    }
   };
 
   const handleStartTask = (task: Task) => {
@@ -186,12 +211,23 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
               </p>
             </div>
 
-            {/* Micro Steps Preview */}
-            {recommendation.task.microSteps && recommendation.task.microSteps.length > 0 && (
+            {/* Micro Steps Preview or AI Decompose CTA */}
+            {recommendation.task.microSteps && recommendation.task.microSteps.length > 0 ? (
               <div className="space-y-1.5 pt-1">
-                <span className="text-[11px] font-bold text-[#7A786C] block">
-                  ก้าวเล็กๆ 2 นาทีแรก:
-                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-[#7A786C]">
+                    ก้าวเล็กๆ 2 นาทีแรก:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleDecomposePickedTask}
+                    disabled={isDecomposing}
+                    className="text-[10px] text-[#55634E] hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                  >
+                    <Sparkles className={`w-3 h-3 ${isDecomposing ? 'animate-spin' : ''}`} />
+                    <span>{isDecomposing ? 'กำลังย่อยใหม่...' : 'ย่อยใหม่ด้วย AI'}</span>
+                  </button>
+                </div>
                 <div className="space-y-1">
                   {recommendation.task.microSteps.slice(0, 3).map((step, idx) => (
                     <div
@@ -206,6 +242,18 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
                     </div>
                   ))}
                 </div>
+              </div>
+            ) : (
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={handleDecomposePickedTask}
+                  disabled={isDecomposing}
+                  className="w-full py-2 px-3 rounded-xl bg-[#EFE9DE] hover:bg-[#E5DDD0] text-[#55634E] text-xs font-semibold border border-[#E2DACB] flex items-center justify-center gap-1.5 transition cursor-pointer"
+                >
+                  <Sparkles className={`w-3.5 h-3.5 text-[#6C7764] ${isDecomposing ? 'animate-spin' : ''}`} />
+                  <span>{isDecomposing ? 'กำลังให้ AI ย่อยก้าวแรก 2 นาที...' : '✨ ให้ AI ช่วยย่อยก้าวแรก (ลดการคิดเยอะ)'}</span>
+                </button>
               </div>
             )}
 
