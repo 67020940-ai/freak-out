@@ -62,8 +62,18 @@ export interface PetState {
   affinity: number; // 0 - 100
   mood: 'happy' | 'focus' | 'zen' | 'working' | 'celebrate';
   equippedAccessory?: string;
+  color?: string; // hex or color token
   stardust: number;
   streakFreezes: number;
+}
+
+export interface AppSettings {
+  focusShieldEnabled: boolean;
+  smartBufferMinutes: number;
+  soundEnabled: boolean;
+  hapticEnabled: boolean;
+  cloudColor: string;
+  autoSyncGoogleCalendar: boolean;
 }
 
 export interface CalendarEvent {
@@ -72,7 +82,10 @@ export interface CalendarEvent {
   startTime: string; // "09:00"
   endTime: string;   // "11:30"
   category: 'class' | 'meeting' | 'break' | 'focus';
-  source: 'google' | 'apple' | 'outlook' | 'freakout';
+  source: 'google' | 'freakout';
   isFocusShield?: boolean;
 }
+
+export type AppTab = 'tasks' | 'cloud-pet' | 'calendar' | 'smart-pick' | 'gamification' | 'settings';
+
 

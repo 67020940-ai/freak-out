@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { UserStats, PetState } from '../types';
+import { UserStats, PetState, AppTab } from '../types';
 import {
   Sparkles,
   Flame,
@@ -14,12 +14,9 @@ import {
   Gift,
   Smile,
   Shield,
-  ToggleLeft,
-  ToggleRight
+  Settings
 } from 'lucide-react';
 import { MascotCloud } from './MascotCloud';
-
-export type AppTab = 'tasks' | 'cloud-pet' | 'calendar' | 'smart-pick' | 'gamification';
 
 interface HeaderProps {
   stats: UserStats;

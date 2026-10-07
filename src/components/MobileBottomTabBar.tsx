@@ -1,6 +1,6 @@
 import React from 'react';
-import { AppTab } from './Header';
-import { CheckSquare, Calendar, Brain, Smile, Trophy } from 'lucide-react';
+import { AppTab } from '../types';
+import { CheckSquare, Calendar, Brain, Smile, Settings } from 'lucide-react';
 
 interface MobileBottomTabBarProps {
   currentTab: AppTab;
@@ -66,6 +66,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
         {/* Tab 4: Cloud Pet */}
         <button
           onClick={() => onTabChange('cloud-pet')}
+          aria-label="นูเบ้"
           className={`flex-1 flex flex-col items-center justify-center py-1 rounded-2xl transition-all cursor-pointer ${
             currentTab === 'cloud-pet'
               ? 'text-[#485342] font-bold'
@@ -78,19 +79,19 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
           <span className="text-[10px] mt-0.5 tracking-tight">นูเบ้</span>
         </button>
 
-        {/* Tab 5: Gamification / Rewards */}
+        {/* Tab 5: Settings */}
         <button
-          onClick={() => onTabChange('gamification')}
+          onClick={() => onTabChange('settings')}
           className={`flex-1 flex flex-col items-center justify-center py-1 rounded-2xl transition-all cursor-pointer ${
-            currentTab === 'gamification'
+            currentTab === 'settings'
               ? 'text-[#485342] font-bold'
               : 'text-[#8A887A] hover:text-[#2C2C24]'
           }`}
         >
-          <div className={`p-1 rounded-xl transition-all ${currentTab === 'gamification' ? 'bg-[#EBF0E8] scale-105' : ''}`}>
-            <Trophy className="w-5 h-5 stroke-[2.2]" />
+          <div className={`p-1 rounded-xl transition-all ${currentTab === 'settings' ? 'bg-[#EBF0E8] scale-105' : ''}`}>
+            <Settings className="w-5 h-5 stroke-[2.2]" />
           </div>
-          <span className="text-[10px] mt-0.5 tracking-tight">รางวัล</span>
+          <span className="text-[10px] mt-0.5 tracking-tight">ตั้งค่า</span>
         </button>
       </div>
 

@@ -33,6 +33,7 @@ import {
   Tag
 } from 'lucide-react';
 import { PixelCloud8Bit } from './PixelCloud8Bit';
+import { EnergyGaugeSlider } from './EnergyGaugeSlider';
 import confetti from 'canvas-confetti';
 
 interface TaskListProps {
@@ -54,20 +55,6 @@ interface TaskListProps {
   onOpenPanic?: () => void;
   onOpenJournal?: () => void;
 }
-
-const ENERGY_OPTIONS: {
-  id: EnergyLevel;
-  label: string;
-  shortName: string;
-  emoji: string;
-  desc: string;
-}[] = [
-  { id: 'depleted', label: '1. หมดแรง', shortName: '1. หมดแรง', emoji: '🪫', desc: 'งานเบา 5-10 นาที' },
-  { id: 'tired', label: '2. ล้า ๆ', shortName: '2. ล้า ๆ', emoji: '🥱', desc: 'ค่อยเป็นค่อยไป' },
-  { id: 'okay', label: '3. พอไหว', shortName: '3. พอไหว', emoji: '🌿', desc: 'งานขนาดกลางปกติ' },
-  { id: 'ready', label: '4. พร้อมลุย', shortName: '4. พร้อมลุย', emoji: '⚡', desc: 'สมองแล่น สมาธิดี' },
-  { id: 'full', label: '5. พลังเต็ม!', shortName: '5. พลังเต็ม!', emoji: '🔥', desc: 'ลุยงานใหญ่จัดเต็ม!' },
-];
 
 export const TaskList: React.FC<TaskListProps> = ({
   tasks,
@@ -150,16 +137,16 @@ export const TaskList: React.FC<TaskListProps> = ({
     switch (cat) {
       case 'education':
       case 'study':
-        return { label: 'Education', emoji: '📚', style: 'bg-[#EBF0E8] text-[#3B5433] border-[#CFDFCB]' };
+        return { label: 'การเรียน', style: 'bg-[#EBF0E8] text-[#3B5433] border-[#CFDFCB]' };
       case 'work':
-        return { label: 'Work', emoji: '💼', style: 'bg-[#FAF0E6] text-[#8A5C1E] border-[#E8DEC9]' };
+        return { label: 'งาน', style: 'bg-[#FAF0E6] text-[#8A5C1E] border-[#E8DEC9]' };
       case 'freelance':
       case 'project':
-        return { label: 'Freelance', emoji: '🎨', style: 'bg-[#E8F0F8] text-[#2F5275] border-[#CADDEC]' };
+        return { label: 'ฟรีแลนซ์', style: 'bg-[#E8F0F8] text-[#2F5275] border-[#CADDEC]' };
       case 'personal':
       case 'life':
       default:
-        return { label: 'ส่วนตัว', emoji: '🧸', style: 'bg-[#F4EFE6] text-[#6E6D62] border-[#E2DACB]' };
+        return { label: 'ส่วนตัว', style: 'bg-[#F4EFE6] text-[#6E6D62] border-[#E2DACB]' };
     }
   };
 
@@ -168,20 +155,20 @@ export const TaskList: React.FC<TaskListProps> = ({
       case 'small':
         return (
           <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-semibold bg-[#EBF0E8] text-[#3B5433] border border-[#CFDFCB]">
-            งานเล็ก 🌱
+            งานเล็ก
           </span>
         );
       case 'large':
         return (
           <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-semibold bg-[#FDECE8] text-[#9A4A38] border border-[#F6D7D0]">
-            งานใหญ่ 🌳
+            งานใหญ่
           </span>
         );
       case 'medium':
       default:
         return (
           <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-semibold bg-[#FFF9E6] text-[#8A5C1E] border border-[#F4E1BD]">
-            งานกลาง 🌿
+            งานกลาง
           </span>
         );
     }
@@ -196,7 +183,7 @@ export const TaskList: React.FC<TaskListProps> = ({
             วันเสาร์ที่ 4 ตุลาคม
           </span>
           <h1 className="text-xl font-bold font-heading text-[#2C2C24] leading-tight">
-            โฟกัสทีละอย่างนะ {userName} ☁️
+            โฟกัสทีละอย่างนะ {userName}
           </h1>
         </div>
 
@@ -265,52 +252,18 @@ export const TaskList: React.FC<TaskListProps> = ({
         );
       })()}
 
-      {/* 2. User Energy Scale (5 Levels matching Screenshot 2) */}
-      <div className="bg-[#FAF8F5] rounded-3xl p-3.5 border border-[#E8E2D5] shadow-2xs space-y-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-[#2C2C24] uppercase tracking-wider">
-              ระดับพลังงานของคุณ:
-            </span>
-            <span className="text-xs font-bold text-[#6C7764]">
-              {ENERGY_OPTIONS.find((e) => e.id === currentVibeEnergy)?.label}
-            </span>
-          </div>
-          <span className="text-[11px] text-[#7A786C]">
-            {ENERGY_OPTIONS.find((e) => e.id === currentVibeEnergy)?.desc}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-5 gap-1.5">
-          {ENERGY_OPTIONS.map((opt) => {
-            const isSelected = currentVibeEnergy === opt.id;
-            return (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => handleSelectEnergy(opt.id)}
-                className={`py-2 px-1 rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer border ${
-                  isSelected
-                    ? 'bg-[#6C7764] text-white border-[#6C7764] shadow-xs ring-2 ring-[#6C7764]/20 font-bold'
-                    : 'bg-white border-[#E8E2D5] text-[#7A786C] hover:bg-[#FAF8F5]'
-                }`}
-              >
-                <span className="text-base mb-0.5">{opt.emoji}</span>
-                <span className="text-[10px] whitespace-nowrap leading-tight">
-                  {opt.shortName}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      {/* 2. User Energy Scale - Vertical Capsule Gauge (Screenshot 23.19.31) */}
+      <EnergyGaugeSlider
+        value={currentVibeEnergy}
+        onChange={handleSelectEnergy}
+      />
 
       {/* 3. Hero Single Focus Task (The One Thing to Do Now) */}
       {topFocusTask && (
         <div className="bg-[#6C7764] text-white rounded-3xl p-4.5 shadow-sm space-y-3 relative overflow-hidden">
           <div className="flex items-center justify-between text-xs">
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-bold backdrop-blur-xs">
-              🎯 งานสำคัญตอนนี้ {topFocusTask.flagged && '🚩'}
+              งานสำคัญตอนนี้ {topFocusTask.flagged && '★'}
             </span>
             <div className="flex items-center gap-1 text-white/90 text-xs font-mono">
               <Clock className="w-3 h-3" />
@@ -494,16 +447,16 @@ export const TaskList: React.FC<TaskListProps> = ({
                       <div className="flex flex-wrap items-center gap-1.5 text-[11px] mb-1.5">
                         {task.flagged && (
                           <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-bold bg-[#FFF4E0] text-[#9E6E15] border border-[#F4E1BD]">
-                            🚩 ปักธง
+                            ปักธง
                           </span>
                         )}
                         <span className="font-semibold px-2 py-0.2 rounded-full bg-[#FAF8F5] border border-[#E8E2D5] text-[#4A4940] text-[10px]">
-                          {catInfo.emoji} {catInfo.label}
+                          {catInfo.label}
                         </span>
                         {getSizeBadge(task.size)}
                         {task.urgency === 'high' && (
                           <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-bold bg-[#FDECE8] text-[#C23A25] border border-[#F6D7D0]">
-                            🔥 งานรีบ
+                            งานด่วน
                           </span>
                         )}
                         <span className="font-mono text-[#7A786C] text-[10px]">{task.estimatedMinutes} นาที</span>

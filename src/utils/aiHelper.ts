@@ -196,3 +196,44 @@ export async function decomposeTaskWithAI(
 
   return { steps: generateMicroSteps(taskTitle, category), source: 'offline-template' };
 }
+
+export interface CognitiveAnalysisResult {
+  stressLevel: 'ต่ำ' | 'ปานกลาง' | 'สูง';
+  readinessScore: number;
+  advice: string;
+  cognitiveBandwidth: string;
+}
+
+export async function analyzeReadinessWithAI(
+  energy: string,
+  taskCount: number,
+  overthinkCount: number,
+  completedToday: number
+): Promise<CognitiveAnalysisResult> {
+  try {
+    const res = await fetch('/api/analyze-readiness', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ energy, taskCount, overthinkCount, completedToday }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      return {
+        stressLevel: data.stressLevel || 'ปานกลาง',
+        readinessScore: Number(data.readinessScore) || 75,
+        advice: data.advice || 'ค่อยๆ ก้าวทีละ 1 งานเล็กๆ สมองจะเริ่มโล่งขึ้นเอง',
+        cognitiveBandwidth: data.cognitiveBandwidth || 'พร้อมรับงาน 60%',
+      };
+    }
+  } catch {
+    // Offline fallback
+  }
+
+  return {
+    stressLevel: overthinkCount > 2 ? 'สูง' : taskCount > 4 ? 'ปานกลาง' : 'ต่ำ',
+    readinessScore: energy === 'depleted' ? 30 : energy === 'tired' ? 50 : 80,
+    advice: 'เลือกงานที่ใช้เวลา 5-10 นาทีทำก่อน เพื่อสร้างชัยชนะแรกของวัน',
+    cognitiveBandwidth: 'พร้อมระดับปกติ',
+  };
+}

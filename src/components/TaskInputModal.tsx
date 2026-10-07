@@ -28,38 +28,38 @@ interface TaskInputModalProps {
 
 const SUGGESTED_TEMPLATES = [
   {
-    title: 'อ่านหนังสือสอบ Midterm 📚',
+    title: 'อ่านหนังสือสอบ Midterm',
     category: 'education' as TaskCategory,
     size: 'medium' as TaskSize,
     tags: ['#exam', '#midterm'],
     estimatedMinutes: 30,
   },
   {
-    title: 'ทำสรุปรายงานและส่งอัปเดต 💼',
+    title: 'ทำสรุปรายงานและส่งอัปเดต',
     category: 'work' as TaskCategory,
     size: 'medium' as TaskSize,
     tags: ['#report', '#urgent'],
     estimatedMinutes: 25,
   },
   {
-    title: 'ตอบบรีฟและส่งดราฟต์ให้ลูกค้า 🎨',
+    title: 'ตอบบรีฟและส่งดราฟต์ให้ลูกค้า',
     category: 'freelance' as TaskCategory,
     size: 'small' as TaskSize,
     tags: ['#client', '#draft'],
     estimatedMinutes: 15,
   },
   {
-    title: 'ออกกำลังกายยืดเหยียด 🏃',
+    title: 'ออกกำลังกายยืดเหยียด',
     category: 'personal' as TaskCategory,
     size: 'small' as TaskSize,
     tags: ['#health', '#workout'],
     estimatedMinutes: 20,
   },
   {
-    title: 'จัดระเบียบโต๊ะทำงานและซักผ้า 🧺',
+    title: 'จัดระเบียบโต๊ะทำงานและตรวจเช็คอีเมล',
     category: 'personal' as TaskCategory,
     size: 'small' as TaskSize,
-    tags: ['#tidy', '#home'],
+    tags: ['#tidy', '#routine'],
     estimatedMinutes: 15,
   },
 ];
@@ -231,7 +231,7 @@ export const TaskInputModal: React.FC<TaskInputModalProps> = ({
         {!initialTask && (
           <div className="mb-4">
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#8A887A] block mb-1.5">
-              💡 Suggested List (แตะเพื่อใส่เทมเพลตไว)
+              Suggested List (แตะเพื่อใส่เทมเพลตไว)
             </span>
             <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
               {SUGGESTED_TEMPLATES.map((tmpl, idx) => (
@@ -273,10 +273,10 @@ export const TaskInputModal: React.FC<TaskInputModalProps> = ({
             {/* Category 4 options */}
             <div className="grid grid-cols-4 gap-1.5">
               {[
-                { id: 'personal', label: 'ส่วนตัว 🧸' },
-                { id: 'work', label: 'Work 💼' },
-                { id: 'freelance', label: 'Freelance 🎨' },
-                { id: 'education', label: 'Education 📚' },
+                { id: 'personal', label: 'ส่วนตัว' },
+                { id: 'work', label: 'งาน (Work)' },
+                { id: 'freelance', label: 'ฟรีแลนซ์' },
+                { id: 'education', label: 'การเรียน' },
               ].map((cat) => (
                 <button
                   key={cat.id}
@@ -346,9 +346,9 @@ export const TaskInputModal: React.FC<TaskInputModalProps> = ({
             </label>
             <div className="grid grid-cols-3 gap-2 mb-2">
               {[
-                { id: 'small', label: 'งานเล็ก 🌱', desc: '~5-15 นาที' },
-                { id: 'medium', label: 'งานกลาง 🌿', desc: '~25-45 นาที' },
-                { id: 'large', label: 'งานใหญ่ 🌳', desc: '~60 นาที+' },
+                { id: 'small', label: 'งานเล็ก', desc: '~5-15 นาที' },
+                { id: 'medium', label: 'งานกลาง', desc: '~25-45 นาที' },
+                { id: 'large', label: 'งานใหญ่', desc: '~60 นาที+' },
               ].map((s) => (
                 <button
                   key={s.id}
@@ -378,7 +378,7 @@ export const TaskInputModal: React.FC<TaskInputModalProps> = ({
                 }`}
               >
                 <Flame className={`w-3.5 h-3.5 ${isUrgent ? 'text-[#E05A47]' : 'text-[#8A887A]'}`} />
-                <span>{isUrgent ? '🔥 งานรีบ (Urgent)' : 'งานปกติ'}</span>
+                <span>{isUrgent ? 'งานเร่งด่วน (Urgent)' : 'งานปกติ'}</span>
               </button>
 
               <button
@@ -391,7 +391,7 @@ export const TaskInputModal: React.FC<TaskInputModalProps> = ({
                 }`}
               >
                 <Flag className={`w-3.5 h-3.5 ${flagged ? 'text-[#D49E35] fill-current' : 'text-[#8A887A]'}`} />
-                <span>{flagged ? '🚩 ปักธงสำคัญ' : 'ปักธง'}</span>
+                <span>{flagged ? 'ปักธงสำคัญ' : 'ปักธง'}</span>
               </button>
             </div>
           </div>
@@ -559,7 +559,7 @@ export const TaskInputModal: React.FC<TaskInputModalProps> = ({
                 className="w-4 h-4 text-[#6C7764] rounded focus:ring-[#6C7764]/40 border-[#E2DACB] cursor-pointer"
               />
               <label htmlFor="overthinkingCheck" className="text-xs font-semibold text-[#2C2C24] cursor-pointer">
-                🧠 งานนี้ทำให้คิดเยอะ / รู้สึกเริ่มยากเป็นพิเศษ
+                งานนี้ทำให้คิดเยอะ / รู้สึกเริ่มยากเป็นพิเศษ
               </label>
             </div>
           </div>
@@ -630,7 +630,7 @@ export const TaskInputModal: React.FC<TaskInputModalProps> = ({
               type="submit"
               className="px-5 py-2 rounded-xl bg-[#6C7764] hover:bg-[#586350] text-white text-xs sm:text-sm font-bold shadow-md transition cursor-pointer active:scale-95"
             >
-              {initialTask ? 'บันทึกการแก้ไข' : 'บันทึกงาน ✨'}
+              {initialTask ? 'บันทึกการแก้ไข' : 'บันทึกงาน'}
             </button>
           </div>
         </form>

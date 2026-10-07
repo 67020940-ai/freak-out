@@ -43,10 +43,10 @@ test.describe('Freak Out! App Navigation & Feature Tests', () => {
     await petTab.click();
     await expect(page.getByText(/นูเบ้/i).first()).toBeVisible();
 
-    // 2.4 สลับไปแท็บ 'รางวัล' (Gamification)
-    const rewardsTab = page.getByRole('button', { name: /รางวัล/i });
-    await rewardsTab.click();
-    await expect(page.getByText(/รางวัล/i).first()).toBeVisible();
+    // 2.4 สลับไปแท็บ 'ตั้งค่า' (Settings Tab)
+    const settingsTab = page.getByRole('button', { name: /ตั้งค่า/i });
+    await settingsTab.click();
+    await expect(page.getByText(/ตั้งค่าระบบ/i).first()).toBeVisible();
 
     // 2.5 สลับกลับมาแท็บ 'งานวันนี้' (Tasks)
     const tasksTab = page.getByRole('button', { name: /งานวันนี้/i });

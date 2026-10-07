@@ -1,7 +1,6 @@
 import React from 'react';
-import { UserStats, PetState } from '../types';
+import { UserStats, PetState, AppTab } from '../types';
 import { Sparkles, Flame, Wind, Crown, Gift } from 'lucide-react';
-import { AppTab } from './Header';
 import { PixelCloud8Bit } from './PixelCloud8Bit';
 import { useSecretTap } from '../utils/useSecretTap';
 import { resetToDemo } from '../utils/demoMode';
@@ -36,11 +35,13 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
       case 'calendar':
         return { title: 'ตารางเวลา', sub: 'สแกนช่วงว่าง & โฟกัส' };
       case 'smart-pick':
-        return { title: 'Smart Pick 🎯', sub: 'AI วิเคราะห์ 1 งานที่เหมาะที่สุด' };
+        return { title: 'Smart Pick', sub: 'AI วิเคราะห์ 1 งานที่เหมาะที่สุด' };
       case 'cloud-pet':
         return { title: `ห้องของน้อง${pet.name}`, sub: 'เพื่อนคู่คิดลดความเครียด' };
       case 'gamification':
         return { title: 'สถิติ & สตรีค', sub: `เลเวล ${stats.level} • ${stats.levelTitle}` };
+      default:
+        return { title: 'ตั้งค่า', sub: 'การตั้งค่าระบบและบัญชี' };
     }
   };
 

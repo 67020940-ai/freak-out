@@ -6,19 +6,45 @@ interface PixelCloud8BitProps {
   pose?: PixelCloudPose;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   accessory?: string;
+  color?: string; // e.g. 'white' | 'blue' | 'pink' | 'purple' | 'peach' | 'green'
   interactive?: boolean;
   onClick?: () => void;
   className?: string;
 }
 
+export interface CloudColorThemeItem {
+  id: string;
+  name: string;
+  colorHex: string;
+  body: string;
+  shade: string;
+  desc: string;
+}
+
+export const CLOUD_COLOR_THEME_LIST: CloudColorThemeItem[] = [
+  { id: 'white', name: 'ขาวธรรมชาติ', colorHex: '#FFFFFF', body: '#FFFFFF', shade: '#EAE3D5', desc: 'คลาสสิก ปุยเมฆ' },
+  { id: 'blue', name: 'ฟ้าพาสเทล', colorHex: '#BAE6FD', body: '#E0F2FE', shade: '#BAE6FD', desc: 'สงบ สบายตา' },
+  { id: 'pink', name: 'ชมพูซากุระ', colorHex: '#FBCFE8', body: '#FCE7F3', shade: '#FBCFE8', desc: 'สดใส ใจฟู' },
+  { id: 'purple', name: 'ม่วงลาเวนเดอร์', colorHex: '#E9D5FF', body: '#F3E8FF', shade: '#E9D5FF', desc: 'ผ่อนคลาย สมาธิ' },
+  { id: 'peach', name: 'ส้มพีชหวาน', colorHex: '#FED7AA', body: '#FFEDD5', shade: '#FED7AA', desc: 'อบอุ่น มีพลัง' },
+  { id: 'green', name: 'เขียวมิ้นต์', colorHex: '#BBF7D0', body: '#DCFCE7', shade: '#BBF7D0', desc: 'สดชื่น เยียวยา' },
+];
+
+export const CLOUD_COLOR_THEMES = CLOUD_COLOR_THEME_LIST;
+
 export const PixelCloud8Bit: React.FC<PixelCloud8BitProps> = ({
   pose = 'idle',
   size = 'md',
   accessory,
+  color = 'white',
   interactive = true,
   onClick,
   className = '',
 }) => {
+  const activeColorTheme = CLOUD_COLOR_THEMES.find((t) => t.id === color) || CLOUD_COLOR_THEMES[0];
+  const bodyColor = activeColorTheme.body;
+  const shadeColor = activeColorTheme.shade;
+
   const sizeClasses = {
     sm: 'w-12 h-12',
     md: 'w-24 h-24 sm:w-28 sm:h-28',
@@ -259,15 +285,15 @@ export const PixelCloud8Bit: React.FC<PixelCloud8BitProps> = ({
             <rect x="8" y="21" width="16" height="2" fill="#2C2C24" />
 
             {/* Cloud Main White Body Fill */}
-            <rect x="10" y="6" width="12" height="15" fill="#FFFFFF" />
-            <rect x="7" y="8" width="18" height="11" fill="#FFFFFF" />
-            <rect x="5" y="12" width="22" height="7" fill="#FFFFFF" />
+            <rect x="10" y="6" width="12" height="15" fill={bodyColor} />
+            <rect x="7" y="8" width="18" height="11" fill={bodyColor} />
+            <rect x="5" y="12" width="22" height="7" fill={bodyColor} />
 
             {/* Soft Warm Linen Bottom Shading */}
-            <rect x="8" y="19" width="16" height="2" fill="#EAE3D5" />
-            <rect x="5" y="17" width="2" height="2" fill="#EAE3D5" />
-            <rect x="25" y="17" width="2" height="2" fill="#EAE3D5" />
-            <rect x="10" y="17" width="12" height="2" fill="#F4EFE6" />
+            <rect x="8" y="19" width="16" height="2" fill={shadeColor} />
+            <rect x="5" y="17" width="2" height="2" fill={shadeColor} />
+            <rect x="25" y="17" width="2" height="2" fill={shadeColor} />
+            <rect x="10" y="17" width="12" height="2" fill={shadeColor} opacity="0.6" />
 
             {/* Cute Pixel Eyes with Blinking */}
             <g className="anim-blink">
@@ -321,13 +347,13 @@ export const PixelCloud8Bit: React.FC<PixelCloud8BitProps> = ({
             <rect x="8" y="21" width="16" height="2" fill="#2C2C24" />
 
             {/* Cloud Body Fill */}
-            <rect x="10" y="6" width="12" height="15" fill="#FFFFFF" />
-            <rect x="7" y="8" width="18" height="11" fill="#FFFFFF" />
-            <rect x="5" y="12" width="22" height="7" fill="#FFFFFF" />
+            <rect x="10" y="6" width="12" height="15" fill={bodyColor} />
+            <rect x="7" y="8" width="18" height="11" fill={bodyColor} />
+            <rect x="5" y="12" width="22" height="7" fill={bodyColor} />
 
             {/* Shading */}
-            <rect x="8" y="19" width="16" height="2" fill="#EAE3D5" />
-            <rect x="10" y="17" width="12" height="2" fill="#F4EFE6" />
+            <rect x="8" y="19" width="16" height="2" fill={shadeColor} />
+            <rect x="10" y="17" width="12" height="2" fill={shadeColor} opacity="0.6" />
 
             {/* Determined Focus Eyes (Looking slightly down at laptop) */}
             <rect x="10" y="12" width="3" height="2" fill="#2C2C24" />
@@ -351,8 +377,8 @@ export const PixelCloud8Bit: React.FC<PixelCloud8BitProps> = ({
 
             {/* Fast Typing Hands (Animated) */}
             <g className="anim-typing">
-              <rect x="9" y="19" width="2" height="2" fill="#FFFFFF" stroke="#2C2C24" strokeWidth="0.5" />
-              <rect x="21" y="19" width="2" height="2" fill="#FFFFFF" stroke="#2C2C24" strokeWidth="0.5" />
+              <rect x="9" y="19" width="2" height="2" fill={bodyColor} stroke="#2C2C24" strokeWidth="0.5" />
+              <rect x="21" y="19" width="2" height="2" fill={bodyColor} stroke="#2C2C24" strokeWidth="0.5" />
             </g>
 
             {/* Wearable Accessory Layer */}
@@ -389,19 +415,19 @@ export const PixelCloud8Bit: React.FC<PixelCloud8BitProps> = ({
             <rect x="8" y="21" width="16" height="2" fill="#2C2C24" />
 
             {/* Cloud Body Fill */}
-            <rect x="10" y="6" width="12" height="15" fill="#FFFFFF" />
-            <rect x="7" y="8" width="18" height="11" fill="#FFFFFF" />
-            <rect x="5" y="12" width="22" height="7" fill="#FFFFFF" />
+            <rect x="10" y="6" width="12" height="15" fill={bodyColor} />
+            <rect x="7" y="8" width="18" height="11" fill={bodyColor} />
+            <rect x="5" y="12" width="22" height="7" fill={bodyColor} />
 
             {/* Shading */}
-            <rect x="8" y="19" width="16" height="2" fill="#EAE3D5" />
-            <rect x="10" y="17" width="12" height="2" fill="#F4EFE6" />
+            <rect x="8" y="19" width="16" height="2" fill={shadeColor} />
+            <rect x="10" y="17" width="12" height="2" fill={shadeColor} opacity="0.6" />
 
             {/* Cheerful Raised Hands (Hooray!) */}
             <rect x="3" y="9" width="2" height="3" fill="#2C2C24" />
-            <rect x="4" y="8" width="2" height="2" fill="#FFFFFF" />
+            <rect x="4" y="8" width="2" height="2" fill={bodyColor} />
             <rect x="27" y="9" width="2" height="3" fill="#2C2C24" />
-            <rect x="26" y="8" width="2" height="2" fill="#FFFFFF" />
+            <rect x="26" y="8" width="2" height="2" fill={bodyColor} />
 
             {/* Joyful Squinting Eyes (^ ^) */}
             {/* Left Eye */}

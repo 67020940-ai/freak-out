@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Task, UserStats, Badge, PetState, EnergyLevel, MicroStep } from './types';
+import { Task, UserStats, Badge, PetState, EnergyLevel, MicroStep, AppTab, AppSettings } from './types';
 import { INITIAL_TASKS, INITIAL_STATS, INITIAL_BADGES } from './data/mockData';
-import { AppTab } from './components/Header';
 import { MobileDeviceFrame } from './components/MobileDeviceFrame';
 import { MobileStatusBar } from './components/MobileStatusBar';
 import { MobileAppHeader } from './components/MobileAppHeader';
@@ -20,6 +19,7 @@ import { DailyRewardModal } from './components/DailyRewardModal';
 import { AdSimulationBanner } from './components/AdSimulationBanner';
 import { AuthOnboardingView } from './components/AuthOnboardingView';
 import { MindfulJournalModal } from './components/MindfulJournalModal';
+import { SettingsView } from './components/SettingsView';
 
 const INITIAL_PET: PetState = {
   name: 'นูเบ้',
@@ -95,6 +95,29 @@ export default function App() {
     }
   });
 
+  const [settings, setSettings] = useState<AppSettings>(() => {
+    try {
+      const saved = localStorage.getItem('freakout_app_settings');
+      return saved ? JSON.parse(saved) : {
+        focusShieldEnabled: true,
+        smartBufferMinutes: 15,
+        soundEnabled: true,
+        hapticEnabled: true,
+        cloudColor: 'white',
+        autoSyncGoogleCalendar: true,
+      };
+    } catch {
+      return {
+        focusShieldEnabled: true,
+        smartBufferMinutes: 15,
+        soundEnabled: true,
+        hapticEnabled: true,
+        cloudColor: 'white',
+        autoSyncGoogleCalendar: true,
+      };
+    }
+  });
+
   const [currentTab, setCurrentTab] = useState<AppTab>('tasks');
   // Track by id so Focus Mode always renders the live task (step ticks update instantly)
   const [activeFocusTaskId, setActiveFocusTaskId] = useState<string | null>(null);
@@ -110,6 +133,15 @@ export default function App() {
   const [isPricingModalOpen, setIsPricingModalOpen] = useState<boolean>(false);
   const [isDailyRewardOpen, setIsDailyRewardOpen] = useState<boolean>(false);
   const [isJournalOpen, setIsJournalOpen] = useState<boolean>(false);
+
+  // Sync to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('freakout_app_settings', JSON.stringify(settings));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [settings]);
 
   // Sync to localStorage
   useEffect(() => {
@@ -396,6 +428,22 @@ export default function App() {
               {/* Tab 5: Gamification, Badges & Streaks */}
               {currentTab === 'gamification' && (
                 <GamificationView stats={stats} badges={badges} />
+              )}
+
+              {/* Tab 6: Settings & AI Cognitive Assessment */}
+              {currentTab === 'settings' && (
+                <SettingsView
+                  tasks={tasks}
+                  energy={energy}
+                  cloudColor={pet.color || 'white'}
+                  onUpdateCloudColor={(color) => setPet((prev) => ({ ...prev, color }))}
+                  onLogout={() => {
+                    setIsAuthenticated(false);
+                    localStorage.removeItem('freakout_authenticated');
+                  }}
+                  settings={settings}
+                  onUpdateSettings={setSettings}
+                />
               )}
             </main>
 

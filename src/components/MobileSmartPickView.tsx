@@ -2,14 +2,11 @@ import React, { useState } from 'react';
 import { Task, EnergyLevel } from '../types';
 import { recommendBestTask } from '../utils/aiHelper';
 import { MascotCloud } from './MascotCloud';
+import { EnergyGaugeSlider } from './EnergyGaugeSlider';
 import {
   Brain,
   Clock,
-  Zap,
-  BatteryMedium,
-  BatteryLow,
   Play,
-  RotateCcw,
   Sparkles,
   ArrowRight,
   CheckCircle2,
@@ -102,43 +99,11 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
         </p>
       </div>
 
-      {/* Energy Level Selector (5 Levels matching Screenshot 2) */}
-      <div className="bg-[#FAF8F5] rounded-3xl p-4 border border-[#E8E2D5] shadow-2xs space-y-2.5">
-        <div className="flex items-center justify-between">
-          <label className="block text-xs font-bold text-[#2C2C24] uppercase tracking-wider">
-            1. ระดับพลังงานของคุณตอนนี้
-          </label>
-        </div>
-        <div className="grid grid-cols-5 gap-1.5">
-          {[
-            { id: 'depleted' as EnergyLevel, name: '1. หมดแรง', emoji: '🪫', desc: '5-10น.' },
-            { id: 'tired' as EnergyLevel, name: '2. ล้า ๆ', emoji: '🥱', desc: 'งานเบา' },
-            { id: 'okay' as EnergyLevel, name: '3. พอไหว', emoji: '🌿', desc: 'ขนาดกลาง' },
-            { id: 'ready' as EnergyLevel, name: '4. พร้อมลุย', emoji: '⚡', desc: 'โฟกัสดี' },
-            { id: 'full' as EnergyLevel, name: '5. พลังเต็ม!', emoji: '🔥', desc: 'จัดเต็ม' },
-          ].map((item) => {
-            const isSelected = selectedEnergy === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => handleEnergyChange(item.id)}
-                className={`p-2 rounded-2xl flex flex-col items-center justify-center text-center transition-all cursor-pointer border ${
-                  isSelected
-                    ? 'bg-[#6C7764] text-white border-[#6C7764] shadow-xs font-bold ring-2 ring-[#6C7764]/20 scale-102'
-                    : 'bg-white border-[#E8E2D5] text-[#7A786C] hover:bg-[#FAF8F5]'
-                }`}
-              >
-                <span className="text-base mb-0.5">{item.emoji}</span>
-                <span className="text-[10px] whitespace-nowrap leading-tight">{item.name}</span>
-                <span className={`text-[8px] mt-0.5 ${isSelected ? 'text-white/80' : 'text-[#8A887A]'}`}>
-                  {item.desc}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      {/* Energy Level Selector (Vertical Capsule Gauge) */}
+      <EnergyGaugeSlider
+        value={selectedEnergy}
+        onChange={handleEnergyChange}
+      />
 
       {/* Available Time Selector */}
       <div className="bg-[#FAF8F5] rounded-3xl p-4 border border-[#E8E2D5] shadow-2xs space-y-2.5">
@@ -157,7 +122,7 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
                   : 'bg-white border-[#E8E2D5] text-[#7A786C] hover:bg-[#F3EFE6]'
               }`}
             >
-              ⏱️ {mins} นาที
+              {mins} นาที
             </button>
           ))}
         </div>
@@ -167,7 +132,7 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
       <div className="space-y-2">
         <div className="flex items-center justify-between px-1">
           <span className="text-xs font-bold uppercase tracking-wider text-[#6C7764]">
-            ✨ งานเดียวที่คุณต้องโฟกัสตอนนี้
+            งานเดียวที่คุณต้องโฟกัสตอนนี้
           </span>
           {pendingTasks.length > 1 && (
             <span className="text-[11px] text-[#8A887A]">
@@ -181,14 +146,14 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
             <div>
               <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#EBF0E8] text-[#3B5433] border border-[#CFDFCB]">
-                  💡 เหมาะกับพลังงานของคุณ
+                  เหมาะกับระดับพลังงาน
                 </span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white text-[#7A786C] border border-[#E8E2D5]">
-                  ⏱️ {recommendation.task.estimatedMinutes} นาที
+                  {recommendation.task.estimatedMinutes} นาที
                 </span>
                 {recommendation.task.isOverthinkingProne && (
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FDECE8] text-[#9A4A38] border border-[#F6D7D0]">
-                    🧠 งานคิดวน
+                    งานเริ่มยาก
                   </span>
                 )}
               </div>
@@ -205,7 +170,6 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
 
             {/* AI Rationale Box */}
             <div className="p-3 rounded-2xl bg-[#F4EFE6] border border-[#E5DEC9] text-xs text-[#5C5B50] flex items-start gap-2">
-              <span className="text-sm">🎯</span>
               <p className="leading-relaxed">
                 <strong className="text-[#2C2C24]">เหตุผลที่แนะนำ:</strong> {recommendation.reasonTh}
               </p>
@@ -252,7 +216,7 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
                   className="w-full py-2 px-3 rounded-xl bg-[#EFE9DE] hover:bg-[#E5DDD0] text-[#55634E] text-xs font-semibold border border-[#E2DACB] flex items-center justify-center gap-1.5 transition cursor-pointer"
                 >
                   <Sparkles className={`w-3.5 h-3.5 text-[#6C7764] ${isDecomposing ? 'animate-spin' : ''}`} />
-                  <span>{isDecomposing ? 'กำลังให้ AI ย่อยก้าวแรก 2 นาที...' : '✨ ให้ AI ช่วยย่อยก้าวแรก (ลดการคิดเยอะ)'}</span>
+                  <span>{isDecomposing ? 'กำลังให้ AI ย่อยก้าวแรก 2 นาที...' : 'ให้ AI ช่วยย่อยก้าวแรก (ลดการคิดเยอะ)'}</span>
                 </button>
               </div>
             )}
@@ -269,9 +233,8 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
           </div>
         ) : (
           <div className="p-8 rounded-3xl bg-[#FAF8F5] border border-[#E8E2D5] text-center space-y-3">
-            <span className="text-3xl">🎉</span>
             <h3 className="font-heading font-bold text-base text-[#2C2C24]">
-              ไม่มีงานค้างอยู่ในรายการเลย!
+              ไม่มีงานค้างอยู่ในรายการเลย
             </h3>
             <p className="text-xs text-[#7A786C] max-w-xs mx-auto">
               คุณเคลียร์งานหมดแล้ว หรือระบายความคิดใหม่ๆ เข้ามาในแอปได้เลย
@@ -289,7 +252,7 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
       {/* Quick 2-Minute Anti-Overthinking Rule Card */}
       <div className="bg-[#EFE9DE]/80 rounded-2xl p-3.5 border border-[#E2DACB] text-xs space-y-1.5">
         <div className="font-bold text-[#2C2C24] flex items-center gap-1.5">
-          <span>💡</span> กฎ 2 นาทีสยบ Overthinking:
+          กฎ 2 นาทีสยบ Overthinking:
         </div>
         <p className="text-[#6E6D62] text-[11px] leading-relaxed">
           อย่าเพิ่งคิดถึงปลายทาง แค่เปิดไฟล์หรือหยิบปากกาขึ้นมาใน 2 นาทีแรก สมองจะสลับจากโหมดกังวลเป็นโหมดลงมือทำโดยอัตโนมัติ

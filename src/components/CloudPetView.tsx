@@ -15,10 +15,11 @@ import {
   Sun,
   Flame,
   Star,
-  Info
+  Info,
+  Palette
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { PixelCloud8Bit, PixelCloudPose } from './PixelCloud8Bit';
+import { PixelCloud8Bit, PixelCloudPose, CLOUD_COLOR_THEMES } from './PixelCloud8Bit';
 
 interface CloudPetViewProps {
   pet: PetState;
@@ -28,9 +29,9 @@ interface CloudPetViewProps {
 }
 
 const PIXEL_POSES: { id: PixelCloudPose; name: string; desc: string }[] = [
-  { id: 'idle', name: 'สบายใจ ☁️', desc: 'ลอยเบาๆ กระพริบตา' },
-  { id: 'focus', name: 'ปั่นงาน 🔥', desc: 'พิมพ์งาน โฟกัสลุกโชน' },
-  { id: 'celebrate', name: 'ฉลองสำเร็จ 🎉', desc: 'กระโดดดีใจ มีดาววิ้ง' },
+  { id: 'idle', name: 'สบายใจ', desc: 'ลอยเบาๆ พักผ่อน' },
+  { id: 'focus', name: 'ปั่นงาน', desc: 'พิมพ์งาน โฟกัสเต็มที่' },
+  { id: 'celebrate', name: 'ฉลองสำเร็จ', desc: 'กระโดดดีใจ มีดาววิ้ง' },
 ];
 
 const ACCESSORIES = [
@@ -183,10 +184,10 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
             <div
               onClick={handlePet}
               className="relative w-44 h-44 sm:w-52 sm:h-52 rounded-3xl p-3 bg-white border border-[#E8E2D5] shadow-sm hover:shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center group select-none"
-              title="คลิกเพื่อลูบหัวน้องเมฆ 💖"
+              title="คลิกเพื่อลูบหัวน้องเมฆ"
             >
               <div className="w-full h-full flex items-center justify-center p-2">
-                <PixelCloud8Bit pose={activePose} size="lg" accessory={pet.equippedAccessory} interactive={false} />
+                <PixelCloud8Bit pose={activePose} size="lg" accessory={pet.equippedAccessory} color={pet.color || 'white'} interactive={false} />
               </div>
 
               {/* Heart particles */}
@@ -359,13 +360,65 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
                 }`}
               >
                 <div className="w-13 h-13 rounded-xl mb-1 bg-[#FAF8F5] flex items-center justify-center p-0.5">
-                  <PixelCloud8Bit pose={poseItem.id} size="sm" accessory={pet.equippedAccessory} interactive={false} />
+                  <PixelCloud8Bit pose={poseItem.id} size="sm" accessory={pet.equippedAccessory} color={pet.color || 'white'} interactive={false} />
                 </div>
                 <span className="text-[11px] font-bold text-[#2C2C24] text-center leading-tight whitespace-nowrap">
                   {poseItem.name}
                 </span>
                 <span className="text-[9px] text-[#8A887A] text-center truncate w-full mt-0.5">
                   {poseItem.desc}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Cloud Color Theme Picker (Screenshot 23.18.55) */}
+      <div className="bg-[#FAF8F5] rounded-3xl p-4 border border-[#E8E2D5] space-y-3 shadow-2xs">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-bold text-[#2C2C24] font-heading flex items-center gap-1.5">
+              <Palette className="w-4 h-4 text-[#828D7A]" />
+              <span>โทนสีของน้องเมฆ (Color Theme)</span>
+            </h3>
+            <p className="text-[11px] text-[#7A786C]">
+              เปลี่ยนสีสันให้น้องเมฆตามอารมณ์ของคุณ
+            </p>
+          </div>
+          <span className="text-[10px] font-semibold text-[#828D7A] bg-[#ECEFEA] px-2 py-0.5 rounded-full border border-[#D5DDD0]">
+            {CLOUD_COLOR_THEMES.find(t => t.id === (pet.color || 'white'))?.name || 'ปุยนุ่นคลาสสิก'}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+          {CLOUD_COLOR_THEMES.map((theme) => {
+            const isSelected = (pet.color || 'white') === theme.id;
+            return (
+              <button
+                key={theme.id}
+                type="button"
+                onClick={() => {
+                  onUpdatePet((prev) => ({ ...prev, color: theme.id }));
+                  setPetFeedback(`เปลี่ยนเป็นสี "${theme.name}" แล้วฮะ!`);
+                }}
+                className={`flex flex-col items-center p-2 rounded-2xl border transition-all cursor-pointer ${
+                  isSelected
+                    ? 'bg-white border-[#6C7764] shadow-xs ring-2 ring-[#6C7764]/25'
+                    : 'bg-white/70 border-[#E8E2D5] hover:bg-white hover:border-[#D5CDC0]'
+                }`}
+              >
+                <div
+                  className="w-7 h-7 rounded-full border border-black/10 shadow-2xs mb-1.5 flex items-center justify-center transition-transform"
+                  style={{ backgroundColor: theme.colorHex }}
+                >
+                  {isSelected && <span className="w-2 h-2 rounded-full bg-[#2C2C24]" />}
+                </div>
+                <span className="text-[11px] font-bold text-[#2C2C24] text-center leading-tight">
+                  {theme.name}
+                </span>
+                <span className="text-[9px] text-[#8A887A] text-center mt-0.5">
+                  {theme.desc}
                 </span>
               </button>
             );
@@ -382,11 +435,11 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
               <span>ตู้เสื้อผ้าและไอเท็มตกแต่ง</span>
             </h3>
             <p className="text-[11px] text-[#7A786C]">
-              เปลี่ยนชุดและไอเท็มให้น้องเมฆได้ทันที ✨
+              เปลี่ยนชุดและไอเท็มให้น้องเมฆได้ทันที
             </p>
           </div>
           <div className="text-xs font-bold text-[#B87A24] bg-[#FFF4E0] px-2.5 py-0.5 rounded-xl border border-[#F4E1BD] shrink-0">
-            {pet.stardust} 🪙
+            {pet.stardust} แต้ม
           </div>
         </div>
 
@@ -399,7 +452,7 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
                 onClick={() => {
                   if (acc.unlocked) {
                     onUpdatePet((prev) => ({ ...prev, equippedAccessory: acc.id }));
-                    setPetFeedback(`ใส่ "${acc.name}" ให้น้องเมฆเรียบร้อยแล้วฮะ! ✨`);
+                    setPetFeedback(`ใส่ "${acc.name}" ให้น้องเมฆเรียบร้อยแล้วฮะ!`);
                   }
                 }}
                 className={`flex flex-col items-center p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
@@ -418,7 +471,7 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
                 <div className="mt-1.5">
                   {isEquipped ? (
                     <span className="text-[9px] font-bold text-[#3B5433] bg-[#DDE9D9] px-2 py-0.5 rounded-full">
-                      ✓ กำลังใส่
+                      กำลังใส่
                     </span>
                   ) : acc.unlocked ? (
                     <span className="text-[9px] font-semibold text-[#6C7764] bg-[#FAF8F5] px-2 py-0.5 rounded-full border border-[#E2DACB]">
@@ -426,7 +479,7 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
                     </span>
                   ) : (
                     <span className="text-[9px] font-semibold text-[#8C8A7D]">
-                      🔒 {acc.price} ดาว
+                      {acc.price} แต้ม
                     </span>
                   )}
                 </div>
