@@ -108,9 +108,6 @@ export const AuthOnboardingView: React.FC<AuthOnboardingViewProps> = ({ onLogin 
           <div className="w-36 h-36 rounded-full bg-[#EBF0E8]/70 flex items-center justify-center p-3 shadow-inner border border-[#CFDFCB]">
             <PixelCloud8Bit pose="celebrate" size="lg" interactive={true} />
           </div>
-          <div className="absolute -top-1 -right-1 px-2.5 py-0.5 rounded-full bg-[#FFF4E0] border border-[#F4E1BD] text-[10px] font-bold text-[#8A5C1E] shadow-2xs">
-            Hallmark Minimal
-          </div>
         </div>
 
         {/* Philosophy headline */}
