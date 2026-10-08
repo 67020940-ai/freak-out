@@ -2,6 +2,7 @@ import React from 'react';
 import { UserStats, PetState, AppTab } from '../types';
 import { Sparkles, Flame, Wind, Crown, Gift, CheckSquare, Calendar, Brain, Smile, Settings, Bot } from 'lucide-react';
 import { PixelCloud8Bit } from './PixelCloud8Bit';
+import { AppLogo8Bit } from './AppLogo8Bit';
 import { useSecretTap } from '../utils/useSecretTap';
 import { resetToDemo } from '../utils/demoMode';
 
@@ -65,20 +66,18 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
   return (
     <header className="sticky top-0 px-4 py-2.5 bg-[#FAF8F5]/95 dark:bg-[#1A1A18]/95 backdrop-blur-md border-b border-[#EAE4D9] dark:border-[#2E2E2A] shrink-0 z-30 select-none">
       <div className="flex items-center justify-between gap-3 w-full max-w-6xl mx-auto">
-        {/* Left: Mascot Pet Avatar & Space / Active View Switcher */}
+        {/* Left: 8-Bit Mascot App Logo & Space / Active View Switcher */}
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => {
               secretTap();
-              onTabChange('cloud-pet');
+              onTabChange('tasks');
             }}
-            className="flex items-center gap-2 group p-0.5 rounded-2xl hover:bg-[#EFE9DE] dark:hover:bg-[#2C2C28] transition active:scale-95 text-left cursor-pointer shrink-0"
-            title={`ห้องของน้อง ${pet.name || 'Cloudy'}`}
+            className="flex items-center gap-1 group p-0.5 rounded-2xl hover:bg-[#EFE9DE] dark:hover:bg-[#2C2C28] transition active:scale-95 text-left cursor-pointer shrink-0"
+            title="Freak Out - หน้าหลัก"
           >
             <div className="relative shrink-0">
-              <div className="w-9 h-9 rounded-xl overflow-hidden bg-white dark:bg-[#242422] border border-[#E8E2D5] dark:border-[#383834] shadow-2xs flex items-center justify-center p-0.5">
-                <PixelCloud8Bit pose="idle" size="sm" accessory={pet.equippedAccessory} color={pet.color || 'white'} interactive={false} />
-              </div>
+              <AppLogo8Bit size="sm" />
               <span className="absolute -bottom-1 -right-1 px-1 py-0.2 rounded-full bg-[#6C7764] text-white text-[9px] font-bold shadow-2xs border border-[#FAF8F5] dark:border-[#1A1A18]">
                 L{pet.level}
               </span>
@@ -214,23 +213,13 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
           {onOpenAiChat && (
             <button
               onClick={onOpenAiChat}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0F5ED] hover:bg-[#E3EDE0] border border-[#D5E2CF] text-[#4A633F] text-xs font-semibold transition active:scale-95 cursor-pointer shadow-2xs shrink-0 whitespace-nowrap"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0F5ED] dark:bg-[#1E281C] hover:bg-[#E3EDE0] dark:hover:bg-[#283626] border border-[#D5E2CF] dark:border-[#2C4229] text-[#4A633F] dark:text-[#88B580] text-xs font-semibold transition active:scale-95 cursor-pointer shadow-2xs shrink-0 whitespace-nowrap"
               title="คุยกับน้องเมฆ AI Agent"
             >
-              <Bot className="w-3.5 h-3.5 text-[#5B7B4E]" />
+              <Bot className="w-3.5 h-3.5 text-[#5B7B4E] dark:text-[#88B580]" />
               <span className="hidden sm:inline">AI Agent</span>
             </button>
           )}
-
-          {/* Panic SOS Button - Calm Breathing */}
-          <button
-            onClick={onOpenPanic}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E8EFF7] hover:bg-[#D5E3F2] border border-[#CADAEB] text-[#345A82] text-xs font-bold transition active:scale-95 cursor-pointer shadow-2xs shrink-0 whitespace-nowrap"
-            title="ฝึกหายใจ คลายกังวลทันที"
-          >
-            <Wind className="w-3.5 h-3.5 text-[#3B6C9D]" />
-            <span>SOS</span>
-          </button>
         </div>
       </div>
     </header>

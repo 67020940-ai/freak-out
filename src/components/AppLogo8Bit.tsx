@@ -12,16 +12,16 @@ export const AppLogo8Bit: React.FC<AppLogo8BitProps> = ({
   className = '',
 }) => {
   const pixelDimensions = {
-    sm: 'w-7 h-7',
-    md: 'w-10 h-10',
-    lg: 'w-16 h-16',
+    sm: 'w-9 h-9 rounded-xl',
+    md: 'w-10 h-10 rounded-2xl',
+    lg: 'w-16 h-16 rounded-3xl',
   };
 
   return (
     <div className={`inline-flex items-center gap-2 select-none ${className}`}>
       {/* 8-bit Crisp Pixel App Icon Container */}
       <div
-        className={`${pixelDimensions[size]} rounded-2xl bg-gradient-to-b from-[#FAF8F5] to-[#EFE9DE] dark:from-[#262624] dark:to-[#181816] border border-[#E2DACB] dark:border-[#383834] shadow-2xs flex items-center justify-center p-1 relative overflow-hidden transition-transform active:scale-95`}
+        className={`${pixelDimensions[size]} bg-gradient-to-b from-[#FAF8F5] to-[#EFE9DE] dark:from-[#262624] dark:to-[#181816] border border-[#E2DACB] dark:border-[#383834] shadow-2xs flex items-center justify-center p-1 relative overflow-hidden transition-transform active:scale-95`}
       >
         <svg
           viewBox="0 0 32 32"

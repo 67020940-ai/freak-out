@@ -412,19 +412,19 @@ export const TaskList: React.FC<TaskListProps> = ({
               return (
                 <div
                   key={task.id}
-                  className={`bg-white rounded-2xl border transition-all shadow-2xs hover:shadow-xs p-3.5 space-y-2.5 ${
+                  className={`rounded-2xl border transition-all shadow-2xs hover:shadow-xs p-3.5 space-y-2.5 ${
                     task.flagged
-                      ? 'border-[#D49E35]/60 bg-gradient-to-r from-white via-white to-[#FFFDF7]'
+                      ? 'border-[#D49E35]/60 bg-gradient-to-r from-white via-white to-[#FFFDF7] dark:from-[#242420] dark:via-[#22221E] dark:to-[#2A261A] dark:border-[#D49E35]/40'
                       : task.isOverthinkingProne
-                      ? 'border-[#828D7A]/50 bg-gradient-to-r from-white via-white to-[#F4F6F3]'
-                      : 'border-[#E8E2D5]'
+                      ? 'border-[#828D7A]/50 bg-gradient-to-r from-white via-white to-[#F4F6F3] dark:from-[#202420] dark:via-[#1E221E] dark:to-[#222822] dark:border-[#828D7A]/40'
+                      : 'bg-white dark:bg-[#1E1E1C] border-[#E8E2D5] dark:border-[#333330]'
                   }`}
                 >
                   {/* Top Task Row */}
                   <div className="flex items-start gap-3">
                     <button
                       onClick={(e) => handleTaskComplete(task.id, e)}
-                      className="mt-0.5 w-6 h-6 rounded-full border-2 border-[#D5CDBD] hover:border-[#6C7764] active:scale-90 flex items-center justify-center transition-all cursor-pointer group shrink-0"
+                      className="mt-0.5 w-6 h-6 rounded-full border-2 border-[#D5CDBD] dark:border-[#55554E] hover:border-[#6C7764] dark:hover:border-[#9BB391] active:scale-90 flex items-center justify-center transition-all cursor-pointer group shrink-0"
                       title="กดเมื่อทำงานเสร็จ"
                     >
                       <Circle className="w-3.5 h-3.5 text-transparent group-hover:text-[#6C7764]/30" />
@@ -434,57 +434,57 @@ export const TaskList: React.FC<TaskListProps> = ({
                       {/* Badges Row */}
                       <div className="flex flex-wrap items-center gap-1.5 text-[11px] mb-1.5">
                         {task.flagged && (
-                          <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-bold bg-[#FFF4E0] text-[#9E6E15] border border-[#F4E1BD]">
+                          <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-bold bg-[#FFF4E0] dark:bg-[#342814] text-[#9E6E15] dark:text-[#E2A64E] border border-[#F4E1BD] dark:border-[#523F1E]">
                             ปักธง
                           </span>
                         )}
-                        <span className="font-semibold px-2 py-0.2 rounded-full bg-[#FAF8F5] border border-[#E8E2D5] text-[#4A4940] text-[10px]">
+                        <span className="font-semibold px-2 py-0.2 rounded-full bg-[#FAF8F5] dark:bg-[#282824] border border-[#E8E2D5] dark:border-[#3A3A34] text-[#4A4940] dark:text-[#D5D3CB] text-[10px]">
                           {catInfo.label}
                         </span>
                         {getSizeBadge(task.size)}
                         {task.urgency === 'high' && (
-                          <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-bold bg-[#FDECE8] text-[#C23A25] border border-[#F6D7D0]">
+                          <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-bold bg-[#FDECE8] dark:bg-[#381C16] text-[#C23A25] dark:text-[#F28472] border border-[#F6D7D0] dark:border-[#542820]">
                             งานด่วน
                           </span>
                         )}
-                        <span className="font-mono text-[#7A786C] text-[10px]">{task.estimatedMinutes} นาที</span>
+                        <span className="font-mono text-[#7A786C] dark:text-[#A8A599] text-[10px]">{task.estimatedMinutes} นาที</span>
                         {task.isOverthinkingProne && (
-                          <span className="text-[#9E745E] font-medium text-[10px] bg-[#FAF3EE] px-1.5 py-0.2 rounded-full border border-[#EADBD0] inline-flex items-center gap-1">
+                          <span className="text-[#9E745E] dark:text-[#D8A78D] font-medium text-[10px] bg-[#FAF3EE] dark:bg-[#2E241E] px-1.5 py-0.2 rounded-full border border-[#EADBD0] dark:border-[#4E392E] inline-flex items-center gap-1">
                             <Brain className="w-2.5 h-2.5" />
                             <span>คิดวน</span>
                           </span>
                         )}
                       </div>
 
-                      <h4 className="text-sm font-bold text-[#2C2C24] leading-snug cursor-pointer">
+                      <h4 className="text-sm font-bold text-[#2C2C24] dark:text-[#F0EEE6] leading-snug cursor-pointer">
                         {task.title}
                       </h4>
 
                       {task.description && (
-                        <p className="text-xs text-[#7A786C] line-clamp-1 mt-0.5">
+                        <p className="text-xs text-[#7A786C] dark:text-[#A8A599] line-clamp-1 mt-0.5">
                           {task.description}
                         </p>
                       )}
 
                       {/* Metadata: Dates, Location, Tags */}
-                      <div className="flex flex-wrap items-center gap-2 mt-1.5 text-[10px] text-[#7A786C]">
+                      <div className="flex flex-wrap items-center gap-2 mt-1.5 text-[10px] text-[#7A786C] dark:text-[#A8A599]">
                         {task.deadline && (
-                          <span className="inline-flex items-center gap-1 text-[#8C4A1E] font-medium bg-[#FFF5EE] px-2 py-0.5 rounded-lg border border-[#F6DEC9]">
-                            <CalendarIcon className="w-3 h-3 text-[#B85824]" />
+                          <span className="inline-flex items-center gap-1 text-[#8C4A1E] dark:text-[#E29260] font-medium bg-[#FFF5EE] dark:bg-[#302018] px-2 py-0.5 rounded-lg border border-[#F6DEC9] dark:border-[#503022]">
+                            <CalendarIcon className="w-3 h-3 text-[#B85824] dark:text-[#E29260]" />
                             <span>เดดไลน์: {task.deadline}</span>
                             {task.time && <span>({task.time})</span>}
                           </span>
                         )}
                         {task.location && (
                           <span className="inline-flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-[#6C7764]" />
+                            <MapPin className="w-3 h-3 text-[#6C7764] dark:text-[#88B580]" />
                             <span>{task.location}</span>
                           </span>
                         )}
                         {task.tags && task.tags.length > 0 && (
                           <div className="flex items-center gap-1 flex-wrap">
                             {task.tags.map((t) => (
-                              <span key={t} className="px-1.5 py-0.2 rounded-md bg-[#FAF8F5] border border-[#E8E2D5] text-[#6C7764] font-medium">
+                              <span key={t} className="px-1.5 py-0.2 rounded-md bg-[#FAF8F5] dark:bg-[#282824] border border-[#E8E2D5] dark:border-[#383834] text-[#6C7764] dark:text-[#88B580] font-medium">
                                 {t}
                               </span>
                             ))}
@@ -498,13 +498,13 @@ export const TaskList: React.FC<TaskListProps> = ({
                       <img
                         src={task.imageUrl}
                         alt="attachment"
-                        className="w-12 h-12 rounded-xl object-cover border border-[#E8E2D5] shrink-0"
+                        className="w-12 h-12 rounded-xl object-cover border border-[#E8E2D5] dark:border-[#383834] shrink-0"
                       />
                     )}
 
                     <button
                       onClick={() => onStartFocus(task)}
-                      className="w-8 h-8 rounded-full bg-[#EBF0E8] hover:bg-[#6C7764] text-[#3B5433] hover:text-white flex items-center justify-center transition-all active:scale-95 cursor-pointer shrink-0 shadow-2xs"
+                      className="w-8 h-8 rounded-full bg-[#EBF0E8] dark:bg-[#223320] hover:bg-[#6C7764] dark:hover:bg-[#436338] text-[#3B5433] dark:text-[#A0D494] hover:text-white flex items-center justify-center transition-all active:scale-95 cursor-pointer shrink-0 shadow-2xs"
                       title="เริ่มโหมดโฟกัส"
                     >
                       <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
@@ -513,10 +513,10 @@ export const TaskList: React.FC<TaskListProps> = ({
 
                   {/* Micro Steps Section */}
                   {task.microSteps && task.microSteps.length > 0 && (
-                    <div className="pt-1 border-t border-[#F0EBE1]">
+                    <div className="pt-1 border-t border-[#F0EBE1] dark:border-[#2C2C28]">
                       <button
                         onClick={() => toggleExpand(task.id)}
-                        className="w-full flex items-center justify-between text-[11px] text-[#7A786C] hover:text-[#2C2C24] py-0.5 cursor-pointer"
+                        className="w-full flex items-center justify-between text-[11px] text-[#7A786C] dark:text-[#A8A599] hover:text-[#2C2C24] dark:hover:text-white py-0.5 cursor-pointer"
                       >
                         <span className="font-semibold">
                           ก้าวเล็กๆ 2 นาที ({completedSteps}/{totalSteps})
@@ -536,21 +536,21 @@ export const TaskList: React.FC<TaskListProps> = ({
                               onClick={() => onToggleStep(task.id, step.id)}
                               className={`flex items-center gap-2 p-2 rounded-xl text-xs transition cursor-pointer border ${
                                 step.completed
-                                  ? 'bg-[#FAF8F5] text-[#8A887A] line-through border-transparent'
-                                  : 'bg-[#F9F7F2] text-[#2C2C24] border-[#E8E2D5] hover:bg-white'
+                                  ? 'bg-[#FAF8F5] dark:bg-[#222220] text-[#8A887A] dark:text-[#666660] line-through border-transparent'
+                                  : 'bg-[#F9F7F2] dark:bg-[#262624] text-[#2C2C24] dark:text-[#E8E6E0] border-[#E8E2D5] dark:border-[#383834] hover:bg-white dark:hover:bg-[#2D2D2A]'
                               }`}
                             >
                               <div
                                 className={`w-4 h-4 rounded-md flex items-center justify-center border transition ${
                                   step.completed
                                     ? 'bg-[#6C7764] border-[#6C7764] text-white'
-                                    : 'border-[#C5BCAB]'
+                                    : 'border-[#C5BCAB] dark:border-[#55554E]'
                                 }`}
                               >
                                 {step.completed && <Check className="w-3 h-3 stroke-[3]" />}
                               </div>
                               <span className="flex-1 truncate">{step.title}</span>
-                              <span className="text-[10px] text-[#8A887A] shrink-0">
+                              <span className="text-[10px] text-[#8A887A] dark:text-[#777770] shrink-0">
                                 {step.estimatedMinutes}น.
                               </span>
                             </div>
@@ -559,7 +559,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                           <div className="flex items-center justify-end gap-2 pt-1">
                             <button
                               onClick={() => onEditTask(task)}
-                              className="text-[11px] text-[#7A786C] hover:text-[#2C2C24] flex items-center gap-1 cursor-pointer"
+                              className="text-[11px] text-[#7A786C] dark:text-[#A8A599] hover:text-[#2C2C24] dark:hover:text-white flex items-center gap-1 cursor-pointer"
                             >
                               <Edit2 className="w-3 h-3" /> แก้ไข
                             </button>
@@ -585,7 +585,7 @@ export const TaskList: React.FC<TaskListProps> = ({
       {completedTasks.length > 0 && (
         <div className="pt-1">
           <details className="group">
-            <summary className="text-xs font-bold text-[#8A887A] flex items-center justify-between cursor-pointer select-none list-none py-1">
+            <summary className="text-xs font-bold text-[#8A887A] dark:text-[#A09D90] flex items-center justify-between cursor-pointer select-none list-none py-1">
               <span>งานที่เสร็จแล้ว ({completedTasks.length})</span>
               <ChevronDown className="w-3.5 h-3.5 group-open:rotate-180 transition-transform" />
             </summary>
@@ -593,7 +593,7 @@ export const TaskList: React.FC<TaskListProps> = ({
               {completedTasks.map((task) => (
                 <div
                   key={task.id}
-                  className="bg-[#FAF8F5] rounded-xl p-3 border border-[#E8E2D5] flex items-center justify-between gap-2 opacity-75 hover:opacity-100 transition"
+                  className="bg-[#FAF8F5] dark:bg-[#1E1E1C] rounded-xl p-3 border border-[#E8E2D5] dark:border-[#333330] flex items-center justify-between gap-2 opacity-75 hover:opacity-100 transition"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <button
@@ -602,13 +602,13 @@ export const TaskList: React.FC<TaskListProps> = ({
                     >
                       <Check className="w-3 h-3 stroke-[3]" />
                     </button>
-                    <span className="text-xs text-[#5C5B50] line-through truncate">
+                    <span className="text-xs text-[#5C5B50] dark:text-[#8E8D86] line-through truncate">
                       {task.title}
                     </span>
                   </div>
                   <button
                     onClick={() => onDeleteTask(task.id)}
-                    className="text-[#8A887A] hover:text-[#BC5E48] p-1 cursor-pointer"
+                    className="text-[#8A887A] dark:text-[#666660] hover:text-[#BC5E48] p-1 cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>

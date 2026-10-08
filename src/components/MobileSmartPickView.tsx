@@ -129,7 +129,7 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
   return (
     <div className="space-y-4 pb-8 select-none">
       {/* 1. Conversational Companion Header */}
-      <div className="bg-[#FAF8F5] rounded-3xl p-5 border border-[#E8E2D5] shadow-2xs space-y-3 relative overflow-hidden">
+      <div className="bg-[#FAF8F5] dark:bg-[#1A1A18] rounded-3xl p-5 border border-[#E8E2D5] dark:border-[#2C2C28] shadow-2xs space-y-3 relative overflow-hidden">
         <div className="flex items-center gap-3.5">
           <MascotCloud
             mood={conversationStep === 3 ? 'celebrate' : 'thinking'}
@@ -137,10 +137,10 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
             useArtwork={false}
           />
           <div className="flex-1">
-            <span className="text-[10px] font-bold text-[#828D7A] uppercase tracking-wider block">
+            <span className="text-[10px] font-bold text-[#828D7A] dark:text-[#9BB391] uppercase tracking-wider block">
               Cognitive Companion
             </span>
-            <h2 className="text-base font-bold font-heading text-[#2C2C24]">
+            <h2 className="text-base font-bold font-heading text-[#2C2C24] dark:text-[#F0EEE6]">
               {conversationStep === 1
                 ? 'ตอนนี้รู้สึกหนักหัวเรื่องอะไรเป็นพิเศษ?'
                 : conversationStep === 2
@@ -152,7 +152,7 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
           {conversationStep > 1 && (
             <button
               onClick={handleResetFlow}
-              className="p-1.5 rounded-xl hover:bg-[#EAE4D9] text-[#8C8A7D] hover:text-[#2C2C24] transition cursor-pointer"
+              className="p-1.5 rounded-xl hover:bg-[#EAE4D9] dark:hover:bg-[#2C2C28] text-[#8C8A7D] dark:text-[#A8A599] hover:text-[#2C2C24] dark:hover:text-white transition cursor-pointer"
               title="เริ่มคุยใหม่"
             >
               <RotateCcw className="w-4 h-4" />
@@ -171,14 +171,14 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
                   onClick={() => handleSelectMentalState(opt.id)}
                   className={`p-3 rounded-2xl border text-left transition cursor-pointer ${
                     mentalState === opt.id
-                      ? 'bg-white border-[#6C7764] shadow-xs ring-2 ring-[#6C7764]/20'
-                      : 'bg-white/80 border-[#E8E2D5] hover:bg-white hover:border-[#D5CDC0]'
+                      ? 'bg-white dark:bg-[#242422] border-[#6C7764] dark:border-[#9BB391] shadow-xs ring-2 ring-[#6C7764]/20'
+                      : 'bg-white/80 dark:bg-[#20201E] border-[#E8E2D5] dark:border-[#333330] hover:bg-white dark:hover:bg-[#282824] hover:border-[#D5CDC0]'
                   }`}
                 >
-                  <span className="text-xs font-bold text-[#2C2C24] block leading-snug">
+                  <span className="text-xs font-bold text-[#2C2C24] dark:text-[#F0EEE6] block leading-snug">
                     {opt.label}
                   </span>
-                  <span className="text-[10px] text-[#7A786C] block mt-0.5 leading-tight">
+                  <span className="text-[10px] text-[#7A786C] dark:text-[#A8A599] block mt-0.5 leading-tight">
                     {opt.sub}
                   </span>
                 </button>
@@ -192,7 +192,7 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
                 value={customWorryText}
                 onChange={(e) => setCustomWorryText(e.target.value)}
                 placeholder="หรือพิมพ์ระบายสั้นๆ เช่น กลัวงานออกมาไม่ดี..."
-                className="flex-1 px-3 py-2 rounded-xl border border-[#E2DACB] bg-white text-xs text-[#2C2C24] outline-none placeholder:text-[#9A988D] focus:border-[#6C7764]"
+                className="flex-1 px-3 py-2 rounded-xl border border-[#E2DACB] dark:border-[#383834] bg-white dark:bg-[#242422] text-xs text-[#2C2C24] dark:text-white outline-none placeholder:text-[#9A988D] dark:placeholder:text-[#666660] focus:border-[#6C7764]"
               />
               <button
                 type="submit"
@@ -208,7 +208,7 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
         {/* Interactive Step 2: Time Duration Selection */}
         {conversationStep === 2 && (
           <div className="space-y-2 pt-1 animate-in fade-in duration-200">
-            <p className="text-xs text-[#7A786C]">
+            <p className="text-xs text-[#7A786C] dark:text-[#A8A599]">
               ไม่ต้องเยอะ แค่เริ่มสั้นๆ ไม่กดดันตัวเอง:
             </p>
             <div className="grid grid-cols-4 gap-2">
@@ -220,11 +220,11 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
                   className={`p-2.5 rounded-2xl border text-center transition cursor-pointer ${
                     availableMinutes === mins
                       ? 'bg-[#6C7764] text-white border-[#6C7764] font-bold shadow-xs'
-                      : 'bg-white border-[#E8E2D5] text-[#2C2C24] hover:bg-[#FAF8F5]'
+                      : 'bg-white dark:bg-[#20201E] border-[#E8E2D5] dark:border-[#333330] text-[#2C2C24] dark:text-[#F0EEE6] hover:bg-[#FAF8F5] dark:hover:bg-[#282824]'
                   }`}
                 >
                   <span className="text-xs font-bold block">{mins} นาที</span>
-                  <span className={`text-[9px] block mt-0.5 ${availableMinutes === mins ? 'text-white/80' : 'text-[#8A887A]'}`}>
+                  <span className={`text-[9px] block mt-0.5 ${availableMinutes === mins ? 'text-white/80' : 'text-[#8A887A] dark:text-[#A09D90]'}`}>
                     {mins === 15 ? 'ก้าวสั้นๆ' : mins === 25 ? '1 รอบ' : 'เน้นๆ'}
                   </span>
                 </button>
@@ -235,17 +235,17 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
 
         {/* Step Indicator Progress Bar */}
         <div className="flex items-center gap-1.5 pt-1">
-          <div className={`h-1 flex-1 rounded-full transition-colors ${conversationStep >= 1 ? 'bg-[#6C7764]' : 'bg-[#EAE4D9]'}`} />
-          <div className={`h-1 flex-1 rounded-full transition-colors ${conversationStep >= 2 ? 'bg-[#6C7764]' : 'bg-[#EAE4D9]'}`} />
-          <div className={`h-1 flex-1 rounded-full transition-colors ${conversationStep >= 3 ? 'bg-[#6C7764]' : 'bg-[#EAE4D9]'}`} />
+          <div className={`h-1 flex-1 rounded-full transition-colors ${conversationStep >= 1 ? 'bg-[#6C7764]' : 'bg-[#EAE4D9] dark:bg-[#333330]'}`} />
+          <div className={`h-1 flex-1 rounded-full transition-colors ${conversationStep >= 2 ? 'bg-[#6C7764]' : 'bg-[#EAE4D9] dark:bg-[#333330]'}`} />
+          <div className={`h-1 flex-1 rounded-full transition-colors ${conversationStep >= 3 ? 'bg-[#6C7764]' : 'bg-[#EAE4D9] dark:bg-[#333330]'}`} />
         </div>
       </div>
 
       {/* AI Advice Bubble if user typed a custom worry */}
       {aiCustomAdvice && (
-        <div className="p-3.5 rounded-2xl bg-[#F4EFE6] border border-[#E5DEC9] text-xs text-[#5C5B50] flex items-start gap-2.5 animate-in fade-in">
-          <MessageCircle className="w-4 h-4 text-[#828D7A] shrink-0 mt-0.5" />
-          <p className="leading-relaxed text-[#2C2C24] font-medium">
+        <div className="p-3.5 rounded-2xl bg-[#F4EFE6] dark:bg-[#22201C] border border-[#E5DEC9] dark:border-[#3A362E] text-xs text-[#5C5B50] dark:text-[#D5D3CB] flex items-start gap-2.5 animate-in fade-in">
+          <MessageCircle className="w-4 h-4 text-[#828D7A] dark:text-[#9BB391] shrink-0 mt-0.5" />
+          <p className="leading-relaxed text-[#2C2C24] dark:text-[#F0EEE6] font-medium">
             {aiCustomAdvice}
           </p>
         </div>
@@ -254,47 +254,47 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
       {/* 2. The Single Chosen Task Card (Breathing Room & Tactile Focus) */}
       <div className="space-y-2">
         <div className="flex items-center justify-between px-1">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#6C7764]">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#6C7764] dark:text-[#9BB391]">
             งานเดียวที่คุณต้องโฟกัสตอนนี้
           </span>
           {pendingTasks.length > 1 && (
-            <span className="text-[11px] text-[#8A887A]">
+            <span className="text-[11px] text-[#8A887A] dark:text-[#A09D90]">
               (คัดจากทั้งหมด {pendingTasks.length} งาน)
             </span>
           )}
         </div>
 
         {recommendation ? (
-          <div className={`bg-[#FAF8F5] rounded-3xl p-5 border-2 border-[#828D7A] shadow-md space-y-4 transition-opacity ${isThinking ? 'opacity-50' : 'opacity-100'}`}>
+          <div className={`bg-[#FAF8F5] dark:bg-[#1A1A18] rounded-3xl p-5 border-2 border-[#828D7A] dark:border-[#9BB391] shadow-md space-y-4 transition-opacity ${isThinking ? 'opacity-50' : 'opacity-100'}`}>
             <div>
               <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#EBF0E8] text-[#3B5433] border border-[#CFDFCB]">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#EBF0E8] dark:bg-[#1E281C] text-[#3B5433] dark:text-[#88B580] border border-[#CFDFCB] dark:border-[#2C4229]">
                   คัดเลือกตามสภาพใจ: {selectedStateObj.label}
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white text-[#7A786C] border border-[#E8E2D5]">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-white dark:bg-[#242422] text-[#7A786C] dark:text-[#A8A599] border border-[#E8E2D5] dark:border-[#383834]">
                   {recommendation.task.estimatedMinutes} นาที
                 </span>
                 {recommendation.task.isOverthinkingProne && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FDECE8] text-[#9A4A38] border border-[#F6D7D0]">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#FDECE8] dark:bg-[#381C16] text-[#9A4A38] dark:text-[#F28472] border border-[#F6D7D0] dark:border-[#542820]">
                     งานเริ่มยาก
                   </span>
                 )}
               </div>
 
-              <h3 className="text-lg font-bold font-heading text-[#2C2C24] leading-snug">
+              <h3 className="text-lg font-bold font-heading text-[#2C2C24] dark:text-[#F0EEE6] leading-snug">
                 {recommendation.task.title}
               </h3>
               {recommendation.task.description && (
-                <p className="text-xs text-[#7A786C] mt-1.5 leading-relaxed">
+                <p className="text-xs text-[#7A786C] dark:text-[#A8A599] mt-1.5 leading-relaxed">
                   {recommendation.task.description}
                 </p>
               )}
             </div>
 
             {/* AI Rationale Box */}
-            <div className="p-3.5 rounded-2xl bg-[#F4EFE6] border border-[#E5DEC9] text-xs text-[#5C5B50]">
+            <div className="p-3.5 rounded-2xl bg-[#F4EFE6] dark:bg-[#22201C] border border-[#E5DEC9] dark:border-[#3A362E] text-xs text-[#5C5B50] dark:text-[#D5D3CB]">
               <p className="leading-relaxed">
-                <strong className="text-[#2C2C24]">เหตุผลที่แนะนำ:</strong> {recommendation.reasonTh}
+                <strong className="text-[#2C2C24] dark:text-[#F0EEE6]">เหตุผลที่แนะนำ:</strong> {recommendation.reasonTh}
               </p>
             </div>
 
@@ -302,14 +302,14 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
             {recommendation.task.microSteps && recommendation.task.microSteps.length > 0 ? (
               <div className="space-y-2 pt-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#7A786C]">
+                  <span className="text-xs font-bold text-[#7A786C] dark:text-[#A8A599]">
                     ก้าวเล็กๆ 2 นาทีแรก:
                   </span>
                   <button
                     type="button"
                     onClick={handleDecomposePickedTask}
                     disabled={isDecomposing}
-                    className="text-[11px] text-[#55634E] hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                    className="text-[11px] text-[#55634E] dark:text-[#9BB391] hover:underline font-semibold flex items-center gap-1 cursor-pointer"
                   >
                     <Sparkles className={`w-3.5 h-3.5 ${isDecomposing ? 'animate-spin' : ''}`} />
                     <span>{isDecomposing ? 'กำลังย่อยใหม่...' : 'ย่อยใหม่ด้วย AI'}</span>
@@ -319,13 +319,13 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
                   {recommendation.task.microSteps.slice(0, 3).map((step, idx) => (
                     <div
                       key={step.id}
-                      className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white border border-[#EAE4D9] text-xs text-[#2C2C24]"
+                      className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white dark:bg-[#242422] border border-[#EAE4D9] dark:border-[#383834] text-xs text-[#2C2C24] dark:text-[#F0EEE6]"
                     >
-                      <span className="w-4 h-4 rounded-full bg-[#EBF0E8] text-[#3B5433] text-[10px] font-bold flex items-center justify-center shrink-0">
+                      <span className="w-4 h-4 rounded-full bg-[#EBF0E8] dark:bg-[#1E281C] text-[#3B5433] dark:text-[#88B580] text-[10px] font-bold flex items-center justify-center shrink-0">
                         {idx + 1}
                       </span>
                       <span className="flex-1 truncate">{step.title}</span>
-                      <span className="text-[10px] text-[#8A887A]">{step.estimatedMinutes}น.</span>
+                      <span className="text-[10px] text-[#8A887A] dark:text-[#A09D90]">{step.estimatedMinutes}น.</span>
                     </div>
                   ))}
                 </div>
@@ -336,9 +336,9 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
                   type="button"
                   onClick={handleDecomposePickedTask}
                   disabled={isDecomposing}
-                  className="w-full py-2.5 px-3 rounded-xl bg-[#EFE9DE] hover:bg-[#E5DDD0] text-[#55634E] text-xs font-semibold border border-[#E2DACB] flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  className="w-full py-2.5 px-3 rounded-xl bg-[#EFE9DE] dark:bg-[#242422] hover:bg-[#E5DDD0] dark:hover:bg-[#2C2C28] text-[#55634E] dark:text-[#9BB391] text-xs font-semibold border border-[#E2DACB] dark:border-[#383834] flex items-center justify-center gap-1.5 transition cursor-pointer"
                 >
-                  <Sparkles className={`w-3.5 h-3.5 text-[#6C7764] ${isDecomposing ? 'animate-spin' : ''}`} />
+                  <Sparkles className={`w-3.5 h-3.5 text-[#6C7764] dark:text-[#9BB391] ${isDecomposing ? 'animate-spin' : ''}`} />
                   <span>{isDecomposing ? 'กำลังให้ AI ย่อยก้าวแรก 2 นาที...' : 'ให้ AI ช่วยย่อยก้าวแรก (ลดการคิดเยอะ)'}</span>
                 </button>
               </div>
@@ -355,11 +355,11 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
             </button>
           </div>
         ) : (
-          <div className="p-8 rounded-3xl bg-[#FAF8F5] border border-[#E8E2D5] text-center space-y-3">
-            <h3 className="font-heading font-bold text-base text-[#2C2C24]">
+          <div className="p-8 rounded-3xl bg-[#FAF8F5] dark:bg-[#1A1A18] border border-[#E8E2D5] dark:border-[#2C2C28] text-center space-y-3">
+            <h3 className="font-heading font-bold text-base text-[#2C2C24] dark:text-[#F0EEE6]">
               ไม่มีงานค้างอยู่ในรายการเลย
             </h3>
-            <p className="text-xs text-[#7A786C] max-w-xs mx-auto">
+            <p className="text-xs text-[#7A786C] dark:text-[#A8A599] max-w-xs mx-auto">
               คุณเคลียร์งานหมดแล้ว หรือระบายความคิดใหม่ๆ เข้ามาในแอปได้เลย
             </p>
             <button
@@ -373,11 +373,11 @@ export const MobileSmartPickView: React.FC<MobileSmartPickViewProps> = ({
       </div>
 
       {/* 3. Hallmark Gentle Tip Card */}
-      <div className="bg-[#EFE9DE]/80 rounded-2xl p-4 border border-[#E2DACB] text-xs space-y-1.5">
-        <div className="font-bold text-[#2C2C24]">
+      <div className="bg-[#EFE9DE]/80 dark:bg-[#242422]/80 rounded-2xl p-4 border border-[#E2DACB] dark:border-[#383834] text-xs space-y-1.5">
+        <div className="font-bold text-[#2C2C24] dark:text-[#F0EEE6]">
           กฎ 2 นาทีสยบ Overthinking:
         </div>
-        <p className="text-[#6E6D62] text-[11px] leading-relaxed">
+        <p className="text-[#6E6D62] dark:text-[#A8A599] text-[11px] leading-relaxed">
           อย่าเพิ่งคิดถึงผลลัพธ์ปลายทาง แค่เปิดไฟล์หรือหยิบสมุดขึ้นมาใน 2 นาทีแรก สมองจะสลับจากโหมดกังวลเป็นโหมดลงมือทำโดยอัตโนมัติ
         </p>
       </div>
