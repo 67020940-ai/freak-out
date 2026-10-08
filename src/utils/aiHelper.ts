@@ -167,7 +167,22 @@ export function generateMicroSteps(taskTitle: string, category: string): MicroSt
  */
 export function getSavedGeminiApiKey(): string {
   try {
-    return (localStorage.getItem('freakout_gemini_api_key') || '').trim();
+    const key = (localStorage.getItem('freakout_gemini_api_key') || '').trim();
+    if (key) return key;
+
+    // Check if current user is admin and has saved admin key
+    const sessionStr = localStorage.getItem('freakout_auth_session');
+    if (sessionStr) {
+      const sess = JSON.parse(sessionStr);
+      if (sess?.user?.email === 'admin@freakout.app' || sess?.user?.uid === 'admin-master-uid') {
+        const adminKey = (localStorage.getItem('freakout_admin_gemini_api_key') || '').trim();
+        if (adminKey) {
+          localStorage.setItem('freakout_gemini_api_key', adminKey);
+          return adminKey;
+        }
+      }
+    }
+    return '';
   } catch {
     return '';
   }

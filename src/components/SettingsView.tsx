@@ -59,7 +59,17 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   // Gemini API Key config state
   const [geminiApiKey, setGeminiApiKey] = useState(() => {
-    return localStorage.getItem('freakout_gemini_api_key') || '';
+    const directKey = localStorage.getItem('freakout_gemini_api_key');
+    if (directKey) return directKey;
+    const sess = getSavedSession();
+    if (sess?.user?.email === 'admin@freakout.app' || sess?.user?.uid === 'admin-master-uid') {
+      const adminKey = localStorage.getItem('freakout_admin_gemini_api_key');
+      if (adminKey) {
+        localStorage.setItem('freakout_gemini_api_key', adminKey);
+        return adminKey;
+      }
+    }
+    return '';
   });
   const [geminiKeySuccess, setGeminiKeySuccess] = useState('');
   const [isTestingKey, setIsTestingKey] = useState(false);
@@ -210,6 +220,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         setGeminiTestMsg({ text: 'เชื่อมต่อ Gemini สำเร็จ 100%! คีย์ถูกต้องและพร้อมใช้งาน', isError: false });
         // Automatically persist the valid key
         localStorage.setItem('freakout_gemini_api_key', keyToTest);
+        if (session?.user?.email === 'admin@freakout.app' || session?.user?.uid === 'admin-master-uid') {
+          localStorage.setItem('freakout_admin_gemini_api_key', keyToTest);
+        }
       } else {
         throw new Error('ไม่ได้รับข้อความตอบกลับจากโมเดล');
       }
@@ -853,7 +866,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    localStorage.setItem('freakout_gemini_api_key', geminiApiKey.trim());
+                    const cleanKey = geminiApiKey.trim();
+                    localStorage.setItem('freakout_gemini_api_key', cleanKey);
+                    if (session?.user?.email === 'admin@freakout.app' || session?.user?.uid === 'admin-master-uid') {
+                      localStorage.setItem('freakout_admin_gemini_api_key', cleanKey);
+                    }
                     setGeminiKeySuccess('บันทึกคีย์เรียบร้อย พร้อมใช้งาน AI จริง');
                     setTimeout(() => {
                       setGeminiKeySuccess('');
@@ -873,6 +890,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     onClick={() => {
                       setGeminiApiKey('');
                       localStorage.removeItem('freakout_gemini_api_key');
+                      if (session?.user?.email === 'admin@freakout.app' || session?.user?.uid === 'admin-master-uid') {
+                        localStorage.removeItem('freakout_admin_gemini_api_key');
+                      }
                       setGeminiKeySuccess('ลบคีย์เรียบร้อย');
                       setGeminiTestMsg(null);
                       setTimeout(() => setGeminiKeySuccess(''), 1500);

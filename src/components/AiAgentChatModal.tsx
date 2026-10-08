@@ -68,7 +68,8 @@ export const AiAgentChatModal: React.FC<AiAgentChatModalProps> = ({
     setIsLoading(true);
 
     try {
-      const userApiKey = (localStorage.getItem('freakout_gemini_api_key') || '').trim();
+      const { getSavedGeminiApiKey } = await import('../utils/aiHelper');
+      const userApiKey = getSavedGeminiApiKey();
 
       // 1. Direct Client-side Gemini SDK call if key is saved in localStorage
       if (userApiKey) {
@@ -249,7 +250,18 @@ Behavior Guidelines:
                   Gemini 3.8 Flash
                 </span>
                 {(() => {
-                  const key = (typeof window !== 'undefined' ? localStorage.getItem('freakout_gemini_api_key') : '') || '';
+                  let key = (typeof window !== 'undefined' ? localStorage.getItem('freakout_gemini_api_key') : '') || '';
+                  if (!key && typeof window !== 'undefined') {
+                    const sessionStr = localStorage.getItem('freakout_auth_session');
+                    if (sessionStr) {
+                      try {
+                        const sess = JSON.parse(sessionStr);
+                        if (sess?.user?.email === 'admin@freakout.app' || sess?.user?.uid === 'admin-master-uid') {
+                          key = localStorage.getItem('freakout_admin_gemini_api_key') || '';
+                        }
+                      } catch {}
+                    }
+                  }
                   return key ? (
                     <span className="px-1.5 py-0.2 rounded-md bg-[#EBF0E8] text-[#3B5433] dark:bg-[#2C332A] dark:text-[#88B07D] text-[9px] font-bold">
                       ● เชื่อมต่อ API แล้ว

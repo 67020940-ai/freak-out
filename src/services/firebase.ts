@@ -215,6 +215,12 @@ export const loginWithEmail = async (email: string, pass: string): Promise<AuthS
     // Grant Pro Plan immediately to Admin
     localStorage.setItem('freakout_is_pro', 'true');
 
+    // Automatically restore Admin's saved Gemini API Key if existed
+    const savedAdminKey = localStorage.getItem('freakout_admin_gemini_api_key');
+    if (savedAdminKey) {
+      localStorage.setItem('freakout_gemini_api_key', savedAdminKey);
+    }
+
     const adminSession: AuthSession = {
       user: {
         uid: 'admin-master-uid',
