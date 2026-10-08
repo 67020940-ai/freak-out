@@ -53,9 +53,9 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
 
   return (
     <header className="px-4 py-3 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#EAE4D9] shrink-0 z-30 select-none">
-      <div className="flex items-center justify-between gap-3 w-full">
+      <div className="flex items-center justify-between gap-3 w-full max-w-5xl mx-auto">
         {/* Left: Mascot Pet Avatar & Space Switcher (Notion-style) */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => {
               secretTap();
@@ -90,6 +90,12 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
               <span>{isProUser ? 'PRO Workspace' : 'Free Canvas'}</span>
             </span>
           </button>
+        </div>
+
+        {/* Center: Current Tab Header Info */}
+        <div className="hidden sm:flex flex-col items-center text-center">
+          <span className="font-heading font-bold text-sm text-[#2C2C24]">{title}</span>
+          <span className="text-[10px] text-[#7A786C]">{sub}</span>
         </div>
 
         {/* Right: Pro Badge / Stardust + SOS */}

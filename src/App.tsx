@@ -338,37 +338,40 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F5EE] text-[#2C2C24] flex justify-center selection:bg-[#E2DACB] antialiased">
-      <div className="w-full max-w-2xl min-h-screen flex flex-col relative bg-[#FAF8F5] shadow-xs border-x border-[#EAE4D9]/80">
-        {/* Conditional Rendering: Auth/Onboarding vs Main App */}
-        {!isAuthenticated ? (
-        <AuthOnboardingView
-          onLogin={(name) => {
-            setUserName(name);
-            setIsAuthenticated(true);
-            localStorage.setItem('freakout_authenticated', 'true');
-            localStorage.setItem('freakout_username', name);
-          }}
-        />
+    <div className="min-h-screen bg-[#F9F7F2] text-[#2C2C24] flex flex-col selection:bg-[#E2DACB] antialiased">
+      {/* Conditional Rendering: Auth/Onboarding vs Main App */}
+      {!isAuthenticated ? (
+        <div className="flex-1 flex justify-center items-center p-4">
+          <div className="w-full max-w-md bg-[#FAF8F5] rounded-3xl border border-[#EAE4D9] p-4 shadow-sm">
+            <AuthOnboardingView
+              onLogin={(name) => {
+                setUserName(name);
+                setIsAuthenticated(true);
+                localStorage.setItem('freakout_authenticated', 'true');
+                localStorage.setItem('freakout_username', name);
+              }}
+            />
+          </div>
+        </div>
       ) : (
         <>
-          <div className="flex-1 min-h-0 flex flex-col w-full relative overflow-hidden">
-            {/* Mobile Top Bar */}
-            <MobileAppHeader
-              stats={stats}
-              pet={pet}
-              currentTab={currentTab}
-              onTabChange={(tab) => setCurrentTab(tab)}
-              onOpenPanic={() => setIsPanicModalOpen(true)}
-              onOpenPricing={() => setIsPricingModalOpen(true)}
-              onOpenDailyReward={() => setIsDailyRewardOpen(true)}
-              isProUser={isProUser}
-              activeSpaceName={spaces.find((s) => s.id === activeSpaceId)?.name || 'ห้องหลัก (General)'}
-              onOpenSpaces={() => setIsSpacesDrawerOpen(true)}
-            />
+          <div className="flex-1 min-h-0 flex flex-col w-full">
+          {/* Top Web & Mobile Header */}
+          <MobileAppHeader
+            stats={stats}
+            pet={pet}
+            currentTab={currentTab}
+            onTabChange={(tab) => setCurrentTab(tab)}
+            onOpenPanic={() => setIsPanicModalOpen(true)}
+            onOpenPricing={() => setIsPricingModalOpen(true)}
+            onOpenDailyReward={() => setIsDailyRewardOpen(true)}
+            isProUser={isProUser}
+            activeSpaceName={spaces.find((s) => s.id === activeSpaceId)?.name || 'ห้องหลัก (General)'}
+            onOpenSpaces={() => setIsSpacesDrawerOpen(true)}
+          />
 
-            {/* Scrollable Screen Content */}
-            <main className="flex-1 min-h-0 overflow-y-auto px-4 py-3 relative no-scrollbar">
+          {/* Scrollable Screen Content */}
+          <main className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4 w-full max-w-4xl mx-auto relative no-scrollbar">
               {/* Tab 1: Tasks (Clean, Intentional Home Dashboard) */}
               {currentTab === 'tasks' && (
                 <TaskList
@@ -549,7 +552,6 @@ export default function App() {
           />
         </>
       )}
-      </div>
     </div>
   );
 }
