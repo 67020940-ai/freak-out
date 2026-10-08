@@ -125,6 +125,78 @@ Reply ONLY with a raw JSON object matching this schema, without Markdown fences:
           }
         });
       });
+
+      server.middlewares.use('/api/chat', async (req: any, res: any) => {
+        if (req.method !== 'POST') {
+          res.statusCode = 405;
+          res.end(JSON.stringify({ error: 'Method not allowed' }));
+          return;
+        }
+
+        let body = '';
+        req.on('data', (chunk: any) => { body += chunk; });
+        req.on('end', async () => {
+          try {
+            const { message, history, userContext } = JSON.parse(body || '{}');
+            const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+
+            if (!apiKey) {
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({
+                reply: 'เค้าอยู่นี่นะ! ตอนนี้อยู่ในโหมดจำลองออฟไลน์ แต่พร้อมช่วยคุณย่อยงานเสมอ ลองบอกงานที่กังวลใจมาได้เลย เดี๋ยวเค้าช่วยจัดลำดับให้ทีละข้อนะ'
+              }));
+              return;
+            }
+
+            const { GoogleGenAI } = await import('@google/genai');
+            const ai = new GoogleGenAI({ apiKey });
+
+            const systemInstruction = `You are "น้องนูเบ้" (Nube) — a warm, calm, intelligent personal AI productivity agent & psychologist inside the "Freak Out!" app.
+Your mission is to help people with ADHD, procrastination, anxiety, and overthinking break through paralysis and get things done gently.
+User context:
+- Name: ${userContext?.name || 'เพื่อน'}
+- Energy level: ${userContext?.energy || 'okay'}
+- Pending tasks: ${userContext?.taskCount ?? 0}
+Guidelines:
+1. Always respond in warm, reassuring, natural Thai (friendly tone, concise, no long essays).
+2. NEVER lecture or use toxic positivity. Acknowledge when things are hard.
+3. Suggest tiny, frictionless 2-minute steps.
+4. Keep replies within 2-4 sentences unless asked for a breakdown.
+5. Zero emojis unless truly necessary.`;
+
+            const contents: any[] = [];
+            if (Array.isArray(history)) {
+              history.slice(-6).forEach((h: any) => {
+                contents.push({
+                  role: h.role === 'user' ? 'user' : 'model',
+                  parts: [{ text: h.text }]
+                });
+              });
+            }
+            contents.push({
+              role: 'user',
+              parts: [{ text: message }]
+            });
+
+            const response = await ai.models.generateContent({
+              model: 'gemini-2.5-flash',
+              contents,
+              config: {
+                systemInstruction,
+              }
+            });
+
+            const reply = response.text || 'เค้าอยู่ตรงนี้เสมอ ค่อยๆ ทำทีละก้าวนะ';
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ reply }));
+          } catch (err: any) {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({
+              reply: 'เค้าอยู่นี่นะ งานเยอะแค่ไหนก็ค่อยๆ จัดการทีละข้อได้ ลองเลือกชิ้นที่ทำเสร็จได้ใน 2 นาทีแรกขึ้นมาก่อนเลย'
+            }));
+          }
+        });
+      });
     },
   };
 }

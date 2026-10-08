@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserStats, PetState, AppTab } from '../types';
-import { Sparkles, Flame, Wind, Crown, Gift, CheckSquare, Calendar, Brain, Smile, Settings } from 'lucide-react';
+import { Sparkles, Flame, Wind, Crown, Gift, CheckSquare, Calendar, Brain, Smile, Settings, Bot } from 'lucide-react';
 import { PixelCloud8Bit } from './PixelCloud8Bit';
 import { useSecretTap } from '../utils/useSecretTap';
 import { resetToDemo } from '../utils/demoMode';
@@ -13,6 +13,7 @@ interface MobileAppHeaderProps {
   onOpenPanic: () => void;
   onOpenPricing: () => void;
   onOpenDailyReward: () => void;
+  onOpenAiChat?: () => void;
   isProUser: boolean;
   activeSpaceName?: string;
   onOpenSpaces?: () => void;
@@ -26,6 +27,7 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
   onOpenPanic,
   onOpenPricing,
   onOpenDailyReward,
+  onOpenAiChat,
   isProUser,
   activeSpaceName = 'ห้องหลัก',
   onOpenSpaces,
@@ -186,6 +188,18 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
             <Sparkles className="w-3.5 h-3.5 text-[#D49E35]" />
             <span className="text-xs font-mono font-bold">{pet.stardust}</span>
           </button>
+
+          {/* AI Agent Chat Button */}
+          {onOpenAiChat && (
+            <button
+              onClick={onOpenAiChat}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0F5ED] hover:bg-[#E3EDE0] border border-[#D5E2CF] text-[#4A633F] text-xs font-semibold transition active:scale-95 cursor-pointer shadow-2xs shrink-0 whitespace-nowrap"
+              title="คุยกับน้องเมฆ AI Agent"
+            >
+              <Bot className="w-3.5 h-3.5 text-[#5B7B4E]" />
+              <span className="hidden sm:inline">AI Agent</span>
+            </button>
+          )}
 
           {/* Panic SOS Button - Calm Breathing */}
           <button

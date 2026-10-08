@@ -19,6 +19,7 @@ import { AuthOnboardingView } from './components/AuthOnboardingView';
 import { MindfulJournalModal } from './components/MindfulJournalModal';
 import { SettingsView } from './components/SettingsView';
 import { SpacesDrawerModal, DEFAULT_SPACES } from './components/SpacesDrawerModal';
+import { AiAgentChatModal } from './components/AiAgentChatModal';
 
 const FRESH_STATS: UserStats = {
   xp: 0,
@@ -157,6 +158,7 @@ export default function App() {
   const [isPricingModalOpen, setIsPricingModalOpen] = useState<boolean>(false);
   const [isDailyRewardOpen, setIsDailyRewardOpen] = useState<boolean>(false);
   const [isJournalOpen, setIsJournalOpen] = useState<boolean>(false);
+  const [isAiChatOpen, setIsAiChatOpen] = useState<boolean>(false);
 
   // Sync spaces to localStorage
   useEffect(() => {
@@ -379,6 +381,7 @@ export default function App() {
             onOpenPanic={() => setIsPanicModalOpen(true)}
             onOpenPricing={() => setIsPricingModalOpen(true)}
             onOpenDailyReward={() => setIsDailyRewardOpen(true)}
+            onOpenAiChat={() => setIsAiChatOpen(true)}
             isProUser={isProUser}
             activeSpaceName={spaces.find((s) => s.id === activeSpaceId)?.name || 'ห้องหลัก (General)'}
             onOpenSpaces={() => setIsSpacesDrawerOpen(true)}
@@ -466,7 +469,12 @@ export default function App() {
                   onUpdateCloudColor={(color) => setPet((prev) => ({ ...prev, color }))}
                   onLogout={() => {
                     setIsAuthenticated(false);
+                    setUserName('');
+                    setTasks([]);
                     localStorage.removeItem('freakout_authenticated');
+                    localStorage.removeItem('freakout_auth_session');
+                    localStorage.removeItem('freakout_username');
+                    localStorage.removeItem('freakout_tasks');
                   }}
                   settings={settings}
                   onUpdateSettings={setSettings}
@@ -563,6 +571,14 @@ export default function App() {
             }}
             isProUser={isProUser}
             onOpenPricing={() => setIsPricingModalOpen(true)}
+          />
+
+          <AiAgentChatModal
+            isOpen={isAiChatOpen}
+            onClose={() => setIsAiChatOpen(false)}
+            userName={userName}
+            energy={energy}
+            tasks={tasks}
           />
         </>
       )}

@@ -26,33 +26,6 @@ interface CalendarViewProps {
   onOpenPricing: () => void;
 }
 
-const DEFAULT_SCHEDULE: CalendarEvent[] = [
-  {
-    id: 'cal-1',
-    title: 'บรรยายวิชาการตลาดดิจิทัล (ห้อง 402)',
-    startTime: '09:00',
-    endTime: '11:30',
-    category: 'class',
-    source: 'google',
-  },
-  {
-    id: 'cal-2',
-    title: 'พักรับประทานอาหารกลางวัน & พักสมอง',
-    startTime: '13:00',
-    endTime: '14:00',
-    category: 'break',
-    source: 'freakout',
-  },
-  {
-    id: 'cal-3',
-    title: 'นัดประชุมกลุ่มโปรเจกต์ Freak Out',
-    startTime: '14:00',
-    endTime: '15:30',
-    category: 'meeting',
-    source: 'google',
-  },
-];
-
 export const CalendarView: React.FC<CalendarViewProps> = ({
   tasks,
   onStartFocus,
@@ -61,7 +34,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 }) => {
   const [googleConnected, setGoogleConnected] = useState(false);
   const [focusShieldEnabled, setFocusShieldEnabled] = useState(true);
-  const [events, setEvents] = useState<CalendarEvent[]>(DEFAULT_SCHEDULE);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -87,7 +60,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   const handleToggleGoogle = async () => {
     if (googleConnected) {
       setGoogleConnected(false);
-      setEvents(DEFAULT_SCHEDULE);
+      setEvents([]);
     } else {
       setIsLoading(true);
       try {

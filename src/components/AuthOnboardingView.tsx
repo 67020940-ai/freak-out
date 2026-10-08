@@ -9,7 +9,7 @@ interface AuthOnboardingViewProps {
 }
 
 export const AuthOnboardingView: React.FC<AuthOnboardingViewProps> = ({ onLogin }) => {
-  const [authMode, setAuthMode] = useState<'welcome' | 'email-login' | 'email-signup'>('welcome');
+  const [authMode, setAuthMode] = useState<'welcome' | 'email-login' | 'email-signup'>('email-signup');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -162,24 +162,21 @@ export const AuthOnboardingView: React.FC<AuthOnboardingViewProps> = ({ onLogin 
               <span>{isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบด้วย Google'}</span>
             </button>
 
-            {/* Quick Guest / Direct Try Out Button */}
-            <button
-              type="button"
-              onClick={handleQuickGuestLogin}
-              className="w-full py-2.5 px-4 rounded-2xl bg-[#EBF0E8] hover:bg-[#DCE5D7] active:scale-98 text-[#3B5433] font-bold text-xs border border-[#CFDFCB] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <span>ทดลองใช้งานทันที (Guest Mode)</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-
-            {/* Email login toggle */}
-            <div className="text-center pt-1">
+            {/* Email Login/Signup buttons */}
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setAuthMode('email-signup')}
+                className="w-full py-2.5 px-3 rounded-2xl bg-[#6C7764] hover:bg-[#586350] active:scale-98 text-white font-bold text-xs shadow-xs transition cursor-pointer text-center"
+              >
+                สมัครสมาชิกใหม่
+              </button>
               <button
                 type="button"
                 onClick={() => setAuthMode('email-login')}
-                className="text-[11px] text-[#7A786C] hover:text-[#2C2C24] underline cursor-pointer"
+                className="w-full py-2.5 px-3 rounded-2xl bg-white hover:bg-[#F7F4EE] active:scale-98 text-[#2C2C24] font-bold text-xs border border-[#DED7C8] shadow-xs transition cursor-pointer text-center"
               >
-                หรือใช้อีเมล
+                เข้าสู่ระบบ
               </button>
             </div>
           </>
