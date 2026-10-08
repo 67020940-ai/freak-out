@@ -36,6 +36,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   const [focusShieldEnabled, setFocusShieldEnabled] = useState(true);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const session = getSavedSession();
@@ -47,17 +48,19 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
   const loadEvents = async () => {
     setIsLoading(true);
+    setErrorMessage('');
     try {
       const gcalEvents = await fetchGoogleCalendarEvents();
-      if (gcalEvents && gcalEvents.length > 0) {
-        setEvents(gcalEvents);
-      }
+      setEvents(gcalEvents || []);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'ไม่สามารถดึงข้อมูลจาก Google Calendar ได้');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleToggleGoogle = async () => {
+    setErrorMessage('');
     if (googleConnected) {
       setGoogleConnected(false);
       setEvents([]);
@@ -67,8 +70,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         await loginWithGoogle();
         setGoogleConnected(true);
         await loadEvents();
-      } catch (err) {
-        console.error('Google connect failed:', err);
+      } catch (err: any) {
+        setErrorMessage(
+          err.message ||
+            'ไม่สามารถเข้าสู่ระบบด้วย Google ได้ กรุณาตรวจสอบการตั้งค่า Firebase ในไฟล์ .env.local'
+        );
       } finally {
         setIsLoading(false);
       }
@@ -120,6 +126,17 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         </div>
       </div>
 
+      {/* Error / Instruction Banner */}
+      {errorMessage && (
+        <div className="p-3.5 rounded-2xl bg-[#FDECE8] border border-[#F6D7D0] text-[#C23A25] text-xs space-y-1">
+          <div className="font-bold flex items-center gap-1.5">
+            <Info className="w-4 h-4 shrink-0" />
+            <span>แจ้งเตือนการเชื่อมต่อ</span>
+          </div>
+          <p className="text-[11px] leading-relaxed">{errorMessage}</p>
+        </div>
+      )}
+
       {/* Sync Accounts */}
       <div className="bg-[#FAF8F5] rounded-3xl p-4 border border-[#E8E2D5] shadow-2xs space-y-2">
         <div className="flex items-center justify-between">
@@ -146,7 +163,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             <div>
               <span className="text-xs font-bold text-[#2C2C24] block">Google Calendar</span>
               <span className="text-[10px] text-[#8C8A7D]">
-                {googleConnected ? 'ซิงค์เรียบร้อยแล้ว' : 'แตะเพื่อเชื่อมต่อบัญชี Google'}
+                {googleConnected ? 'ซิงค์กับบัญชี Google แล้ว' : 'เชื่อมต่อเพื่อดึงตารางนัดหมายจริง'}
               </span>
             </div>
           </div>
@@ -161,7 +178,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 : 'bg-[#6C7764] text-white hover:bg-[#586350]'
             }`}
           >
-            {isLoading ? 'กำลังโหลด...' : googleConnected ? 'เชื่อมต่อแล้ว' : 'เชื่อมต่อ'}
+            {isLoading ? 'กำลังโหลด...' : googleConnected ? 'ยกเลิกการเชื่อมต่อ' : 'เชื่อมต่อ'}
           </button>
         </div>
       </div>
@@ -174,11 +191,26 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             <span className="text-[11px] text-[#7A786C]">• วันนี้</span>
           </div>
           <span className="text-[10px] font-semibold text-[#5F7554] bg-[#E2ECE0] px-2 py-0.5 rounded-full border border-[#CFDFCB]">
-            พบช่องว่างสมาธิ {events.length > 0 ? '1-2 ช่วง' : 'ตลอดวัน'}
+            {events.length > 0 ? `มีกิจกรรม ${events.length} รายการ` : 'ไม่มีกิจกรรมในปฏิทินวันนี้'}
           </span>
         </div>
 
-        {/* Timeline Items */}
+        {/* Timeline Items or Empty State */}
+        {events.length === 0 ? (
+          <div className="py-8 text-center space-y-2">
+            <div className="w-10 h-10 rounded-2xl bg-[#EFE9DE] border border-[#E0D7C6] mx-auto flex items-center justify-center text-[#7A786C]">
+              <CalendarIcon className="w-5 h-5" />
+            </div>
+            <p className="text-xs font-bold text-[#2C2C24]">
+              {googleConnected ? 'วันนี้ไม่มีกิจกรรมใน Google Calendar ของคุณ' : 'ยังไม่ได้เชื่อมต่อ Google Calendar'}
+            </p>
+            <p className="text-[11px] text-[#7A786C] max-w-xs mx-auto">
+              {googleConnected
+                ? 'สมองโล่งตลอดวัน! เหมาะกับการเริ่มทำ 1 งานที่สำคัญได้ทันที'
+                : 'แตะปุ่ม "เชื่อมต่อ" ด้านบน หรือล็อกอินด้วย Google เพื่อดึงตารางกิจกรรมจริง'}
+            </p>
+          </div>
+        ) : (
         <div className="space-y-3">
           {events.map((evt, idx) => (
             <React.Fragment key={evt.id || idx}>
@@ -238,6 +270,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             </React.Fragment>
           ))}
         </div>
+        )}
       </div>
     </div>
   );

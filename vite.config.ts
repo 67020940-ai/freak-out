@@ -71,8 +71,8 @@ Reply ONLY with a raw JSON array matching this schema, without Markdown fences:
         req.on('data', (chunk: any) => { body += chunk; });
         req.on('end', async () => {
           try {
-            const { energy, taskCount, overthinkCount, completedToday } = JSON.parse(body || '{}');
-            const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+            const { energy, taskCount, overthinkCount, completedToday, userApiKey } = JSON.parse(body || '{}');
+            const apiKey = userApiKey || process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
 
             if (!apiKey) {
               res.setHeader('Content-Type', 'application/json');
@@ -137,13 +137,15 @@ Reply ONLY with a raw JSON object matching this schema, without Markdown fences:
         req.on('data', (chunk: any) => { body += chunk; });
         req.on('end', async () => {
           try {
-            const { message, history, userContext } = JSON.parse(body || '{}');
-            const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+            const { message, history, userContext, userApiKey } = JSON.parse(body || '{}');
+            const apiKey = userApiKey || process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
 
             if (!apiKey) {
               res.setHeader('Content-Type', 'application/json');
               res.end(JSON.stringify({
-                reply: 'เค้าอยู่นี่นะ! ตอนนี้อยู่ในโหมดจำลองออฟไลน์ แต่พร้อมช่วยคุณย่อยงานเสมอ ลองบอกงานที่กังวลใจมาได้เลย เดี๋ยวเค้าช่วยจัดลำดับให้ทีละข้อนะ'
+                reply: 'ยังไม่ได้ระบุ Gemini API Key (กรุณาระบุในไฟล์ .env.local หรือในหน้า "ตั้งค่า" เพื่อใช้งานน้องนูเบ้ AI ตัวจริง)',
+                isRealAi: false,
+                requiresKey: true,
               }));
               return;
             }

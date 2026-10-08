@@ -87,24 +87,12 @@ const saveLocalAccounts = (accounts: LocalAccount[]) => {
   localStorage.setItem(LOCAL_ACCOUNTS_KEY, JSON.stringify(accounts));
 };
 
-// Sign in with Google (Real Firebase or Local)
+// Sign in with Google (Real Firebase)
 export const loginWithGoogle = async (): Promise<AuthSession> => {
   if (!auth) {
-    // Generate a fresh session for this user
-    const saved = getSavedSession();
-    const currentName = saved?.user?.displayName || 'ผู้ใช้งานใหม่';
-    const currentEmail = saved?.user?.email || 'user@freakout.app';
-    const session: AuthSession = {
-      user: {
-        uid: `guest-${Date.now()}`,
-        displayName: currentName,
-        email: currentEmail,
-        photoURL: null,
-      },
-      googleAccessToken: 'mock-google-access-token',
-    };
-    localStorage.setItem('freakout_auth_session', JSON.stringify(session));
-    return session;
+    throw new Error(
+      'ยังไม่ได้ตั้งค่า Firebase Configuration ในไฟล์ .env.local (กรุณาระบุ VITE_FIREBASE_API_KEY และ VITE_FIREBASE_PROJECT_ID เพื่อเชื่อมต่อ Google OAuth จริง)'
+    );
   }
 
   try {

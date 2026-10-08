@@ -73,12 +73,15 @@ export const AiAgentChatModal: React.FC<AiAgentChatModalProps> = ({
         text: m.text,
       }));
 
+      const userApiKey = localStorage.getItem('freakout_gemini_api_key') || '';
+
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: userText,
           history: historyPayload,
+          userApiKey: userApiKey.trim() || undefined,
           userContext: {
             name: userName,
             energy,
@@ -97,14 +100,13 @@ export const AiAgentChatModal: React.FC<AiAgentChatModalProps> = ({
         };
         setMessages((prev) => [...prev, botMsg]);
       } else {
-        throw new Error('API response not ok');
+        throw new Error(`การเชื่อมต่อขัดข้อง (Status ${res.status})`);
       }
-    } catch {
-      // Fallback
+    } catch (err: any) {
       const botMsg: ChatMessage = {
         id: `bot-${Date.now()}`,
         role: 'assistant',
-        text: 'ผมอยู่นี่เสมอครับ! ถ้าตอนนี้รู้สึกงานมันถาโถมเกินไป ลองเลือกทำแค่ 1 ก้าวเล็กๆ ที่ใช้เวลาไม่เกิน 2 นาทีดูก่อนได้เลยนะ',
+        text: `เกิดข้อผิดพลาดในการเรียกใช้ Gemini API: ${err.message || 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้'} (กรุณาตรวจสอบการตั้งค่า Gemini API Key ในหน้าตั้งค่า)`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, botMsg]);

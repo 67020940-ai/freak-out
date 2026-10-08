@@ -16,10 +16,12 @@ import {
   Check,
   CloudRain,
   Radio,
+  Calendar,
 } from 'lucide-react';
 import { MascotCloud } from './MascotCloud';
 import confetti from 'canvas-confetti';
 import { focusTickMs } from '../utils/demoMode';
+import { createGoogleCalendarFocusBlock } from '../services/calendarService';
 
 interface FocusModeModalProps {
   isOpen: boolean;
@@ -43,6 +45,23 @@ export const FocusModeModal: React.FC<FocusModeModalProps> = ({
   const [soundscape, setSoundscape] = useState<'none' | 'rain' | 'whitenoise' | 'lofi'>('none');
   const [mascotQuote, setMascotQuote] = useState<string>('You got this! ก้าวแรกสำคัญที่สุดนะ 🎧');
   const [timerDone, setTimerDone] = useState(false);
+  const [gcalSyncing, setGcalSyncing] = useState(false);
+  const [gcalMsg, setGcalMsg] = useState<{ text: string; isError: boolean } | null>(null);
+
+  const handleSyncToGCal = async () => {
+    if (!task) return;
+    setGcalSyncing(true);
+    setGcalMsg(null);
+    const duration = Math.round(timeLeft / 60) || 25;
+    const res = await createGoogleCalendarFocusBlock(task.title, duration);
+    if (res.success) {
+      setGcalMsg({ text: 'บันทึกลง Google Calendar เรียบร้อยแล้ว', isError: false });
+    } else {
+      setGcalMsg({ text: res.error || 'ไม่สามารถซิงค์ได้ (เชื่อมต่อ Google ก่อนใช้งาน)', isError: true });
+    }
+    setGcalSyncing(false);
+    setTimeout(() => setGcalMsg(null), 3000);
+  };
 
   // Audio simulation via Web Audio API synth for cozy focus sound
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -276,7 +295,26 @@ export const FocusModeModal: React.FC<FocusModeModalProps> = ({
             >
               <RotateCcw className="w-5 h-5" />
             </button>
+
+            {/* Sync to Google Calendar Button */}
+            <button
+              type="button"
+              onClick={handleSyncToGCal}
+              disabled={gcalSyncing}
+              className="p-3 rounded-2xl bg-[#E8F0F8] hover:bg-[#D5E3F2] text-[#2F5275] border border-[#CADDEC] transition cursor-pointer"
+              title="ซิงค์บล็อกเวลานี้ลง Google Calendar จริง"
+            >
+              <Calendar className="w-5 h-5" />
+            </button>
           </div>
+
+          {gcalMsg && (
+            <div className={`mt-2 text-[11px] font-semibold text-center ${
+              gcalMsg.isError ? 'text-[#C23A25]' : 'text-[#3B5433]'
+            }`}>
+              {gcalMsg.text}
+            </div>
+          )}
         </div>
 
         {/* Ambient Soundscapes */}

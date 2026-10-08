@@ -211,10 +211,17 @@ export async function analyzeReadinessWithAI(
   completedToday: number
 ): Promise<CognitiveAnalysisResult> {
   try {
+    const userApiKey = localStorage.getItem('freakout_gemini_api_key') || '';
     const res = await fetch('/api/analyze-readiness', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ energy, taskCount, overthinkCount, completedToday }),
+      body: JSON.stringify({
+        energy,
+        taskCount,
+        overthinkCount,
+        completedToday,
+        userApiKey: userApiKey.trim() || undefined,
+      }),
     });
 
     if (res.ok) {

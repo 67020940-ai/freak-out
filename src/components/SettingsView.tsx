@@ -14,7 +14,9 @@ import {
   Clock,
   Volume2,
   Check,
-  X
+  X,
+  Bot,
+  Key
 } from 'lucide-react';
 import {
   getSavedSession,
@@ -36,7 +38,7 @@ interface SettingsViewProps {
   onUpdateSettings: (updater: (prev: AppSettings) => AppSettings) => void;
 }
 
-type ModalType = 'profile' | 'password' | 'notifications' | 'about' | 'faq' | null;
+type ModalType = 'profile' | 'password' | 'notifications' | 'gemini-key' | 'about' | 'faq' | null;
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
   tasks,
@@ -51,6 +53,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [showDeactivateConfirm, setShowDeactivateConfirm] = useState(false);
+
+  // Gemini API Key config state
+  const [geminiApiKey, setGeminiApiKey] = useState(() => {
+    return localStorage.getItem('freakout_gemini_api_key') || '';
+  });
+  const [geminiKeySuccess, setGeminiKeySuccess] = useState('');
 
   // Form states for profile editing
   const [editName, setEditName] = useState(session?.user?.displayName || 'ผู้ใช้งาน');
@@ -254,6 +262,28 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <span className="text-xs font-semibold text-[#2C2C24] dark:text-white">
                 Notifications
               </span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-[#A8A599] dark:text-[#666666]" />
+          </button>
+
+          {/* 4. Gemini AI Configuration */}
+          <button
+            type="button"
+            onClick={() => setActiveModal('gemini-key')}
+            className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-[#FAF8F5] dark:hover:bg-[#262626] transition cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-[#F0F5ED] dark:bg-[#273324] flex items-center justify-center text-[#4A633F] dark:text-[#84AB73]">
+                <Bot className="w-4 h-4 stroke-[2]" />
+              </div>
+              <div>
+                <span className="text-xs font-semibold text-[#2C2C24] dark:text-white block">
+                  Gemini AI API Key
+                </span>
+                <span className="text-[10px] text-[#8C8A7D]">
+                  {geminiApiKey ? 'ตั้งค่าแล้ว (พร้อมใช้งาน AI จริง)' : 'ยังไม่ได้ระบุ (แตะเพื่อใส่ Key)'}
+                </span>
+              </div>
             </div>
             <ChevronRight className="w-4 h-4 text-[#A8A599] dark:text-[#666666]" />
           </button>
@@ -647,6 +677,97 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 Save Preferences
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Sheet for Gemini AI Key Configuration */}
+      {activeModal === 'gemini-key' && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-[#1E1E1E] rounded-3xl w-full max-w-sm p-5 border border-[#ECE6DB] dark:border-[#333333] shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#F2ECE1] dark:border-[#2C2C2C] pb-2">
+              <div className="flex items-center gap-2">
+                <Bot className="w-4 h-4 text-[#5F7554]" />
+                <h3 className="text-sm font-bold text-[#2C2C24] dark:text-white font-heading">
+                  Gemini AI API Key
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="p-1 rounded-full text-[#8A887A] hover:bg-[#F4EFE6] dark:hover:bg-[#2C2C2C]"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              {geminiKeySuccess && (
+                <div className="p-2 rounded-xl bg-[#EBF0E8] text-[#3B5433] text-center font-medium">
+                  {geminiKeySuccess}
+                </div>
+              )}
+
+              <p className="text-[11px] text-[#7A786C] leading-relaxed">
+                ใส่ Google Gemini API Key เพื่อเปิดใช้งานระบบ AI จริง 100% ทั้งน้องนูเบ้ AI Agent และระบบวิเคราะห์ภาระสมอง
+              </p>
+
+              <div>
+                <label className="text-[11px] font-semibold text-[#7A786C] dark:text-[#999999] block mb-1">
+                  API Key (เริ่มต้นด้วย AIzaSy...)
+                </label>
+                <input
+                  type="password"
+                  placeholder="วางคีย์ Gemini ที่นี่"
+                  value={geminiApiKey}
+                  onChange={(e) => setGeminiApiKey(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#ECE6DB] dark:border-[#333333] bg-[#FAF8F5] dark:bg-[#262626] text-[#2C2C24] dark:text-white outline-none focus:border-[#6C7764] font-mono text-[11px]"
+                />
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-[#FAF8F5] dark:bg-[#262626] border border-[#ECE6DB] dark:border-[#333333] text-[10px] text-[#7A786C]">
+                <span>รับ API Key ฟรีได้จาก </span>
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[#6C7764] font-bold underline"
+                >
+                  Google AI Studio
+                </a>
+              </div>
+
+              <div className="flex gap-2 pt-1">
+                {geminiApiKey && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGeminiApiKey('');
+                      localStorage.removeItem('freakout_gemini_api_key');
+                      setGeminiKeySuccess('ลบคีย์เรียบร้อย');
+                      setTimeout(() => setGeminiKeySuccess(''), 1500);
+                    }}
+                    className="py-2.5 px-3 rounded-xl bg-[#FDECE8] text-[#C23A25] font-semibold text-xs cursor-pointer"
+                  >
+                    ลบคีย์
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.setItem('freakout_gemini_api_key', geminiApiKey.trim());
+                    setGeminiKeySuccess('บันทึกคีย์เรียบร้อย พร้อมใช้งาน AI จริง');
+                    setTimeout(() => {
+                      setGeminiKeySuccess('');
+                      setActiveModal(null);
+                    }, 1200);
+                  }}
+                  className="flex-1 py-2.5 rounded-xl bg-[#6C7764] hover:bg-[#586350] text-white font-bold text-xs shadow-xs cursor-pointer"
+                >
+                  บันทึกคีย์
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
