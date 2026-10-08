@@ -67,7 +67,7 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
     <header className="sticky top-0 px-4 py-2.5 bg-[#FAF8F5]/95 dark:bg-[#1A1A18]/95 backdrop-blur-md border-b border-[#EAE4D9] dark:border-[#2E2E2A] shrink-0 z-30 select-none">
       <div className="flex items-center justify-between gap-3 w-full max-w-6xl mx-auto">
         {/* Left: 8-Bit Mascot App Logo & Space / Active View Switcher */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 min-w-0 shrink">
           <button
             onClick={() => {
               secretTap();
@@ -93,19 +93,19 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
                 onTabChange('tasks');
               }
             }}
-            className="flex flex-col text-left px-2 py-1 rounded-xl hover:bg-[#EFE9DE] dark:hover:bg-[#2C2C28] transition cursor-pointer"
+            className="flex flex-col text-left px-1.5 py-1 rounded-xl hover:bg-[#EFE9DE] dark:hover:bg-[#2C2C28] transition cursor-pointer min-w-0"
             title={currentTab === 'tasks' ? 'สลับ Focus Space (Notion Workspace)' : 'กลับไปหน้างานวันนี้'}
           >
-            <div className="flex items-center gap-1">
-              <span className="font-heading font-bold text-xs text-[#2C2C24] dark:text-[#F0EEE6] leading-tight truncate max-w-[140px]">
+            <div className="flex items-center gap-1 min-w-0">
+              <span className="font-heading font-bold text-xs text-[#2C2C24] dark:text-[#F0EEE6] leading-tight truncate max-w-[100px] xs:max-w-[130px] sm:max-w-[180px]">
                 {headerMainTitle}
               </span>
-              <span className="text-[10px] text-[#8C8A7D] dark:text-[#7A7870]">
+              <span className="text-[10px] text-[#8C8A7D] dark:text-[#7A7870] shrink-0">
                 {currentTab === 'tasks' ? '▾' : '•'}
               </span>
             </div>
-            <span className="text-[10px] text-[#7A786C] dark:text-[#A8A599] flex items-center gap-1 truncate max-w-[140px]">
-              <span>{headerSubTitle}</span>
+            <span className="text-[10px] text-[#7A786C] dark:text-[#A8A599] flex items-center gap-1 truncate max-w-[100px] xs:max-w-[130px] sm:max-w-[180px]">
+              <span className="truncate">{headerSubTitle}</span>
             </span>
           </button>
         </div>
@@ -180,12 +180,12 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
           <span className="text-[10px] text-[#7A786C]">{sub}</span>
         </div>
 
-        {/* Right: Pro Badge / Stardust + SOS */}
-        <div className="flex items-center gap-2 shrink-0">
+        {/* Right: Pro Badge / Stardust + AI Agent */}
+        <div className="flex items-center gap-1.5 shrink-0">
           {/* Pro Mode Badge / Upgrade Trigger */}
           <button
             onClick={onOpenPricing}
-            className={`px-2 py-1 rounded-xl text-[10px] font-bold border transition cursor-pointer flex items-center gap-1 ${
+            className={`px-2 py-1 rounded-xl text-[10px] font-bold border transition cursor-pointer flex items-center gap-1 shrink-0 ${
               isAdmin
                 ? 'bg-[#EBF0E8] dark:bg-[#1E281C] border-[#CFDFCB] dark:border-[#2C4229] text-[#3B5433] dark:text-[#88B580] shadow-2xs'
                 : isProUser
@@ -194,30 +194,31 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
             }`}
             title={isAdmin ? 'เข้าสู่ระบบในฐานะ Admin (PRO + Unlimited)' : isProUser ? 'คุณเป็นสมาชิก Freak Out PRO' : 'อัปเกรดเป็น PRO'}
           >
-            <Crown className="w-3 h-3 fill-current" />
+            <Crown className="w-3 h-3 fill-current shrink-0" />
             <span>{isAdmin ? 'ADMIN' : isProUser ? 'PRO' : 'FREE'}</span>
           </button>
+
           {/* Daily Reward / Stardust */}
           <button
             onClick={onOpenDailyReward}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FFF9E6] dark:bg-[#2C2414] hover:bg-[#FFF2CC] border border-[#F4E1BD] dark:border-[#523F1E] text-[#8A5C1E] dark:text-[#E2A64E] text-xs font-semibold transition active:scale-95 cursor-pointer shadow-2xs shrink-0 whitespace-nowrap"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#FFF9E6] dark:bg-[#2C2414] hover:bg-[#FFF2CC] border border-[#F4E1BD] dark:border-[#523F1E] text-[#8A5C1E] dark:text-[#E2A64E] text-xs font-semibold transition active:scale-95 cursor-pointer shadow-2xs shrink-0 whitespace-nowrap"
             title={isAdmin ? 'ละอองดาวไม่จำกัด (Admin Unlimited)' : 'ละอองดาวสะสม'}
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#D49E35]" />
+            <Sparkles className="w-3.5 h-3.5 text-[#D49E35] shrink-0" />
             <span className="text-xs font-mono font-bold">
-              {isAdmin ? '∞ ไม่จำกัด' : pet.stardust}
+              {isAdmin ? '∞' : pet.stardust}
             </span>
           </button>
 
-          {/* AI Agent Chat Button */}
+          {/* AI Agent Chat Button (Always clearly visible) */}
           {onOpenAiChat && (
             <button
               onClick={onOpenAiChat}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0F5ED] dark:bg-[#1E281C] hover:bg-[#E3EDE0] dark:hover:bg-[#283626] border border-[#D5E2CF] dark:border-[#2C4229] text-[#4A633F] dark:text-[#88B580] text-xs font-semibold transition active:scale-95 cursor-pointer shadow-2xs shrink-0 whitespace-nowrap"
-              title="คุยกับน้องเมฆ AI Agent"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#F0F5ED] dark:bg-[#1E281C] hover:bg-[#E3EDE0] dark:hover:bg-[#283626] border border-[#D5E2CF] dark:border-[#2C4229] text-[#4A633F] dark:text-[#88B580] text-xs font-bold transition active:scale-95 cursor-pointer shadow-2xs shrink-0 whitespace-nowrap"
+              title="คุยกับน้อง Cloudy AI Agent"
             >
-              <Bot className="w-3.5 h-3.5 text-[#5B7B4E] dark:text-[#88B580]" />
-              <span className="hidden sm:inline">AI Agent</span>
+              <Bot className="w-3.5 h-3.5 text-[#5B7B4E] dark:text-[#88B580] shrink-0" />
+              <span>AI</span>
             </button>
           )}
         </div>

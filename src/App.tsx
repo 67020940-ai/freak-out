@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Task, UserStats, Badge, PetState, EnergyLevel, MicroStep, AppTab, AppSettings, FocusSpace } from './types';
+import { Bot } from 'lucide-react';
 import { INITIAL_TASKS, INITIAL_STATS, INITIAL_BADGES } from './data/mockData';
 import { MobileAppHeader } from './components/MobileAppHeader';
 import { MobileBottomTabBar } from './components/MobileBottomTabBar';
@@ -655,13 +656,25 @@ export default function App() {
             onOpenPricing={() => setIsPricingModalOpen(true)}
           />
 
-          <AiAgentChatModal
-            isOpen={isAiChatOpen}
-            onClose={() => setIsAiChatOpen(false)}
-            userName={userName}
-            energy={energy}
-            tasks={tasks}
-          />
+            {/* Floating Mobile Quick AI Chat Button (Always accessible) */}
+            <div className="fixed bottom-19 right-4 z-30 sm:hidden">
+              <button
+                type="button"
+                onClick={() => setIsAiChatOpen(true)}
+                className="w-12 h-12 rounded-full bg-[#3B4D36] dark:bg-[#2C3E27] hover:bg-[#2F3E2B] text-white flex items-center justify-center shadow-lg shadow-[#3B4D36]/30 border-2 border-[#FAF8F5] dark:border-[#1A1A18] active:scale-95 transition-all cursor-pointer group"
+                title="เปิดแชทน้อง Cloudy AI"
+              >
+                <Bot className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
+              </button>
+            </div>
+
+            <AiAgentChatModal
+              isOpen={isAiChatOpen}
+              onClose={() => setIsAiChatOpen(false)}
+              userName={userName}
+              energy={energy}
+              tasks={tasks}
+            />
         </>
       )}
     </div>
