@@ -115,13 +115,29 @@ Behavior Guidelines:
             parts: [{ text: userText }],
           });
 
-          const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents,
-            config: {
-              systemInstruction,
-            },
-          });
+          // Try gemini-3.8-flash as requested by Google API, falling back to gemini-2.5-flash if needed
+          let response: any;
+          try {
+            response = await ai.models.generateContent({
+              model: 'gemini-3.8-flash',
+              contents,
+              config: {
+                systemInstruction,
+              },
+            });
+          } catch (modelErr: any) {
+            if (modelErr?.message?.includes('404') || modelErr?.message?.includes('not found')) {
+              response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents,
+                config: {
+                  systemInstruction,
+                },
+              });
+            } else {
+              throw modelErr;
+            }
+          }
 
           const reply = response.text || 'น้อง Cloudy อยู่ตรงนี้เสมอ ค่อยๆ ทำทีละก้าวนะครับ';
           const botMsg: ChatMessage = {
@@ -230,7 +246,7 @@ Behavior Guidelines:
                   น้อง Cloudy AI Agent
                 </h3>
                 <span className="px-1.5 py-0.2 rounded-md bg-[#EAE8F5] text-[#5C4D82] text-[9px] font-bold">
-                  Gemini 2.5
+                  Gemini 3.8 Flash
                 </span>
                 {(() => {
                   const key = (typeof window !== 'undefined' ? localStorage.getItem('freakout_gemini_api_key') : '') || '';

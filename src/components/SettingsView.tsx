@@ -189,10 +189,22 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     try {
       const { GoogleGenAI } = await import('@google/genai');
       const ai = new GoogleGenAI({ apiKey: keyToTest });
-      const resp = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: 'ตอบสั้นๆ เพียง 1 คำ: สำเร็จ',
-      });
+      let resp: any;
+      try {
+        resp = await ai.models.generateContent({
+          model: 'gemini-3.8-flash',
+          contents: 'ตอบสั้นๆ เพียง 1 คำ: สำเร็จ',
+        });
+      } catch (mErr: any) {
+        if (mErr?.message?.includes('404') || mErr?.message?.includes('not found')) {
+          resp = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: 'ตอบสั้นๆ เพียง 1 คำ: สำเร็จ',
+          });
+        } else {
+          throw mErr;
+        }
+      }
 
       if (resp && resp.text) {
         setGeminiTestMsg({ text: 'เชื่อมต่อ Gemini สำเร็จ 100%! คีย์ถูกต้องและพร้อมใช้งาน', isError: false });

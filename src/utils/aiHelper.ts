@@ -202,10 +202,22 @@ Reply ONLY with a raw JSON array matching this schema, without Markdown fences:
   {"title": "string (in Thai, encouraging, actionable, very concrete)", "estimatedMinutes": number}
 ]`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-      });
+      let response: any;
+      try {
+        response = await ai.models.generateContent({
+          model: 'gemini-3.8-flash',
+          contents: prompt,
+        });
+      } catch (mErr: any) {
+        if (mErr?.message?.includes('404') || mErr?.message?.includes('not found')) {
+          response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+          });
+        } else {
+          throw mErr;
+        }
+      }
 
       const text = (response.text || '').replace(/```json/g, '').replace(/```/g, '').trim();
       const parsed = JSON.parse(text);
@@ -289,10 +301,22 @@ Reply ONLY with a raw JSON object matching this schema, without Markdown fences:
   "cognitiveBandwidth": "string (e.g. 'พร้อมลุย 80%', 'สมองล้า ควรพัก 15 นาที')"
 }`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-      });
+      let response: any;
+      try {
+        response = await ai.models.generateContent({
+          model: 'gemini-3.8-flash',
+          contents: prompt,
+        });
+      } catch (mErr: any) {
+        if (mErr?.message?.includes('404') || mErr?.message?.includes('not found')) {
+          response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+          });
+        } else {
+          throw mErr;
+        }
+      }
 
       const text = (response.text || '').replace(/```json/g, '').replace(/```/g, '').trim();
       const parsed = JSON.parse(text);
