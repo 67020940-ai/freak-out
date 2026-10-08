@@ -120,14 +120,15 @@ export const MindfulJournalModal: React.FC<MindfulJournalModalProps> = ({
         {/* Reflection Note Input */}
         <form onSubmit={handleSave} className="space-y-3">
           <div>
-            <label className="block text-xs font-bold text-[#2C2C24] mb-1.5">
-              ✍️ บันทึกความรู้สึกสั้นๆ วันนี้ (1-2 ประโยค)
+            <label className="block text-xs font-bold text-[#2C2C24] mb-1.5 flex items-center gap-1.5">
+              <PenLine className="w-3.5 h-3.5 text-[#6C7764]" />
+              <span>บันทึกความรู้สึกสั้นๆ วันนี้ (1-2 ประโยค)</span>
             </label>
             <textarea
               rows={2}
               value={journalNote}
               onChange={(e) => setJournalNote(e.target.value)}
-              placeholder="วันนี้ภูมิใจที่ได้เริ่มก้าวแรก... สมองโล่งขึ้นมาก 🌸"
+              placeholder="วันนี้ภูมิใจที่ได้เริ่มก้าวแรก... สมองโล่งขึ้นมาก"
               className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-[#E8E2D5] text-xs text-[#2C2C24] placeholder:text-[#8A8A7A] outline-none focus:border-[#6C7764] resize-none"
             />
           </div>
@@ -139,7 +140,7 @@ export const MindfulJournalModal: React.FC<MindfulJournalModalProps> = ({
             {isSaved ? (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                <span>บันทึกเรียบร้อยแล้ว ✨</span>
+                <span>บันทึกเรียบร้อยแล้ว</span>
               </>
             ) : (
               <>

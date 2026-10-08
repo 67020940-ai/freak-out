@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Check, Crown, Sparkles, Zap, Heart, Shield, CheckCircle2, CreditCard, QrCode } from 'lucide-react';
+import { X, Check, Crown, Sparkles, Zap, Heart, Shield, CheckCircle2, CreditCard, QrCode, GraduationCap } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface PricingModalProps {
@@ -60,7 +60,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({
             <span>Freak Out Pro & Student Plans</span>
           </div>
           <h2 className="text-xl font-bold font-heading text-[#2C2C24]">
-            เลือกแผนการใช้งานที่เหมาะกับคุณ 🌿
+            เลือกแผนการใช้งานที่เหมาะกับคุณ
           </h2>
           <p className="text-xs text-[#6E6E60] max-w-xs mx-auto mt-1">
             ใช้งานฟรีพร้อมโฆษณา หรืออัปเกรดเพื่อตัดสิ่งรบกวน ไร้โฆษณา 100% พร้อม AI ไม่จำกัด
@@ -88,7 +88,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({
             >
               <span>รายปี</span>
               <span className="px-1.5 py-0.2 bg-[#FAF3E5] text-[#8C6D37] rounded text-[10px] font-bold">
-                ลด 35% 🔥
+                ลด 35%
               </span>
             </button>
           </div>
@@ -121,7 +121,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({
                   <span>โหมด Focus Timer & เสียงฝน</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[#8C8A7D]">
-                  <span>📺 มีโฆษณาแบนเนอร์และคลิปสปอนเซอร์</span>
+                  <span>มีโฆษณาแบนเนอร์และคลิปสปอนเซอร์</span>
                 </div>
               </div>
             </div>
@@ -140,8 +140,9 @@ export const PricingModal: React.FC<PricingModalProps> = ({
                 : 'bg-white border-[#EAE4D9] hover:border-[#D5CDC0]'
             }`}
           >
-            <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#EAE8F5] text-[#5C4D82]">
-              🎓 นักเรียน/นศ.
+            <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#EAE8F5] text-[#5C4D82] flex items-center gap-1">
+              <GraduationCap className="w-3 h-3" />
+              <span>นักเรียน/นศ.</span>
             </div>
             <div>
               <span className="text-xs font-bold text-[#5C4D82] uppercase">Student Plan</span>
@@ -253,7 +254,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({
                   paymentMethod === 'apple' ? 'bg-white border-[#828D7A] text-[#2C2C24] shadow-2xs' : 'bg-white/60 border-[#EAE4D9]'
                 }`}
               >
-                <span>🍏 Apple Pay</span>
+                <span>Apple Pay</span>
               </button>
               <button
                 onClick={() => setPaymentMethod('card')}
@@ -272,7 +273,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({
         {showSuccess ? (
           <div className="w-full py-4 rounded-2xl bg-[#E2ECE0] text-[#3B5433] font-bold text-sm text-center border border-[#CFDFCB] flex items-center justify-center gap-2 animate-in zoom-in-95">
             <CheckCircle2 className="w-5 h-5" />
-            <span>เปิดใช้งานโหมด PRO สำเร็จแล้ว! ยินดีต้อนรับสู่ประสบการณ์ไร้โฆษณา ✨</span>
+            <span>เปิดใช้งานโหมด PRO สำเร็จแล้ว! ยินดีต้อนรับสู่ประสบการณ์ไร้โฆษณา</span>
           </div>
         ) : (
           <button

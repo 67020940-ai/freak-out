@@ -83,13 +83,14 @@ export const SmartPickModal: React.FC<SmartPickModalProps> = ({
             </label>
             <div className="grid grid-cols-5 gap-1.5">
               {[
-                { id: 'depleted' as EnergyLevel, name: '1. หมดแรง', emoji: '🪫', desc: '5-10น.' },
-                { id: 'tired' as EnergyLevel, name: '2. ล้า ๆ', emoji: '🥱', desc: 'งานเบา' },
-                { id: 'okay' as EnergyLevel, name: '3. พอไหว', emoji: '🌿', desc: 'ขนาดกลาง' },
-                { id: 'ready' as EnergyLevel, name: '4. พร้อมลุย', emoji: '⚡', desc: 'โฟกัสดี' },
-                { id: 'full' as EnergyLevel, name: '5. พลังเต็ม!', emoji: '🔥', desc: 'จัดเต็ม' },
+                { id: 'depleted' as EnergyLevel, name: '1. หมดแรง', icon: BatteryLow, desc: '5-10น.' },
+                { id: 'tired' as EnergyLevel, name: '2. ล้า ๆ', icon: BatteryMedium, desc: 'งานเบา' },
+                { id: 'okay' as EnergyLevel, name: '3. พอไหว', icon: Clock, desc: 'ขนาดกลาง' },
+                { id: 'ready' as EnergyLevel, name: '4. พร้อมลุย', icon: Zap, desc: 'โฟกัสดี' },
+                { id: 'full' as EnergyLevel, name: '5. พลังเต็ม!', icon: Sparkles, desc: 'จัดเต็ม' },
               ].map((item) => {
                 const isSelected = selectedEnergy === item.id;
+                const IconComponent = item.icon;
                 return (
                   <button
                     key={item.id}
@@ -101,7 +102,7 @@ export const SmartPickModal: React.FC<SmartPickModalProps> = ({
                         : 'bg-white border-[#E8E2D5] text-[#7A786C] hover:bg-[#FAF8F5]'
                     }`}
                   >
-                    <span className="text-base mb-0.5">{item.emoji}</span>
+                    <IconComponent className={`w-4 h-4 mb-1 ${isSelected ? 'text-white' : 'text-[#828D7A]'}`} />
                     <span className="text-[10px] whitespace-nowrap leading-tight">{item.name}</span>
                     <span className={`text-[8px] mt-0.5 ${isSelected ? 'text-white/80' : 'text-[#8A887A]'}`}>
                       {item.desc}
@@ -155,7 +156,7 @@ export const SmartPickModal: React.FC<SmartPickModalProps> = ({
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#828D7A] text-white text-xs font-bold shadow-xs">
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>งานที่ควรทำที่สุดตอนนี้ ✨</span>
+                    <span>งานที่ควรทำที่สุดตอนนี้</span>
                   </span>
 
                   <button
@@ -210,7 +211,7 @@ export const SmartPickModal: React.FC<SmartPickModalProps> = ({
                   className="w-full py-3 px-4 rounded-2xl bg-[#828D7A] hover:bg-[#6C7764] text-white font-bold text-sm shadow-md transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Play className="w-4 h-4 fill-white" />
-                  <span>ลุยเลย! เริ่มต้นก้าวแรกใน Focus Mode 🚀</span>
+                  <span>ลุยเลย! เริ่มต้นก้าวแรกใน Focus Mode</span>
                 </button>
               </div>
             ) : (

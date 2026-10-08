@@ -339,13 +339,14 @@ export const TaskList: React.FC<TaskListProps> = ({
           </button>
           <button
             onClick={() => setActiveFilterTab('overthink')}
-            className={`pb-1 text-xs font-semibold transition border-b-2 cursor-pointer ${
+            className={`pb-1 text-xs font-semibold transition border-b-2 cursor-pointer flex items-center gap-1 ${
               activeFilterTab === 'overthink'
                 ? 'border-[#9E745E] text-[#9E745E] font-bold'
                 : 'border-transparent text-[#8C8A7D] hover:text-[#2C2C24]'
             }`}
           >
-            🧠 คิดวน ({tasks.filter((t) => t.isOverthinkingProne && !t.completed).length})
+            <Brain className="w-3.5 h-3.5" />
+            <span>คิดวน ({tasks.filter((t) => t.isOverthinkingProne && !t.completed).length})</span>
           </button>
         </div>
 
@@ -388,7 +389,7 @@ export const TaskList: React.FC<TaskListProps> = ({
             งานทั้งหมดในรายการ ({pendingTasks.length})
           </span>
           <span className="text-[11px] text-[#7A786C]">
-            ก้าวเล็กๆ ก็ยอดเยี่ยมแล้ว 🌸
+            ก้าวเล็กๆ ก็ยอดเยี่ยมแล้ว
           </span>
         </div>
 
@@ -448,8 +449,9 @@ export const TaskList: React.FC<TaskListProps> = ({
                         )}
                         <span className="font-mono text-[#7A786C] text-[10px]">{task.estimatedMinutes} นาที</span>
                         {task.isOverthinkingProne && (
-                          <span className="text-[#9E745E] font-medium text-[10px] bg-[#FAF3EE] px-1.5 py-0.2 rounded-full border border-[#EADBD0]">
-                            🧠 คิดวน
+                          <span className="text-[#9E745E] font-medium text-[10px] bg-[#FAF3EE] px-1.5 py-0.2 rounded-full border border-[#EADBD0] inline-flex items-center gap-1">
+                            <Brain className="w-2.5 h-2.5" />
+                            <span>คิดวน</span>
                           </span>
                         )}
                       </div>

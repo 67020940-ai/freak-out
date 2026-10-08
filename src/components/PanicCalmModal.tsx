@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Wind, Sparkles, Heart, RefreshCw } from 'lucide-react';
+import { X, Wind, Sparkles, Heart, Eye, Hand, Ear, Smile, Coffee } from 'lucide-react';
 import { MascotCloud } from './MascotCloud';
 
 interface PanicCalmModalProps {
@@ -40,10 +40,10 @@ export const PanicCalmModal: React.FC<PanicCalmModalProps> = ({ isOpen, onClose 
   if (!isOpen) return null;
 
   const affirmations = [
-    'งานกองโตไม่ได้แปลว่าคุณทำไม่ทัน ค่อยๆ ทำทีละ 1 ข้อนะ 🌸',
-    'คุณไม่จำเป็นต้องสมบูรณ์แบบ แค่ลงมือทำเวอร์ชันร่างแรกก็ยอดเยี่ยมแล้ว! ✨',
-    'ความเครียดคือสัญญาณว่าคุณแคร์ แต่อย่าปล่อยให้มันทำร้ายใจคุณนะ 💜',
-    'หายใจเข้าลึกๆ... ปล่อยวางความกังวลในอนาคต แล้วอยู่กับปัจจุบัน 🌿',
+    'งานกองโตไม่ได้แปลว่าคุณทำไม่ทัน ค่อยๆ ทำทีละ 1 ข้อนะ',
+    'คุณไม่จำเป็นต้องสมบูรณ์แบบ แค่ลงมือทำเวอร์ชันร่างแรกก็ยอดเยี่ยมแล้ว!',
+    'ความเครียดคือสัญญาณว่าคุณแคร์ แต่อย่าปล่อยให้มันทำร้ายใจคุณนะ',
+    'หายใจเข้าลึกๆ... ปล่อยวางความกังวลในอนาคต แล้วอยู่กับปัจจุบัน',
   ];
 
   return (
@@ -66,7 +66,7 @@ export const PanicCalmModal: React.FC<PanicCalmModalProps> = ({ isOpen, onClose 
           <span>SOS Reset Your Mind</span>
         </div>
         <h2 className="text-lg font-bold font-heading text-[#2C2C24]">
-          ผ่อนคลายและเคลียร์สมอง 🌿
+          ผ่อนคลายและเคลียร์สมอง
         </h2>
         <p className="text-xs text-[#6E6E60] max-w-xs mx-auto mt-1">
           เวลาที่รู้สึกตื่นตระหนก คิดวน หรือสมองตื้อ ให้เวลาตัวเอง 1 นาทีตรงนี้นะ
@@ -76,27 +76,30 @@ export const PanicCalmModal: React.FC<PanicCalmModalProps> = ({ isOpen, onClose 
         <div className="flex items-center justify-center gap-2 my-4">
           <button
             onClick={() => setActiveTab('breathing')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'breathing' ? 'bg-[#828D7A] text-white shadow-2xs' : 'bg-[#EFE9DE] text-[#6E6E60] hover:bg-[#E5DDD0]'
             }`}
           >
-            🌬️ ฝึกหายใจ 4-7-8
+            <Wind className="w-3.5 h-3.5" />
+            <span>ฝึกหายใจ 4-7-8</span>
           </button>
           <button
             onClick={() => setActiveTab('grounding')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'grounding' ? 'bg-[#828D7A] text-white shadow-2xs' : 'bg-[#EFE9DE] text-[#6E6E60] hover:bg-[#E5DDD0]'
             }`}
           >
-            🖐️ เทคนิค 5-4-3-2-1
+            <Hand className="w-3.5 h-3.5" />
+            <span>เทคนิค 5-4-3-2-1</span>
           </button>
           <button
             onClick={() => setActiveTab('affirmation')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'affirmation' ? 'bg-[#828D7A] text-white shadow-2xs' : 'bg-[#EFE9DE] text-[#6E6E60] hover:bg-[#E5DDD0]'
             }`}
           >
-            🌿 ปลอบประโลมใจ
+            <Heart className="w-3.5 h-3.5" />
+            <span>ปลอบประโลมใจ</span>
           </button>
         </div>
 
@@ -146,20 +149,40 @@ export const PanicCalmModal: React.FC<PanicCalmModalProps> = ({ isOpen, onClose 
             <div className="font-bold text-[#55634E] text-sm mb-1 text-center">
               ดึงสติกลับมาที่ร่างกาย (5-4-3-2-1 Grounding)
             </div>
-            <div className="p-2 bg-[#FAF8F5] rounded-xl border border-[#E2DACB] shadow-2xs">
-              <span className="font-bold text-[#828D7A]">👁️ 5 สิ่ง:</span> มองหา 5 สิ่งรอบตัวที่คุณมองเห็นตอนนี้
+            <div className="p-2.5 bg-[#FAF8F5] rounded-xl border border-[#E2DACB] shadow-2xs flex items-center gap-2">
+              <span className="font-bold text-[#55634E] flex items-center gap-1.5 shrink-0">
+                <Eye className="w-4 h-4 text-[#828D7A]" />
+                <span>5 สิ่ง:</span>
+              </span>
+              <span>มองหา 5 สิ่งรอบตัวที่คุณมองเห็นตอนนี้</span>
             </div>
-            <div className="p-2 bg-[#FAF8F5] rounded-xl border border-[#E2DACB] shadow-2xs">
-              <span className="font-bold text-[#828D7A]">🖐️ 4 สิ่ง:</span> สัมผัส 4 สิ่งใกล้ตัว (เช่น เสื้อผ้า โต๊ะ มือถือ)
+            <div className="p-2.5 bg-[#FAF8F5] rounded-xl border border-[#E2DACB] shadow-2xs flex items-center gap-2">
+              <span className="font-bold text-[#55634E] flex items-center gap-1.5 shrink-0">
+                <Hand className="w-4 h-4 text-[#828D7A]" />
+                <span>4 สิ่ง:</span>
+              </span>
+              <span>สัมผัส 4 สิ่งใกล้ตัว (เช่น เสื้อผ้า โต๊ะ มือถือ)</span>
             </div>
-            <div className="p-2 bg-[#FAF8F5] rounded-xl border border-[#E2DACB] shadow-2xs">
-              <span className="font-bold text-[#828D7A]">👂 3 สิ่ง:</span> ตั้งใจฟัง 3 เสียงที่ได้ยินในห้องตอนนี้
+            <div className="p-2.5 bg-[#FAF8F5] rounded-xl border border-[#E2DACB] shadow-2xs flex items-center gap-2">
+              <span className="font-bold text-[#55634E] flex items-center gap-1.5 shrink-0">
+                <Ear className="w-4 h-4 text-[#828D7A]" />
+                <span>3 สิ่ง:</span>
+              </span>
+              <span>ตั้งใจฟัง 3 เสียงที่ได้ยินในห้องตอนนี้</span>
             </div>
-            <div className="p-2 bg-[#FAF8F5] rounded-xl border border-[#E2DACB] shadow-2xs">
-              <span className="font-bold text-[#828D7A]">👃 2 สิ่ง:</span> ดมกลิ่น 2 กลิ่นรอบตัว
+            <div className="p-2.5 bg-[#FAF8F5] rounded-xl border border-[#E2DACB] shadow-2xs flex items-center gap-2">
+              <span className="font-bold text-[#55634E] flex items-center gap-1.5 shrink-0">
+                <Wind className="w-4 h-4 text-[#828D7A]" />
+                <span>2 สิ่ง:</span>
+              </span>
+              <span>ดมกลิ่น 2 กลิ่นรอบตัว</span>
             </div>
-            <div className="p-2 bg-[#FAF8F5] rounded-xl border border-[#E2DACB] shadow-2xs">
-              <span className="font-bold text-[#828D7A]">👅 1 สิ่ง:</span> สัมผัสรสชาติในปาก หรือจิบน้ำ 1 อึก
+            <div className="p-2.5 bg-[#FAF8F5] rounded-xl border border-[#E2DACB] shadow-2xs flex items-center gap-2">
+              <span className="font-bold text-[#55634E] flex items-center gap-1.5 shrink-0">
+                <Coffee className="w-4 h-4 text-[#828D7A]" />
+                <span>1 สิ่ง:</span>
+              </span>
+              <span>สัมผัสรสชาติในปาก หรือจิบน้ำ 1 อึก</span>
             </div>
           </div>
         )}
@@ -184,9 +207,10 @@ export const PanicCalmModal: React.FC<PanicCalmModalProps> = ({ isOpen, onClose 
         <div className="pt-3 border-t border-[#E2DACB]">
           <button
             onClick={onClose}
-            className="w-full py-2.5 rounded-xl bg-[#828D7A] hover:bg-[#6C7764] text-white font-bold text-xs sm:text-sm transition cursor-pointer shadow-xs"
+            className="w-full py-2.5 rounded-xl bg-[#828D7A] hover:bg-[#6C7764] text-white font-bold text-xs sm:text-sm transition cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
           >
-            รู้สึกดีขึ้นแล้ว กลับไปลุยงานต่อ ✨
+            <span>รู้สึกดีขึ้นแล้ว กลับไปลุยงานต่อ</span>
+            <Sparkles className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>

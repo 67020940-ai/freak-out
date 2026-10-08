@@ -18,6 +18,7 @@ import {
   ChevronUp
 } from 'lucide-react';
 import { generateMicroSteps, decomposeTaskWithAI } from '../utils/aiHelper';
+import { CustomDatePicker } from './CustomDatePicker';
 
 interface TaskInputModalProps {
   isOpen: boolean;
@@ -404,29 +405,19 @@ export const TaskInputModal: React.FC<TaskInputModalProps> = ({
             </div>
 
             <div className="grid grid-cols-2 gap-2.5">
-              <div>
-                <label className="block text-[11px] font-semibold text-[#7A786C] mb-1">
-                  วันที่เริ่ม (Start Date)
-                </label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full px-2.5 py-1.5 rounded-xl border border-[#E2DACB] bg-[#FAF8F5] text-xs text-[#2C2C24] outline-none focus:border-[#6C7764]"
-                />
-              </div>
+              <CustomDatePicker
+                label="วันที่เริ่ม (Start Date)"
+                value={startDate}
+                onChange={setStartDate}
+                placeholder="เลือกวันเริ่มต้น"
+              />
 
-              <div>
-                <label className="block text-[11px] font-semibold text-[#7A786C] mb-1">
-                  กำหนดส่ง (Deadline)
-                </label>
-                <input
-                  type="date"
-                  value={deadline}
-                  onChange={(e) => setDeadline(e.target.value)}
-                  className="w-full px-2.5 py-1.5 rounded-xl border border-[#E2DACB] bg-[#FAF8F5] text-xs text-[#2C2C24] outline-none focus:border-[#6C7764]"
-                />
-              </div>
+              <CustomDatePicker
+                label="กำหนดส่ง (Deadline)"
+                value={deadline}
+                onChange={setDeadline}
+                placeholder="เลือกวันกำหนดส่ง"
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-2.5 pt-1">

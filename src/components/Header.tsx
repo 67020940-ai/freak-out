@@ -95,7 +95,7 @@ export const Header: React.FC<HeaderProps> = ({
                 )}
               </div>
               <p className="text-[10px] text-[#7A786C] font-medium hidden sm:block">
-                แอปช่วยจัดการงานและลดการคิดเยอะ ✨
+                แอปช่วยจัดการงานและลดการคิดเยอะ
               </p>
             </div>
           </div>
@@ -123,7 +123,7 @@ export const Header: React.FC<HeaderProps> = ({
               }`}
             >
               <Smile className="w-3.5 h-3.5 text-[#B87A24]" />
-              <span>น้อง{pet.name} ☁️</span>
+              <span>น้อง{pet.name}</span>
             </button>
 
             <button
@@ -225,8 +225,9 @@ export const Header: React.FC<HeaderProps> = ({
               {isToolsOpen && (
                 <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-[#FAF8F5] rounded-3xl shadow-xl border border-[#E2DACB] p-2.5 z-50 animate-in fade-in zoom-in-95 duration-150">
                   <div className="px-3 py-2 border-b border-[#EAE4D9] flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-[#7A786C] uppercase tracking-wider">
-                      ✨ เมนูและเครื่องมือ
+                    <span className="text-[11px] font-bold text-[#7A786C] uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-[#828D7A]" />
+                      <span>เมนูและเครื่องมือ</span>
                     </span>
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#EAE8F5] text-[#5C4D82]">
                       Lv.{stats.level} ({stats.xp} XP)
@@ -297,7 +298,7 @@ export const Header: React.FC<HeaderProps> = ({
                         <Smile className="w-4 h-4 text-[#B87A24]" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-xs font-bold text-[#2C2C24]">ห้องดูแลน้อง{pet.name} ☁️</div>
+                        <div className="text-xs font-bold text-[#2C2C24]">ห้องดูแลน้อง{pet.name}</div>
                         <p className="text-[10px] text-[#7A786C]">แต่งตัว ให้อาหาร และเปลี่ยนสภาพอากาศ</p>
                       </div>
                     </button>

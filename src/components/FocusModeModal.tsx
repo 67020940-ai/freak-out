@@ -14,6 +14,8 @@ import {
   Sparkles,
   Flame,
   Check,
+  CloudRain,
+  Radio,
 } from 'lucide-react';
 import { MascotCloud } from './MascotCloud';
 import confetti from 'canvas-confetti';
@@ -262,7 +264,7 @@ export const FocusModeModal: React.FC<FocusModeModalProps> = ({
               ) : (
                 <>
                   <Play className="w-5 h-5 fill-white" />
-                  <span>{timeLeft < (task.estimatedMinutes || 25) * 60 ? 'โฟกัสต่อ' : 'เริ่มจับเวลา ⏱️'}</span>
+                  <span>{timeLeft < (task.estimatedMinutes || 25) * 60 ? 'โฟกัสต่อ' : 'เริ่มจับเวลา'}</span>
                 </>
               )}
             </button>
@@ -295,19 +297,21 @@ export const FocusModeModal: React.FC<FocusModeModalProps> = ({
             </button>
             <button
               onClick={() => setSoundscape('rain')}
-              className={`px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer ${
+              className={`px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer flex items-center gap-1.5 ${
                 soundscape === 'rain' ? 'bg-[#828D7A] text-white shadow-2xs' : 'bg-[#FAF8F5] text-[#6E6E60] border border-[#E2DACB] hover:bg-[#EFE9DE]'
               }`}
             >
-              🌧️ เสียงฝน
+              <CloudRain className="w-3.5 h-3.5 text-current" />
+              <span>เสียงฝน</span>
             </button>
             <button
               onClick={() => setSoundscape('whitenoise')}
-              className={`px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer ${
+              className={`px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer flex items-center gap-1.5 ${
                 soundscape === 'whitenoise' ? 'bg-[#828D7A] text-white shadow-2xs' : 'bg-[#FAF8F5] text-[#6E6E60] border border-[#E2DACB] hover:bg-[#EFE9DE]'
               }`}
             >
-              📻 White Noise
+              <Radio className="w-3.5 h-3.5 text-current" />
+              <span>White Noise</span>
             </button>
           </div>
         </div>
@@ -368,7 +372,7 @@ export const FocusModeModal: React.FC<FocusModeModalProps> = ({
             className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#828D7A] hover:bg-[#6C7764] text-white font-bold text-xs sm:text-sm shadow-md transition active:scale-95 cursor-pointer"
           >
             <Trophy className="w-4 h-4" />
-            <span>ทำงานนี้เสร็จสมบูรณ์แล้ว! (+50 XP) 🌿</span>
+            <span>ทำงานนี้เสร็จสมบูรณ์แล้ว! (+50 XP)</span>
           </button>
         </div>
       </div>
