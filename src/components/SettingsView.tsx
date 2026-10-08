@@ -27,6 +27,7 @@ import {
 } from '../services/firebase';
 import { analyzeReadinessWithAI, CognitiveAnalysisResult } from '../utils/aiHelper';
 import { PixelCloud8Bit } from './PixelCloud8Bit';
+import { AppLogo8Bit } from './AppLogo8Bit';
 
 interface SettingsViewProps {
   tasks: Task[];
@@ -809,10 +810,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </button>
             </div>
 
-            <div className="text-xs space-y-2 text-[#5C5B50] dark:text-[#B0B0B0] leading-relaxed">
-              <p className="font-bold text-[#2C2C24] dark:text-white">Freak Out App</p>
+            <div className="flex flex-col items-center text-center py-2 space-y-2 text-xs text-[#5C5B50] dark:text-[#B0B0B0] leading-relaxed">
+              <AppLogo8Bit size="lg" />
+              <p className="font-bold text-sm text-[#2C2C24] dark:text-white mt-1">Freak Out App</p>
               <p>เครื่องมือจัดการภาระงานและลดความตื่นตระหนก เพื่อคนสมาธิสั้นและคนคิดวน ย่อยงานใหญ่เป็นก้าวเล็ก 2 นาทีแรก</p>
-              <div className="pt-2 text-[10px] text-[#8A887A] dark:text-[#888888] border-t border-[#F2ECE1] dark:border-[#2C2C2C]">
+              <div className="pt-2 text-[10px] text-[#8A887A] dark:text-[#888888] border-t border-[#F2ECE1] dark:border-[#2C2C2C] w-full">
                 Version 2.5.0 • Powered by Gemini AI & Firebase Auth
               </div>
             </div>

@@ -26,6 +26,7 @@ interface CloudPetViewProps {
   onUpdatePet: (updater: (prev: PetState) => PetState) => void;
   onOpenPanic: () => void;
   streakDays: number;
+  isAdmin?: boolean;
 }
 
 const PIXEL_POSES: { id: PixelCloudPose; name: string; desc: string }[] = [
@@ -111,6 +112,7 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
   onUpdatePet,
   onOpenPanic,
   streakDays,
+  isAdmin = false,
 }) => {
   const [activePose, setActivePose] = useState<PixelCloudPose>('idle');
   const [isEditingName, setIsEditingName] = useState(false);
@@ -140,7 +142,7 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
     onUpdatePet((prev) => ({
       ...prev,
       affinity: Math.min(100, prev.affinity + 2),
-      stardust: prev.stardust + 1,
+      stardust: isAdmin ? 999999 : prev.stardust + 1,
     }));
 
     const feedbackPhrases = [
@@ -189,7 +191,7 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
     onUpdatePet((prev) => ({
       ...prev,
       affinity: Math.min(100, prev.affinity + 8),
-      stardust: prev.stardust + 3,
+      stardust: isAdmin ? 999999 : prev.stardust + 3,
     }));
   };
 
@@ -202,13 +204,13 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
       return;
     }
 
-    // Buying check
-    if (pet.stardust < acc.price) {
+    // Buying check (Admin always has infinite stardust)
+    if (!isAdmin && pet.stardust < acc.price) {
       setPetFeedback(`ละอองดาวไม่พอฮะ! ขาดอีก ${acc.price - pet.stardust} แต้ม (เคลียร์งานเพื่อรับเพิ่มนะ)`);
       return;
     }
 
-    // Deduct stardust, record purchased accessory, and equip immediately!
+    // Deduct stardust (unless admin), record purchased accessory, and equip immediately!
     confetti({
       particleCount: 40,
       spread: 60,
@@ -220,7 +222,7 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
       const currentPurchased = prev.purchasedAccessories || [];
       return {
         ...prev,
-        stardust: prev.stardust - acc.price,
+        stardust: isAdmin ? 999999 : prev.stardust - acc.price,
         purchasedAccessories: [...currentPurchased, acc.id],
         equippedAccessory: acc.id,
       };

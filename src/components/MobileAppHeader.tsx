@@ -15,6 +15,7 @@ interface MobileAppHeaderProps {
   onOpenDailyReward: () => void;
   onOpenAiChat?: () => void;
   isProUser: boolean;
+  isAdmin?: boolean;
   activeSpaceName?: string;
   onOpenSpaces?: () => void;
 }
@@ -29,6 +30,7 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
   onOpenDailyReward,
   onOpenAiChat,
   isProUser,
+  isAdmin = false,
   activeSpaceName = 'ห้องหลัก',
   onOpenSpaces,
 }) => {
@@ -53,43 +55,58 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
 
   const { title, sub } = getTabTitle();
 
+  // If user is on 'tasks', show the activeSpaceName (e.g. ห้องหลัก (General)).
+  // If user is on another tab (e.g. 'settings', 'calendar', 'cloud-pet'), show that menu name directly!
+  const headerMainTitle = currentTab === 'tasks' ? activeSpaceName : title;
+  const headerSubTitle = currentTab === 'tasks'
+    ? (isProUser ? 'PRO Workspace' : 'Free Canvas')
+    : sub;
+
   return (
-    <header className="sticky top-0 px-4 py-2.5 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#EAE4D9] shrink-0 z-30 select-none">
+    <header className="sticky top-0 px-4 py-2.5 bg-[#FAF8F5]/95 dark:bg-[#1A1A18]/95 backdrop-blur-md border-b border-[#EAE4D9] dark:border-[#2E2E2A] shrink-0 z-30 select-none">
       <div className="flex items-center justify-between gap-3 w-full max-w-6xl mx-auto">
-        {/* Left: Mascot Pet Avatar & Space Switcher (Notion-style) */}
+        {/* Left: Mascot Pet Avatar & Space / Active View Switcher */}
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => {
               secretTap();
               onTabChange('cloud-pet');
             }}
-            className="flex items-center gap-2 group p-0.5 rounded-2xl hover:bg-[#EFE9DE] transition active:scale-95 text-left cursor-pointer shrink-0"
+            className="flex items-center gap-2 group p-0.5 rounded-2xl hover:bg-[#EFE9DE] dark:hover:bg-[#2C2C28] transition active:scale-95 text-left cursor-pointer shrink-0"
             title={`ห้องของน้อง ${pet.name || 'Cloudy'}`}
           >
             <div className="relative shrink-0">
-              <div className="w-9 h-9 rounded-xl overflow-hidden bg-white border border-[#E8E2D5] shadow-2xs flex items-center justify-center p-0.5">
+              <div className="w-9 h-9 rounded-xl overflow-hidden bg-white dark:bg-[#242422] border border-[#E8E2D5] dark:border-[#383834] shadow-2xs flex items-center justify-center p-0.5">
                 <PixelCloud8Bit pose="idle" size="sm" accessory={pet.equippedAccessory} color={pet.color || 'white'} interactive={false} />
               </div>
-              <span className="absolute -bottom-1 -right-1 px-1 py-0.2 rounded-full bg-[#6C7764] text-white text-[9px] font-bold shadow-2xs border border-[#FAF8F5]">
+              <span className="absolute -bottom-1 -right-1 px-1 py-0.2 rounded-full bg-[#6C7764] text-white text-[9px] font-bold shadow-2xs border border-[#FAF8F5] dark:border-[#1A1A18]">
                 L{pet.level}
               </span>
             </div>
           </button>
 
-          {/* Notion-style Space Selector Button */}
+          {/* Active View / Space Selector Button */}
           <button
-            onClick={onOpenSpaces}
-            className="flex flex-col text-left px-2 py-1 rounded-xl hover:bg-[#EFE9DE] transition cursor-pointer"
-            title="สลับ Focus Space (Notion Workspace)"
+            onClick={() => {
+              if (currentTab === 'tasks') {
+                onOpenSpaces?.();
+              } else {
+                onTabChange('tasks');
+              }
+            }}
+            className="flex flex-col text-left px-2 py-1 rounded-xl hover:bg-[#EFE9DE] dark:hover:bg-[#2C2C28] transition cursor-pointer"
+            title={currentTab === 'tasks' ? 'สลับ Focus Space (Notion Workspace)' : 'กลับไปหน้างานวันนี้'}
           >
             <div className="flex items-center gap-1">
-              <span className="font-heading font-bold text-xs text-[#2C2C24] leading-tight truncate max-w-[130px]">
-                {activeSpaceName}
+              <span className="font-heading font-bold text-xs text-[#2C2C24] dark:text-[#F0EEE6] leading-tight truncate max-w-[140px]">
+                {headerMainTitle}
               </span>
-              <span className="text-[10px] text-[#8C8A7D]">▾</span>
+              <span className="text-[10px] text-[#8C8A7D] dark:text-[#7A7870]">
+                {currentTab === 'tasks' ? '▾' : '•'}
+              </span>
             </div>
-            <span className="text-[10px] text-[#7A786C] flex items-center gap-1">
-              <span>{isProUser ? 'PRO Workspace' : 'Free Canvas'}</span>
+            <span className="text-[10px] text-[#7A786C] dark:text-[#A8A599] flex items-center gap-1 truncate max-w-[140px]">
+              <span>{headerSubTitle}</span>
             </span>
           </button>
         </div>
@@ -170,23 +187,27 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
           <button
             onClick={onOpenPricing}
             className={`px-2 py-1 rounded-xl text-[10px] font-bold border transition cursor-pointer flex items-center gap-1 ${
-              isProUser
-                ? 'bg-[#FFF4E0] border-[#F4E1BD] text-[#B87A24] shadow-2xs'
-                : 'bg-[#F2EEE9] border-[#E2DACB] text-[#7A786C] hover:bg-[#EAE4D9]'
+              isAdmin
+                ? 'bg-[#EBF0E8] dark:bg-[#1E281C] border-[#CFDFCB] dark:border-[#2C4229] text-[#3B5433] dark:text-[#88B580] shadow-2xs'
+                : isProUser
+                ? 'bg-[#FFF4E0] dark:bg-[#342814] border-[#F4E1BD] dark:border-[#523F1E] text-[#B87A24] dark:text-[#E2A64E] shadow-2xs'
+                : 'bg-[#F2EEE9] dark:bg-[#262624] border-[#E2DACB] dark:border-[#383834] text-[#7A786C] dark:text-[#A8A599] hover:bg-[#EAE4D9]'
             }`}
-            title={isProUser ? 'คุณเป็นสมาชิก Freak Out PRO' : 'อัปเกรดเป็น PRO'}
+            title={isAdmin ? 'เข้าสู่ระบบในฐานะ Admin (PRO + Unlimited)' : isProUser ? 'คุณเป็นสมาชิก Freak Out PRO' : 'อัปเกรดเป็น PRO'}
           >
             <Crown className="w-3 h-3 fill-current" />
-            <span>{isProUser ? 'PRO' : 'FREE'}</span>
+            <span>{isAdmin ? 'ADMIN' : isProUser ? 'PRO' : 'FREE'}</span>
           </button>
           {/* Daily Reward / Stardust */}
           <button
             onClick={onOpenDailyReward}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FFF9E6] hover:bg-[#FFF2CC] border border-[#F4E1BD] text-[#8A5C1E] text-xs font-semibold transition active:scale-95 cursor-pointer shadow-2xs shrink-0 whitespace-nowrap"
-            title="ละอองดาวสะสม"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FFF9E6] dark:bg-[#2C2414] hover:bg-[#FFF2CC] border border-[#F4E1BD] dark:border-[#523F1E] text-[#8A5C1E] dark:text-[#E2A64E] text-xs font-semibold transition active:scale-95 cursor-pointer shadow-2xs shrink-0 whitespace-nowrap"
+            title={isAdmin ? 'ละอองดาวไม่จำกัด (Admin Unlimited)' : 'ละอองดาวสะสม'}
           >
             <Sparkles className="w-3.5 h-3.5 text-[#D49E35]" />
-            <span className="text-xs font-mono font-bold">{pet.stardust}</span>
+            <span className="text-xs font-mono font-bold">
+              {isAdmin ? '∞ ไม่จำกัด' : pet.stardust}
+            </span>
           </button>
 
           {/* AI Agent Chat Button */}

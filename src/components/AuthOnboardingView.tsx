@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { PixelCloud8Bit } from './PixelCloud8Bit';
+import { AppLogo8Bit } from './AppLogo8Bit';
 import { ArrowRight, Sparkles, Check, Mail, Lock, User, ShieldCheck, Settings, X, ExternalLink } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import {
@@ -104,11 +105,12 @@ export const AuthOnboardingView: React.FC<AuthOnboardingViewProps> = ({ onLogin 
   return (
     <div className="flex-1 flex flex-col justify-between px-6 py-8 bg-[#FAF8F5] text-[#2C2C24] relative overflow-y-auto no-scrollbar">
       {/* Top Brand Logo */}
-      <div className="text-center pt-2 select-none">
-        <h1 className="font-heading font-extrabold text-3xl tracking-tight text-[#2C2C24]">
+      <div className="flex flex-col items-center pt-2 select-none">
+        <AppLogo8Bit size="lg" />
+        <h1 className="font-heading font-extrabold text-3xl tracking-tight text-[#2C2C24] dark:text-[#F0EEE6] mt-2">
           freak out
         </h1>
-        <p className="text-xs text-[#7A786C] font-medium mt-1">
+        <p className="text-xs text-[#7A786C] dark:text-[#A8A599] font-medium mt-1">
           Less thinking, more doing.
         </p>
       </div>

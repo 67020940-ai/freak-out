@@ -179,10 +179,10 @@ export const TaskList: React.FC<TaskListProps> = ({
       {/* 1. Header & Greeting */}
       <div className="flex items-center justify-between pt-1">
         <div>
-          <span className="text-[11px] font-semibold text-[#8C8A7D] uppercase tracking-wider block">
+          <span className="text-[11px] font-semibold text-[#8C8A7D] dark:text-[#A09D90] uppercase tracking-wider block">
             วันเสาร์ที่ 4 ตุลาคม
           </span>
-          <h1 className="text-xl font-bold font-heading text-[#2C2C24] leading-tight">
+          <h1 className="text-xl font-bold font-heading text-[#2C2C24] dark:text-[#F0EEE6] leading-tight">
             โฟกัสทีละอย่างนะ {userName}
           </h1>
         </div>
@@ -199,21 +199,21 @@ export const TaskList: React.FC<TaskListProps> = ({
       {/* Atmospheric Mirror: Dynamic sky condition based on tasks completed today */}
       {(() => {
         const completedCount = completedTasks.length;
-        let skyGradient = 'from-[#F5F2EB] to-[#ECE7DE]';
-        let skyBorder = 'border-[#E4DCD0]';
+        let skyGradient = 'from-[#F5F2EB] to-[#ECE7DE] dark:from-[#242422] dark:to-[#1B1B19]';
+        let skyBorder = 'border-[#E4DCD0] dark:border-[#383834]';
         let skyTitle = 'บรรยากาศ: ปลอดโปร่ง สงบนิ่ง';
         let skyDesc = 'ก้าวทีละ 1 เรื่องเล็กๆ ไม่ต้องรีบ สมองจะค่อยๆ ผ่อนคลาย';
         let pose: 'idle' | 'focus' | 'celebrate' = 'idle';
 
         if (completedCount === 1) {
-          skyGradient = 'from-[#EDF4F7] to-[#E3ECF2]';
-          skyBorder = 'border-[#D2DFE8]';
+          skyGradient = 'from-[#EDF4F7] to-[#E3ECF2] dark:from-[#1E272E] dark:to-[#172026]';
+          skyBorder = 'border-[#D2DFE8] dark:border-[#2C3B47]';
           skyTitle = 'บรรยากาศ: ท้องฟ้าเริ่มเปิดกว้าง';
           skyDesc = 'สำเร็จไป 1 งานแล้ว สมองโล่งขึ้นอย่างชัดเจน';
           pose = 'focus';
         } else if (completedCount >= 2) {
-          skyGradient = 'from-[#F3F7EE] to-[#E5EFE0]';
-          skyBorder = 'border-[#CDE0C5]';
+          skyGradient = 'from-[#F3F7EE] to-[#E5EFE0] dark:from-[#1F291D] dark:to-[#172115]';
+          skyBorder = 'border-[#CDE0C5] dark:border-[#2C3D29]';
           skyTitle = 'บรรยากาศ: สมาธิบริสุทธิ์ วันนี้ทำได้ยอดเยี่ยม';
           skyDesc = `เคลียร์สำเร็จไป ${completedCount} งานแล้ว พักผ่อนและชื่นชมตัวเองได้เต็มที่`;
           pose = 'celebrate';
@@ -226,17 +226,17 @@ export const TaskList: React.FC<TaskListProps> = ({
           >
             <div className="flex items-center justify-between gap-4 relative z-10">
               <div className="flex items-center gap-3.5">
-                <div className="w-13 h-13 bg-white/80 backdrop-blur-xs rounded-2xl border border-white/90 shadow-2xs flex items-center justify-center p-1 shrink-0">
+                <div className="w-13 h-13 bg-white/80 dark:bg-[#2C2C28]/80 backdrop-blur-xs rounded-2xl border border-white/90 dark:border-white/10 shadow-2xs flex items-center justify-center p-1 shrink-0">
                   <PixelCloud8Bit pose={pose} size="sm" accessory={petAccessory} interactive={false} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold font-heading text-[#2C2C24] leading-snug">{skyTitle}</h3>
-                  <p className="text-xs text-[#6E6D62] mt-1 leading-relaxed">{skyDesc}</p>
+                  <h3 className="text-sm font-bold font-heading text-[#2C2C24] dark:text-[#EAE7DF] leading-snug">{skyTitle}</h3>
+                  <p className="text-xs text-[#6E6D62] dark:text-[#A8A599] mt-1 leading-relaxed">{skyDesc}</p>
                 </div>
               </div>
 
               <div className="text-right shrink-0">
-                <span className="text-[11px] font-mono font-bold px-3 py-1 rounded-full bg-white/90 border border-[#E2DACB] text-[#55634E] shadow-2xs">
+                <span className="text-[11px] font-mono font-bold px-3 py-1 rounded-full bg-white/90 dark:bg-[#2A2A26] border border-[#E2DACB] dark:border-[#42423C] text-[#55634E] dark:text-[#9BB391] shadow-2xs">
                   {completedCount} สำเร็จ
                 </span>
               </div>
@@ -305,8 +305,8 @@ export const TaskList: React.FC<TaskListProps> = ({
             onClick={() => setSelectedCategory(cat.id)}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer border ${
               selectedCategory === cat.id
-                ? 'bg-[#2C2C24] text-white border-[#2C2C24]'
-                : 'bg-white border-[#E8E2D5] text-[#7A786C] hover:bg-[#FAF8F5]'
+                ? 'bg-[#2C2C24] dark:bg-white text-white dark:text-[#181818] border-[#2C2C24] dark:border-white shadow-2xs'
+                : 'bg-white dark:bg-[#222220] border-[#E8E2D5] dark:border-[#383834] text-[#7A786C] dark:text-[#A8A599] hover:bg-[#FAF8F5] dark:hover:bg-[#2C2C28]'
             }`}
           >
             {cat.label}
@@ -315,14 +315,14 @@ export const TaskList: React.FC<TaskListProps> = ({
       </div>
 
       {/* 5. Status Filter Bar (Pending / All / Overthink) + Search */}
-      <div className="flex items-center justify-between border-b border-[#EAE4D9] pb-1 pt-1">
+      <div className="flex items-center justify-between border-b border-[#EAE4D9] dark:border-[#333330] pb-1 pt-1">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setActiveFilterTab('today')}
             className={`pb-1 text-xs font-semibold transition border-b-2 cursor-pointer ${
               activeFilterTab === 'today'
-                ? 'border-[#6C7764] text-[#2C2C24] font-bold'
-                : 'border-transparent text-[#8C8A7D] hover:text-[#2C2C24]'
+                ? 'border-[#6C7764] dark:border-[#9BB391] text-[#2C2C24] dark:text-white font-bold'
+                : 'border-transparent text-[#8C8A7D] dark:text-[#888880] hover:text-[#2C2C24] dark:hover:text-white'
             }`}
           >
             ค้างอยู่ ({pendingTasks.length})
@@ -331,8 +331,8 @@ export const TaskList: React.FC<TaskListProps> = ({
             onClick={() => setActiveFilterTab('all')}
             className={`pb-1 text-xs font-semibold transition border-b-2 cursor-pointer ${
               activeFilterTab === 'all'
-                ? 'border-[#2C2C24] text-[#2C2C24] font-bold'
-                : 'border-transparent text-[#8C8A7D] hover:text-[#2C2C24]'
+                ? 'border-[#2C2C24] dark:border-white text-[#2C2C24] dark:text-white font-bold'
+                : 'border-transparent text-[#8C8A7D] dark:text-[#888880] hover:text-[#2C2C24] dark:hover:text-white'
             }`}
           >
             ทั้งหมด ({tasks.length})
@@ -341,8 +341,8 @@ export const TaskList: React.FC<TaskListProps> = ({
             onClick={() => setActiveFilterTab('overthink')}
             className={`pb-1 text-xs font-semibold transition border-b-2 cursor-pointer flex items-center gap-1 ${
               activeFilterTab === 'overthink'
-                ? 'border-[#9E745E] text-[#9E745E] font-bold'
-                : 'border-transparent text-[#8C8A7D] hover:text-[#2C2C24]'
+                ? 'border-[#9E745E] dark:border-[#D49E78] text-[#9E745E] dark:text-[#D49E78] font-bold'
+                : 'border-transparent text-[#8C8A7D] dark:text-[#888880] hover:text-[#2C2C24] dark:hover:text-white'
             }`}
           >
             <Brain className="w-3.5 h-3.5" />
@@ -352,7 +352,7 @@ export const TaskList: React.FC<TaskListProps> = ({
 
         <button
           onClick={() => setShowSearch(!showSearch)}
-          className="text-[#8C8A7D] hover:text-[#2C2C24] p-1 cursor-pointer"
+          className="text-[#8C8A7D] dark:text-[#888880] hover:text-[#2C2C24] dark:hover:text-white p-1 cursor-pointer"
           title="ค้นหางาน"
         >
           <Search className="w-3.5 h-3.5" />
@@ -369,12 +369,12 @@ export const TaskList: React.FC<TaskListProps> = ({
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="ค้นหาชื่องาน, แท็ก, หรือสถานที่..."
             autoFocus
-            className="w-full pl-8.5 pr-8 py-1.5 rounded-xl bg-white border border-[#E8E2D5] text-xs text-[#2C2C24] placeholder:text-[#8A8A7A] outline-none focus:border-[#6C7764]"
+            className="w-full pl-8.5 pr-8 py-1.5 rounded-xl bg-white dark:bg-[#222220] border border-[#E8E2D5] dark:border-[#383834] text-xs text-[#2C2C24] dark:text-white placeholder:text-[#8A8A7A] outline-none focus:border-[#6C7764]"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8A8A7A] hover:text-[#2C2C24]"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8A8A7A] hover:text-[#2C2C24] dark:hover:text-white"
             >
               <X className="w-3 h-3" />
             </button>
@@ -385,19 +385,19 @@ export const TaskList: React.FC<TaskListProps> = ({
       {/* 6. Task List & Micro-steps */}
       <div className="space-y-2.5 pt-1">
         <div className="flex items-center justify-between px-1">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#2C2C24]">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#2C2C24] dark:text-[#E8E6E0]">
             งานทั้งหมดในรายการ ({pendingTasks.length})
           </span>
-          <span className="text-[11px] text-[#7A786C]">
+          <span className="text-[11px] text-[#7A786C] dark:text-[#A09D90]">
             ก้าวเล็กๆ ก็ยอดเยี่ยมแล้ว
           </span>
         </div>
 
         {pendingTasks.length === 0 ? (
-          <div className="bg-[#FAF8F5] rounded-3xl p-6 text-center border border-[#E8E2D5] shadow-2xs space-y-2.5">
+          <div className="bg-[#FAF8F5] dark:bg-[#1E1E1C] rounded-3xl p-6 text-center border border-[#E8E2D5] dark:border-[#333330] shadow-2xs space-y-2.5">
             <PixelCloud8Bit pose="celebrate" size="sm" interactive={false} />
-            <h4 className="text-sm font-bold font-heading text-[#2C2C24]">ไม่มีงานค้างอยู่ในรายการ</h4>
-            <p className="text-xs text-[#7A786C] max-w-xs mx-auto">
+            <h4 className="text-sm font-bold font-heading text-[#2C2C24] dark:text-[#F0EEE6]">ไม่มีงานค้างอยู่ในรายการ</h4>
+            <p className="text-xs text-[#7A786C] dark:text-[#A8A599] max-w-xs mx-auto">
               คุณเคลียร์งานเรียบร้อย หรือกดปุ่ม + เพื่อระบายความคิดใหม่
             </p>
           </div>

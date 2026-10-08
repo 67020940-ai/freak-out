@@ -99,10 +99,32 @@ export default function App() {
     }
   });
 
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
+    try {
+      const session = localStorage.getItem('freakout_auth_session');
+      if (session) {
+        const parsed = JSON.parse(session);
+        return parsed.user?.email === 'admin@freakout.app' || parsed.user?.uid === 'admin-master-uid';
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  });
+
   const [pet, setPet] = useState<PetState>(() => {
     try {
       const saved = localStorage.getItem('freakout_pet');
-      return saved ? JSON.parse(saved) : INITIAL_PET;
+      const loaded: PetState = saved ? JSON.parse(saved) : INITIAL_PET;
+      const session = localStorage.getItem('freakout_auth_session');
+      const isAdm = session && (JSON.parse(session).user?.email === 'admin@freakout.app');
+
+      return {
+        ...loaded,
+        name: loaded.name || 'Cloudy',
+        // Admin gets unlimited stardust, while normal user starts at 0 or saved stardust
+        stardust: isAdm ? 999999 : (loaded.stardust ?? 0),
+      };
     } catch {
       return INITIAL_PET;
     }
@@ -110,7 +132,7 @@ export default function App() {
 
   const [isProUser, setIsProUser] = useState<boolean>(() => {
     try {
-      return localStorage.getItem('freakout_is_pro') === 'true';
+      return localStorage.getItem('freakout_is_pro') === 'true' || isAdmin;
     } catch {
       return false;
     }
@@ -217,6 +239,31 @@ export default function App() {
       console.error(e);
     }
   }, [pet]);
+
+  // Ensure dark mode class is applied to <html> on app mount
+  useEffect(() => {
+    try {
+      const isDark = localStorage.getItem('freakout_dark_mode') === 'true';
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  // One-time migration: reset non-admin user stardust from old mock 526/531 to 0
+  useEffect(() => {
+    try {
+      const migrated = localStorage.getItem('freakout_stardust_reset_v2');
+      if (!migrated && !isAdmin) {
+        setPet((prev) => ({ ...prev, stardust: 0 }));
+        localStorage.setItem('freakout_stardust_reset_v2', 'true');
+      }
+    } catch {}
+  }, [isAdmin]);
 
   useEffect(() => {
     try {
@@ -370,7 +417,13 @@ export default function App() {
               onLogin={(name) => {
                 setUserName(name);
                 setIsAuthenticated(true);
-                setIsProUser(localStorage.getItem('freakout_is_pro') === 'true');
+                const session = localStorage.getItem('freakout_auth_session');
+                const isAdm = session && (JSON.parse(session).user?.email === 'admin@freakout.app');
+                setIsAdmin(Boolean(isAdm));
+                setIsProUser(Boolean(isAdm) || localStorage.getItem('freakout_is_pro') === 'true');
+                if (isAdm) {
+                  setPet((prev) => ({ ...prev, stardust: 999999 }));
+                }
                 localStorage.setItem('freakout_authenticated', 'true');
                 localStorage.setItem('freakout_username', name);
               }}
@@ -391,6 +444,7 @@ export default function App() {
             onOpenDailyReward={() => setIsDailyRewardOpen(true)}
             onOpenAiChat={() => setIsAiChatOpen(true)}
             isProUser={isProUser}
+            isAdmin={isAdmin}
             activeSpaceName={spaces.find((s) => s.id === activeSpaceId)?.name || 'ห้องหลัก (General)'}
             onOpenSpaces={() => setIsSpacesDrawerOpen(true)}
           />
@@ -473,6 +527,7 @@ export default function App() {
                   onUpdatePet={setPet}
                   onOpenPanic={() => setIsPanicModalOpen(true)}
                   streakDays={stats.streakDays}
+                  isAdmin={isAdmin}
                 />
               )}
 
