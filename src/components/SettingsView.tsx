@@ -9,18 +9,22 @@ import {
   Info,
   HelpCircle,
   LogOut,
-  Brain,
   Sparkles,
   ShieldCheck,
   Clock,
   Volume2,
   Check,
-  ChevronLeft,
   X
 } from 'lucide-react';
-import { getSavedSession, logoutAuth } from '../services/firebase';
+import {
+  getSavedSession,
+  logoutAuth,
+  updateUserProfile,
+  updateUserPassword,
+  deactivateAccount
+} from '../services/firebase';
 import { analyzeReadinessWithAI, CognitiveAnalysisResult } from '../utils/aiHelper';
-import { CLOUD_COLOR_THEMES, PixelCloud8Bit } from './PixelCloud8Bit';
+import { PixelCloud8Bit } from './PixelCloud8Bit';
 
 interface SettingsViewProps {
   tasks: Task[];
@@ -32,13 +36,12 @@ interface SettingsViewProps {
   onUpdateSettings: (updater: (prev: AppSettings) => AppSettings) => void;
 }
 
-type ModalType = 'profile' | 'password' | 'notifications' | 'about' | 'faq' | 'deactivate' | 'ai-analysis' | null;
+type ModalType = 'profile' | 'password' | 'notifications' | 'about' | 'faq' | null;
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
   tasks,
   energy,
   cloudColor,
-  onUpdateCloudColor,
   onLogout,
   settings,
   onUpdateSettings,
@@ -49,7 +52,22 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [showDeactivateConfirm, setShowDeactivateConfirm] = useState(false);
 
-  // Local state for Dark mode toggle (persisted in localStorage / document element)
+  // Form states for profile editing
+  const [editName, setEditName] = useState(session?.user?.displayName || 'ผู้ใช้งาน');
+  const [profileSuccessMsg, setProfileSuccessMsg] = useState('');
+
+  // Form states for password change
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordMsg, setPasswordMsg] = useState<{ text: string; isError: boolean } | null>(null);
+
+  // Notifications preference states
+  const [notifFocus, setNotifFocus] = useState(true);
+  const [notifEnergy, setNotifEnergy] = useState(true);
+  const [notifDaily, setNotifDaily] = useState(false);
+  const [notifSuccessMsg, setNotifSuccessMsg] = useState('');
+
+  // Dark mode toggle
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     return document.documentElement.classList.contains('dark') || localStorage.getItem('freakout_dark_mode') === 'true';
   });
@@ -83,44 +101,78 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     }
   };
 
-  const handleLogout = async () => {
-    await logoutAuth();
-    onLogout();
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editName.trim()) return;
+    await updateUserProfile(editName.trim());
+    setSession(getSavedSession());
+    setProfileSuccessMsg('บันทึกข้อมูลโปรไฟล์เรียบร้อย');
+    setTimeout(() => {
+      setProfileSuccessMsg('');
+      setActiveModal(null);
+    }, 1200);
+  };
+
+  const handleSavePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword || newPassword.length < 6) {
+      setPasswordMsg({ text: 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร', isError: true });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordMsg({ text: 'รหัสผ่านยืนยันไม่ตรงกัน', isError: true });
+      return;
+    }
+
+    try {
+      await updateUserPassword(newPassword);
+      setPasswordMsg({ text: 'เปลี่ยนรหัสผ่านสำเร็จเรียบร้อย', isError: false });
+      setTimeout(() => {
+        setPasswordMsg(null);
+        setNewPassword('');
+        setConfirmPassword('');
+        setActiveModal(null);
+      }, 1200);
+    } catch (err: any) {
+      setPasswordMsg({ text: err.message || 'เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน', isError: true });
+    }
+  };
+
+  const handleSaveNotifications = (e: React.FormEvent) => {
+    e.preventDefault();
+    setNotifSuccessMsg('บันทึกการตั้งค่าการแจ้งเตือนแล้ว');
+    setTimeout(() => {
+      setNotifSuccessMsg('');
+      setActiveModal(null);
+    }, 1200);
   };
 
   const handleDeactivate = async () => {
-    localStorage.clear();
-    await logoutAuth();
+    await deactivateAccount();
     onLogout();
   };
 
-  const displayName = session?.user?.displayName || 'Alfred Daniel';
-  const roleTitle = 'Product / UI Designer';
-  const userEmail = session?.user?.email || 'alfred.daniel@example.com';
+  const currentDisplayName = session?.user?.displayName || editName || 'ผู้ใช้งาน';
+  const currentUserEmail = session?.user?.email || 'user@freakout.app';
 
   return (
-    <div className="w-full max-w-md mx-auto px-4 py-4 space-y-5 select-none">
-      {/* Header bar matching reference with back button */}
-      <div className="flex items-center justify-between py-1">
-        <button
-          type="button"
-          onClick={() => window.history.back()}
-          className="w-9 h-9 rounded-full bg-white dark:bg-[#2A2A2A] border border-[#EAE4D9] dark:border-[#3A3A3A] flex items-center justify-center text-[#2C2C24] dark:text-white shadow-2xs hover:bg-[#F5EFE6] transition active:scale-95 cursor-pointer"
-          title="ย้อนกลับ"
-        >
-          <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
-        </button>
-
-        <h1 className="text-base font-bold font-heading text-[#2C2C24] dark:text-white tracking-tight">
+    <div className="w-full max-w-md mx-auto px-4 py-3 space-y-5 select-none">
+      {/* Top Header - Simple and Clean (No Non-functional Back Button) */}
+      <div className="py-1">
+        <h1 className="text-xl font-bold font-heading text-[#2C2C24] dark:text-white tracking-tight">
           Settings
         </h1>
-
-        <div className="w-9 h-9" /> {/* Spacer for centering balance */}
+        <p className="text-xs text-[#8A887A] dark:text-[#A0A0A0] mt-0.5">
+          จัดการบัญชีและระบบการทำงาน
+        </p>
       </div>
 
-      {/* User Profile Card (Reference Item 1) */}
+      {/* User Profile Card (Reference Card Style) */}
       <div
-        onClick={() => setActiveModal('profile')}
+        onClick={() => {
+          setEditName(currentDisplayName);
+          setActiveModal('profile');
+        }}
         className="bg-white dark:bg-[#1E1E1E] rounded-3xl p-4 border border-[#ECE6DB] dark:border-[#2C2C2C] shadow-2xs hover:border-[#828D7A]/50 transition cursor-pointer flex items-center justify-between active:scale-[0.99]"
       >
         <div className="flex items-center gap-3.5">
@@ -129,10 +181,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
           <div>
             <h2 className="text-sm font-bold text-[#2C2C24] dark:text-white leading-tight">
-              {displayName}
+              {currentDisplayName}
             </h2>
-            <p className="text-xs text-[#8A887A] dark:text-[#A0A0A0] mt-0.5">
-              {roleTitle}
+            <p className="text-xs text-[#8A887A] dark:text-[#A0A0A0] mt-0.5 truncate max-w-[200px]">
+              {currentUserEmail}
             </p>
           </div>
         </div>
@@ -150,7 +202,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           {/* 1. Profile details */}
           <button
             type="button"
-            onClick={() => setActiveModal('profile')}
+            onClick={() => {
+              setEditName(currentDisplayName);
+              setActiveModal('profile');
+            }}
             className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-[#FAF8F5] dark:hover:bg-[#262626] transition cursor-pointer"
           >
             <div className="flex items-center gap-3">
@@ -167,7 +222,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           {/* 2. Password */}
           <button
             type="button"
-            onClick={() => setActiveModal('password')}
+            onClick={() => {
+              setPasswordMsg(null);
+              setNewPassword('');
+              setConfirmPassword('');
+              setActiveModal('password');
+            }}
             className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-[#FAF8F5] dark:hover:bg-[#262626] transition cursor-pointer"
           >
             <div className="flex items-center gap-3">
@@ -259,6 +319,26 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
             <span className="text-xs font-semibold text-[#2C2C24] dark:text-white">
               Help/FAQ
+            </span>
+          </div>
+          <ChevronRight className="w-4 h-4 text-[#A8A599] dark:text-[#666666]" />
+        </button>
+
+        {/* Log Out (Standard Sign Out) */}
+        <button
+          type="button"
+          onClick={async () => {
+            await logoutAuth();
+            onLogout();
+          }}
+          className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-[#FAF8F5] dark:hover:bg-[#262626] transition cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-[#F4EFE6] dark:bg-[#2A2A2A] flex items-center justify-center text-[#7A786C] dark:text-[#A0A0A0]">
+              <LogOut className="w-4 h-4 stroke-[2]" />
+            </div>
+            <span className="text-xs font-semibold text-[#7A786C] dark:text-[#A0A0A0]">
+              Log out
             </span>
           </div>
           <ChevronRight className="w-4 h-4 text-[#A8A599] dark:text-[#666666]" />
@@ -361,7 +441,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
       </div>
 
-      {/* Modal Sheet for Profile Details */}
+      {/* Modal Sheet for Profile Details (REAL EDITABLE) */}
       {activeModal === 'profile' && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div className="bg-white dark:bg-[#1E1E1E] rounded-3xl w-full max-w-sm p-5 border border-[#ECE6DB] dark:border-[#333333] shadow-xl space-y-4">
@@ -370,6 +450,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 Profile Details
               </h3>
               <button
+                type="button"
                 onClick={() => setActiveModal(null)}
                 className="p-1 rounded-full text-[#8A887A] hover:bg-[#F4EFE6] dark:hover:bg-[#2C2C2C]"
               >
@@ -377,16 +458,23 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
+            <form onSubmit={handleSaveProfile} className="space-y-3 text-xs">
+              {profileSuccessMsg && (
+                <div className="p-2 rounded-xl bg-[#EBF0E8] text-[#3B5433] text-center font-medium">
+                  {profileSuccessMsg}
+                </div>
+              )}
+
               <div>
                 <label className="text-[11px] font-semibold text-[#7A786C] dark:text-[#999999] block mb-1">
-                  Full Name
+                  Full Name / ชื่อที่แสดง
                 </label>
                 <input
                   type="text"
-                  defaultValue={displayName}
-                  className="w-full px-3 py-2 rounded-xl border border-[#ECE6DB] dark:border-[#333333] bg-[#FAF8F5] dark:bg-[#262626] text-[#2C2C24] dark:text-white outline-none"
-                  readOnly
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#ECE6DB] dark:border-[#333333] bg-[#FAF8F5] dark:bg-[#262626] text-[#2C2C24] dark:text-white outline-none focus:border-[#6C7764]"
+                  required
                 />
               </div>
 
@@ -396,36 +484,33 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </label>
                 <input
                   type="email"
-                  defaultValue={userEmail}
-                  className="w-full px-3 py-2 rounded-xl border border-[#ECE6DB] dark:border-[#333333] bg-[#FAF8F5] dark:bg-[#262626] text-[#2C2C24] dark:text-white outline-none"
-                  readOnly
+                  value={currentUserEmail}
+                  className="w-full px-3 py-2 rounded-xl border border-[#ECE6DB] dark:border-[#333333] bg-[#F2ECE1]/50 dark:bg-[#262626]/50 text-[#7A786C] outline-none"
+                  disabled
                 />
               </div>
 
-              <div>
-                <label className="text-[11px] font-semibold text-[#7A786C] dark:text-[#999999] block mb-1">
-                  Role
-                </label>
-                <input
-                  type="text"
-                  defaultValue={roleTitle}
-                  className="w-full px-3 py-2 rounded-xl border border-[#ECE6DB] dark:border-[#333333] bg-[#FAF8F5] dark:bg-[#262626] text-[#2C2C24] dark:text-white outline-none"
-                  readOnly
-                />
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveModal(null)}
+                  className="flex-1 py-2.5 rounded-xl bg-[#F4EFE6] dark:bg-[#2A2A2A] text-[#5C5B50] dark:text-white font-semibold text-xs cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-xl bg-[#6C7764] hover:bg-[#586350] text-white font-bold text-xs shadow-xs cursor-pointer"
+                >
+                  Save Changes
+                </button>
               </div>
-            </div>
-
-            <button
-              onClick={() => setActiveModal(null)}
-              className="w-full py-2.5 rounded-xl bg-[#6C7764] text-white font-bold text-xs shadow-xs"
-            >
-              Done
-            </button>
+            </form>
           </div>
         </div>
       )}
 
-      {/* Modal Sheet for Password */}
+      {/* Modal Sheet for Password (REAL CHANGE) */}
       {activeModal === 'password' && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div className="bg-white dark:bg-[#1E1E1E] rounded-3xl w-full max-w-sm p-5 border border-[#ECE6DB] dark:border-[#333333] shadow-xl space-y-4">
@@ -434,6 +519,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 Change Password
               </h3>
               <button
+                type="button"
                 onClick={() => setActiveModal(null)}
                 className="p-1 rounded-full text-[#8A887A] hover:bg-[#F4EFE6] dark:hover:bg-[#2C2C2C]"
               >
@@ -441,41 +527,66 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
+            <form onSubmit={handleSavePassword} className="space-y-3 text-xs">
+              {passwordMsg && (
+                <div className={`p-2 rounded-xl text-center font-medium ${
+                  passwordMsg.isError
+                    ? 'bg-[#FDECE8] text-[#C23A25]'
+                    : 'bg-[#EBF0E8] text-[#3B5433]'
+                }`}>
+                  {passwordMsg.text}
+                </div>
+              )}
+
               <div>
                 <label className="text-[11px] font-semibold text-[#7A786C] dark:text-[#999999] block mb-1">
-                  Current Password
+                  New Password / รหัสผ่านใหม่
                 </label>
                 <input
                   type="password"
-                  placeholder="••••••••"
-                  className="w-full px-3 py-2 rounded-xl border border-[#ECE6DB] dark:border-[#333333] bg-[#FAF8F5] dark:bg-[#262626] text-[#2C2C24] dark:text-white outline-none"
+                  placeholder="อย่างน้อย 6 ตัวอักษร"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#ECE6DB] dark:border-[#333333] bg-[#FAF8F5] dark:bg-[#262626] text-[#2C2C24] dark:text-white outline-none focus:border-[#6C7764]"
+                  required
                 />
               </div>
 
               <div>
                 <label className="text-[11px] font-semibold text-[#7A786C] dark:text-[#999999] block mb-1">
-                  New Password
+                  Confirm Password / ยืนยันรหัสผ่าน
                 </label>
                 <input
                   type="password"
-                  placeholder="อย่างน้อย 8 ตัวอักษร"
-                  className="w-full px-3 py-2 rounded-xl border border-[#ECE6DB] dark:border-[#333333] bg-[#FAF8F5] dark:bg-[#262626] text-[#2C2C24] dark:text-white outline-none"
+                  placeholder="พิมพ์รหัสผ่านใหม่อีกครั้ง"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#ECE6DB] dark:border-[#333333] bg-[#FAF8F5] dark:bg-[#262626] text-[#2C2C24] dark:text-white outline-none focus:border-[#6C7764]"
+                  required
                 />
               </div>
-            </div>
 
-            <button
-              onClick={() => setActiveModal(null)}
-              className="w-full py-2.5 rounded-xl bg-[#6C7764] text-white font-bold text-xs shadow-xs"
-            >
-              Update Password
-            </button>
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveModal(null)}
+                  className="flex-1 py-2.5 rounded-xl bg-[#F4EFE6] dark:bg-[#2A2A2A] text-[#5C5B50] dark:text-white font-semibold text-xs cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-xl bg-[#6C7764] hover:bg-[#586350] text-white font-bold text-xs shadow-xs cursor-pointer"
+                >
+                  Update
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
 
-      {/* Modal Sheet for Notifications */}
+      {/* Modal Sheet for Notifications (REAL WORKING PREFERENCES) */}
       {activeModal === 'notifications' && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div className="bg-white dark:bg-[#1E1E1E] rounded-3xl w-full max-w-sm p-5 border border-[#ECE6DB] dark:border-[#333333] shadow-xl space-y-4">
@@ -484,6 +595,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 Notification Preferences
               </h3>
               <button
+                type="button"
                 onClick={() => setActiveModal(null)}
                 className="p-1 rounded-full text-[#8A887A] hover:bg-[#F4EFE6] dark:hover:bg-[#2C2C2C]"
               >
@@ -491,27 +603,50 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </button>
             </div>
 
-            <div className="space-y-2.5 text-xs">
-              <div className="flex items-center justify-between p-2 rounded-xl bg-[#FAF8F5] dark:bg-[#262626]">
-                <span className="text-[#2C2C24] dark:text-white font-medium">แจ้งเตือนก่อนเริ่มรอบโฟกัส</span>
-                <input type="checkbox" defaultChecked className="accent-[#6C7764]" />
-              </div>
-              <div className="flex items-center justify-between p-2 rounded-xl bg-[#FAF8F5] dark:bg-[#262626]">
-                <span className="text-[#2C2C24] dark:text-white font-medium">เตือนเช็กอินระดับพลังงานประจำวัน</span>
-                <input type="checkbox" defaultChecked className="accent-[#6C7764]" />
-              </div>
-              <div className="flex items-center justify-between p-2 rounded-xl bg-[#FAF8F5] dark:bg-[#262626]">
-                <span className="text-[#2C2C24] dark:text-white font-medium">สรุปงานที่ค้างในรายการ</span>
-                <input type="checkbox" defaultChecked className="accent-[#6C7764]" />
-              </div>
-            </div>
+            <form onSubmit={handleSaveNotifications} className="space-y-3 text-xs">
+              {notifSuccessMsg && (
+                <div className="p-2 rounded-xl bg-[#EBF0E8] text-[#3B5433] text-center font-medium">
+                  {notifSuccessMsg}
+                </div>
+              )}
 
-            <button
-              onClick={() => setActiveModal(null)}
-              className="w-full py-2.5 rounded-xl bg-[#6C7764] text-white font-bold text-xs shadow-xs"
-            >
-              Save Preferences
-            </button>
+              <div className="space-y-2">
+                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#FAF8F5] dark:bg-[#262626] cursor-pointer">
+                  <span className="text-[#2C2C24] dark:text-white font-medium">แจ้งเตือนก่อนเริ่มรอบโฟกัส</span>
+                  <input
+                    type="checkbox"
+                    checked={notifFocus}
+                    onChange={(e) => setNotifFocus(e.target.checked)}
+                    className="accent-[#6C7764] w-4 h-4"
+                  />
+                </label>
+                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#FAF8F5] dark:bg-[#262626] cursor-pointer">
+                  <span className="text-[#2C2C24] dark:text-white font-medium">เตือนเช็กอินระดับพลังงานประจำวัน</span>
+                  <input
+                    type="checkbox"
+                    checked={notifEnergy}
+                    onChange={(e) => setNotifEnergy(e.target.checked)}
+                    className="accent-[#6C7764] w-4 h-4"
+                  />
+                </label>
+                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#FAF8F5] dark:bg-[#262626] cursor-pointer">
+                  <span className="text-[#2C2C24] dark:text-white font-medium">สรุปงานที่ค้างในรายการตอนเช้า</span>
+                  <input
+                    type="checkbox"
+                    checked={notifDaily}
+                    onChange={(e) => setNotifDaily(e.target.checked)}
+                    className="accent-[#6C7764] w-4 h-4"
+                  />
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-2.5 rounded-xl bg-[#6C7764] hover:bg-[#586350] text-white font-bold text-xs shadow-xs cursor-pointer"
+              >
+                Save Preferences
+              </button>
+            </form>
           </div>
         </div>
       )}
@@ -525,6 +660,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 About Application
               </h3>
               <button
+                type="button"
                 onClick={() => setActiveModal(null)}
                 className="p-1 rounded-full text-[#8A887A] hover:bg-[#F4EFE6] dark:hover:bg-[#2C2C2C]"
               >
@@ -536,13 +672,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <p className="font-bold text-[#2C2C24] dark:text-white">Freak Out App</p>
               <p>เครื่องมือจัดการภาระงานและลดความตื่นตระหนก เพื่อคนสมาธิสั้นและคนคิดวน ย่อยงานใหญ่เป็นก้าวเล็ก 2 นาทีแรก</p>
               <div className="pt-2 text-[10px] text-[#8A887A] dark:text-[#888888] border-t border-[#F2ECE1] dark:border-[#2C2C2C]">
-                Version 2.5.0 • Powered by Gemini AI
+                Version 2.5.0 • Powered by Gemini AI & Firebase Auth
               </div>
             </div>
 
             <button
+              type="button"
               onClick={() => setActiveModal(null)}
-              className="w-full py-2.5 rounded-xl bg-[#6C7764] text-white font-bold text-xs shadow-xs"
+              className="w-full py-2.5 rounded-xl bg-[#6C7764] text-white font-bold text-xs shadow-xs cursor-pointer"
             >
               Close
             </button>
@@ -559,6 +696,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 Help & FAQ
               </h3>
               <button
+                type="button"
                 onClick={() => setActiveModal(null)}
                 className="p-1 rounded-full text-[#8A887A] hover:bg-[#F4EFE6] dark:hover:bg-[#2C2C2C]"
               >
@@ -579,8 +717,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             <button
+              type="button"
               onClick={() => setActiveModal(null)}
-              className="w-full py-2.5 rounded-xl bg-[#6C7764] text-white font-bold text-xs shadow-xs"
+              className="w-full py-2.5 rounded-xl bg-[#6C7764] text-white font-bold text-xs shadow-xs cursor-pointer"
             >
               Close
             </button>

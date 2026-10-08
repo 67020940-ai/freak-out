@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { PixelCloud8Bit } from './PixelCloud8Bit';
 import { ArrowRight, Sparkles, Check, Mail, Lock, User, ShieldCheck } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { loginWithGoogle } from '../services/firebase';
+import { loginWithGoogle, registerWithEmail, loginWithEmail } from '../services/firebase';
 
 interface AuthOnboardingViewProps {
   onLogin: (userName: string) => void;
@@ -13,10 +13,12 @@ export const AuthOnboardingView: React.FC<AuthOnboardingViewProps> = ({ onLogin 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
+    setErrorMessage('');
     try {
       const session = await loginWithGoogle();
       confetti({
@@ -25,11 +27,10 @@ export const AuthOnboardingView: React.FC<AuthOnboardingViewProps> = ({ onLogin 
         origin: { y: 0.6 },
         colors: ['#6C7764', '#9E745E', '#EAE3D5'],
       });
-      onLogin(session.user?.displayName || 'Jay');
-    } catch (err) {
+      onLogin(session.user?.displayName || 'ผู้ใช้งานใหม่');
+    } catch (err: any) {
       console.error('Google Sign-in failed:', err);
-      // Fallback
-      onLogin('Jay');
+      setErrorMessage(err.message || 'เข้าสู่ระบบด้วย Google ไม่สำเร็จ');
     } finally {
       setIsLoading(false);
     }
@@ -42,12 +43,44 @@ export const AuthOnboardingView: React.FC<AuthOnboardingViewProps> = ({ onLogin 
       origin: { y: 0.6 },
       colors: ['#6C7764', '#9E745E', '#EAE3D5'],
     });
-    onLogin('Jay (Guest)');
+    const guestName = 'ผู้เยี่ยมชม';
+    const guestSession = {
+      user: {
+        uid: `guest-${Date.now()}`,
+        displayName: guestName,
+        email: 'guest@freakout.app',
+        photoURL: null,
+      },
+      googleAccessToken: null,
+    };
+    localStorage.setItem('freakout_auth_session', JSON.stringify(guestSession));
+    onLogin(guestName);
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin(name.trim() || email.split('@')[0] || 'เพื่อนใหม่');
+    setIsLoading(true);
+    setErrorMessage('');
+
+    try {
+      if (authMode === 'email-signup') {
+        const session = await registerWithEmail(name, email, password);
+        confetti({
+          particleCount: 50,
+          spread: 60,
+          origin: { y: 0.6 },
+          colors: ['#6C7764', '#9E745E', '#EAE3D5'],
+        });
+        onLogin(session.user?.displayName || name);
+      } else {
+        const session = await loginWithEmail(email, password);
+        onLogin(session.user?.displayName || email.split('@')[0]);
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -158,6 +191,12 @@ export const AuthOnboardingView: React.FC<AuthOnboardingViewProps> = ({ onLogin 
                 {authMode === 'email-login' ? 'เข้าสู่ระบบด้วยอีเมล' : 'สร้างบัญชีใหม่'}
               </span>
             </div>
+
+            {errorMessage && (
+              <div className="p-2 rounded-xl bg-[#FDECE8] border border-[#F6D7D0] text-[#C23A25] text-[11px] text-center font-medium">
+                {errorMessage}
+              </div>
+            )}
 
             {authMode === 'email-signup' && (
               <div className="relative">

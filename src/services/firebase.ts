@@ -4,6 +4,11 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  updatePassword,
+  deleteUser,
   onAuthStateChanged,
   User
 } from 'firebase/auth';
@@ -57,18 +62,45 @@ export interface AuthSession {
   googleAccessToken: string | null;
 }
 
-// Sign in with Google (Real Firebase or Demo Fallback)
+// Local user storage helper for when Firebase is not configured or offline
+const LOCAL_ACCOUNTS_KEY = 'freakout_registered_accounts';
+
+interface LocalAccount {
+  uid: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  role?: string;
+  createdAt: string;
+}
+
+const getLocalAccounts = (): LocalAccount[] => {
+  try {
+    const data = localStorage.getItem(LOCAL_ACCOUNTS_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveLocalAccounts = (accounts: LocalAccount[]) => {
+  localStorage.setItem(LOCAL_ACCOUNTS_KEY, JSON.stringify(accounts));
+};
+
+// Sign in with Google (Real Firebase or Local)
 export const loginWithGoogle = async (): Promise<AuthSession> => {
   if (!auth) {
-    // Graceful offline/demo mock login if Firebase credentials are not yet entered in .env
-    const demoUser = {
-      uid: 'demo-user-123',
-      displayName: 'Jay (Local User)',
-      email: 'jay@example.com',
-      photoURL: null,
-    };
+    // Generate a fresh session for this user
+    const saved = getSavedSession();
+    const currentName = saved?.user?.displayName || 'ผู้ใช้งานใหม่';
+    const currentEmail = saved?.user?.email || 'user@freakout.app';
     const session: AuthSession = {
-      user: demoUser,
+      user: {
+        uid: `guest-${Date.now()}`,
+        displayName: currentName,
+        email: currentEmail,
+        photoURL: null,
+      },
       googleAccessToken: 'mock-google-access-token',
     };
     localStorage.setItem('freakout_auth_session', JSON.stringify(session));
@@ -98,11 +130,189 @@ export const loginWithGoogle = async (): Promise<AuthSession> => {
   }
 };
 
+// Sign Up with Email and Password
+export const registerWithEmail = async (name: string, email: string, pass: string): Promise<AuthSession> => {
+  const cleanEmail = email.trim().toLowerCase();
+  const cleanName = name.trim() || cleanEmail.split('@')[0];
+
+  if (auth) {
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, cleanEmail, pass);
+      await updateProfile(cred.user, { displayName: cleanName });
+
+      const session: AuthSession = {
+        user: {
+          uid: cred.user.uid,
+          displayName: cleanName,
+          email: cred.user.email,
+          photoURL: null,
+        },
+        googleAccessToken: null,
+      };
+      localStorage.setItem('freakout_auth_session', JSON.stringify(session));
+      return session;
+    } catch (err) {
+      console.warn('Firebase register failed or not online, falling back to local DB:', err);
+    }
+  }
+
+  // Local accounts fallback
+  const accounts = getLocalAccounts();
+  const existing = accounts.find((a) => a.email === cleanEmail);
+  if (existing) {
+    throw new Error('อีเมลนี้ถูกใช้งานแล้ว กรุณาเข้าสู่ระบบ');
+  }
+
+  const newAccount: LocalAccount = {
+    uid: `user-${Date.now()}`,
+    name: cleanName,
+    email: cleanEmail,
+    passwordHash: pass,
+    role: 'Product / UI Designer',
+    createdAt: new Date().toISOString(),
+  };
+
+  accounts.push(newAccount);
+  saveLocalAccounts(accounts);
+
+  const session: AuthSession = {
+    user: {
+      uid: newAccount.uid,
+      displayName: newAccount.name,
+      email: newAccount.email,
+      photoURL: null,
+    },
+    googleAccessToken: null,
+  };
+  localStorage.setItem('freakout_auth_session', JSON.stringify(session));
+  return session;
+};
+
+// Sign In with Email and Password
+export const loginWithEmail = async (email: string, pass: string): Promise<AuthSession> => {
+  const cleanEmail = email.trim().toLowerCase();
+
+  if (auth) {
+    try {
+      const cred = await signInWithEmailAndPassword(auth, cleanEmail, pass);
+      const session: AuthSession = {
+        user: {
+          uid: cred.user.uid,
+          displayName: cred.user.displayName,
+          email: cred.user.email,
+          photoURL: cred.user.photoURL,
+        },
+        googleAccessToken: null,
+      };
+      localStorage.setItem('freakout_auth_session', JSON.stringify(session));
+      return session;
+    } catch (err) {
+      console.warn('Firebase email login failed, checking local accounts:', err);
+    }
+  }
+
+  const accounts = getLocalAccounts();
+  const account = accounts.find((a) => a.email === cleanEmail);
+  if (!account) {
+    throw new Error('ไม่พบบัญชีผู้ใช้นี้ กรุณาสมัครสมาชิกก่อน');
+  }
+  if (account.passwordHash !== pass) {
+    throw new Error('รหัสผ่านไม่ถูกต้อง');
+  }
+
+  const session: AuthSession = {
+    user: {
+      uid: account.uid,
+      displayName: account.name,
+      email: account.email,
+      photoURL: null,
+    },
+    googleAccessToken: null,
+  };
+  localStorage.setItem('freakout_auth_session', JSON.stringify(session));
+  return session;
+};
+
+// Update user profile (Name)
+export const updateUserProfile = async (newName: string): Promise<void> => {
+  const session = getSavedSession();
+  if (!session?.user) return;
+
+  session.user.displayName = newName;
+  localStorage.setItem('freakout_auth_session', JSON.stringify(session));
+
+  if (auth?.currentUser) {
+    try {
+      await updateProfile(auth.currentUser, { displayName: newName });
+    } catch (e) {
+      console.warn('Firebase profile update failed:', e);
+    }
+  }
+
+  // Update local accounts
+  const accounts = getLocalAccounts();
+  const acc = accounts.find((a) => a.uid === session.user?.uid || a.email === session.user?.email);
+  if (acc) {
+    acc.name = newName;
+    saveLocalAccounts(accounts);
+  }
+};
+
+// Update user password
+export const updateUserPassword = async (newPassword: string): Promise<void> => {
+  const session = getSavedSession();
+  if (!session?.user) return;
+
+  if (auth?.currentUser) {
+    try {
+      await updatePassword(auth.currentUser, newPassword);
+    } catch (e) {
+      console.warn('Firebase password update failed:', e);
+    }
+  }
+
+  const accounts = getLocalAccounts();
+  const acc = accounts.find((a) => a.uid === session.user?.uid || a.email === session.user?.email);
+  if (acc) {
+    acc.passwordHash = newPassword;
+    saveLocalAccounts(accounts);
+  }
+};
+
+// Deactivate / Delete Account
+export const deactivateAccount = async (): Promise<void> => {
+  const session = getSavedSession();
+  const uid = session?.user?.uid;
+  const email = session?.user?.email;
+
+  if (auth?.currentUser) {
+    try {
+      await deleteUser(auth.currentUser);
+    } catch (e) {
+      console.warn('Firebase delete user error:', e);
+    }
+  }
+
+  if (uid || email) {
+    const accounts = getLocalAccounts().filter((a) => a.uid !== uid && a.email !== email);
+    saveLocalAccounts(accounts);
+  }
+
+  // Clear user-specific data from storage
+  localStorage.removeItem('freakout_auth_session');
+  localStorage.removeItem('freakout_authenticated');
+  localStorage.removeItem('freakout_tasks');
+  localStorage.removeItem('freakout_stats');
+};
+
 // Sign out
 export const logoutAuth = async (): Promise<void> => {
   localStorage.removeItem('freakout_auth_session');
+  localStorage.removeItem('freakout_authenticated');
   if (auth) {
-    await signOut(auth);
+    try {
+      await signOut(auth);
+    } catch {}
   }
 };
 

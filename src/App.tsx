@@ -20,60 +20,74 @@ import { MindfulJournalModal } from './components/MindfulJournalModal';
 import { SettingsView } from './components/SettingsView';
 import { SpacesDrawerModal, DEFAULT_SPACES } from './components/SpacesDrawerModal';
 
+const FRESH_STATS: UserStats = {
+  xp: 0,
+  level: 1,
+  levelTitle: 'ผู้เริ่มต้น (Beginner)',
+  streakDays: 0,
+  lastActiveDate: new Date().toISOString(),
+  tasksCompletedTotal: 0,
+  minutesFocusedTotal: 0,
+  overthinkingTasksSolved: 0,
+};
+
 const INITIAL_PET: PetState = {
   name: 'นูเบ้',
-  level: 2,
-  affinity: 50,
+  level: 1,
+  affinity: 10,
   mood: 'happy',
-  equippedAccessory: 'glasses',
-  stardust: 350,
-  streakFreezes: 1,
+  equippedAccessory: 'none',
+  stardust: 0,
+  streakFreezes: 0,
 };
 
 export default function App() {
   // Auth state
   const [userName, setUserName] = useState<string>(() => {
     try {
-      return localStorage.getItem('freakout_username') || 'Jay';
+      return localStorage.getItem('freakout_username') || '';
     } catch {
-      return 'Jay';
+      return '';
     }
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     try {
       const saved = localStorage.getItem('freakout_authenticated');
-      return saved !== null ? saved === 'true' : true;
+      const session = localStorage.getItem('freakout_auth_session');
+      return saved === 'true' && Boolean(session);
     } catch {
-      return true;
+      return false;
     }
   });
 
-  // Persistence via localStorage
+  // Persistence via localStorage: start fresh from 0
   const [tasks, setTasks] = useState<Task[]>(() => {
     try {
       const saved = localStorage.getItem('freakout_tasks');
-      return saved ? JSON.parse(saved) : INITIAL_TASKS;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return INITIAL_TASKS;
+      return [];
     }
   });
 
   const [stats, setStats] = useState<UserStats>(() => {
     try {
       const saved = localStorage.getItem('freakout_stats');
-      return saved ? JSON.parse(saved) : INITIAL_STATS;
+      return saved ? JSON.parse(saved) : FRESH_STATS;
     } catch {
-      return INITIAL_STATS;
+      return FRESH_STATS;
     }
   });
 
   const [badges, setBadges] = useState<Badge[]>(() => {
     try {
       const saved = localStorage.getItem('freakout_badges');
-      return saved ? JSON.parse(saved) : INITIAL_BADGES;
+      if (saved) return JSON.parse(saved);
+      // All badges start locked for brand new users
+      return INITIAL_BADGES.map((b) => ({ ...b, unlocked: false, unlockedAt: undefined }));
     } catch {
-      return INITIAL_BADGES;
+      return INITIAL_BADGES.map((b) => ({ ...b, unlocked: false, unlockedAt: undefined }));
     }
   });
 
