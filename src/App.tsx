@@ -363,6 +363,7 @@ export default function App() {
               onLogin={(name) => {
                 setUserName(name);
                 setIsAuthenticated(true);
+                setIsProUser(localStorage.getItem('freakout_is_pro') === 'true');
                 localStorage.setItem('freakout_authenticated', 'true');
                 localStorage.setItem('freakout_username', name);
               }}
@@ -420,6 +421,19 @@ export default function App() {
                 />
               )}
 
+              {/* Free Plan Sponsor Ad Banner (Hidden for PRO users) */}
+              {currentTab === 'tasks' && !isProUser && (
+                <div className="mt-4">
+                  <AdSimulationBanner
+                    isProUser={isProUser}
+                    onOpenPricing={() => setIsPricingModalOpen(true)}
+                    onRewardGranted={() => {
+                      setPet((prev) => ({ ...prev, stardust: prev.stardust + 20 }));
+                    }}
+                  />
+                </div>
+              )}
+
               {/* Tab 2: Calendar & Gap Detection */}
               {currentTab === 'calendar' && (
                 <CalendarView
@@ -470,11 +484,13 @@ export default function App() {
                   onLogout={() => {
                     setIsAuthenticated(false);
                     setUserName('');
+                    setIsProUser(false);
                     setTasks([]);
                     localStorage.removeItem('freakout_authenticated');
                     localStorage.removeItem('freakout_auth_session');
                     localStorage.removeItem('freakout_username');
                     localStorage.removeItem('freakout_tasks');
+                    localStorage.removeItem('freakout_is_pro');
                   }}
                   settings={settings}
                   onUpdateSettings={setSettings}

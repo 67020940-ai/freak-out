@@ -204,10 +204,23 @@ export const AuthOnboardingView: React.FC<AuthOnboardingViewProps> = ({ onLogin 
         ) : (
           /* Email Form */
           <form onSubmit={handleFormSubmit} className="space-y-2.5 animate-in fade-in duration-200">
-            <div className="text-center mb-1">
+            <div className="text-center mb-1 flex items-center justify-between">
               <span className="text-xs font-bold text-[#2C2C24]">
                 {authMode === 'email-login' ? 'เข้าสู่ระบบด้วยอีเมล' : 'สร้างบัญชีใหม่'}
               </span>
+              {authMode === 'email-login' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('admin@freakout.app');
+                    setPassword('adminpassword123');
+                  }}
+                  className="text-[10px] text-[#B87A24] bg-[#FFF4E0] border border-[#F4E1BD] px-2 py-0.5 rounded-lg font-bold hover:bg-[#FFE9BE] transition cursor-pointer"
+                  title="เติมบัญชี Admin อัตโนมัติ"
+                >
+                  กรอก Admin
+                </button>
+              )}
             </div>
 
             {errorMessage && (

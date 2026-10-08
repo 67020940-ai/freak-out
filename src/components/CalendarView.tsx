@@ -116,12 +116,22 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           </div>
           <button
             type="button"
-            onClick={() => setFocusShieldEnabled(!focusShieldEnabled)}
+            onClick={() => {
+              if (!isProUser) {
+                onOpenPricing();
+              } else {
+                setFocusShieldEnabled(!focusShieldEnabled);
+              }
+            }}
             className={`text-[11px] font-semibold px-2.5 py-1 rounded-full cursor-pointer transition ${
-              focusShieldEnabled ? 'bg-[#EBF0E8] text-[#3B5433]' : 'bg-[#F2EEE9] text-[#7A786C]'
+              !isProUser
+                ? 'bg-[#FFF4E0] text-[#B87A24] border border-[#F4E1BD]'
+                : focusShieldEnabled
+                ? 'bg-[#EBF0E8] text-[#3B5433]'
+                : 'bg-[#F2EEE9] text-[#7A786C]'
             }`}
           >
-            {focusShieldEnabled ? 'เปิดใช้งาน' : 'ปิด'}
+            {!isProUser ? 'PRO เท่านั้น' : focusShieldEnabled ? 'เปิดใช้งาน' : 'ปิด'}
           </button>
         </div>
       </div>

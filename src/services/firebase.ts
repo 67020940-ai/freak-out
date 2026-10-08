@@ -196,9 +196,37 @@ export const registerWithEmail = async (name: string, email: string, pass: strin
   return session;
 };
 
+// Dedicated Administrator Credentials
+export const ADMIN_CREDENTIALS = {
+  email: 'admin@freakout.app',
+  password: 'adminpassword123',
+  name: 'Freak Out Administrator',
+};
+
 // Sign In with Email and Password
 export const loginWithEmail = async (email: string, pass: string): Promise<AuthSession> => {
   const cleanEmail = email.trim().toLowerCase();
+
+  // 1. Check Dedicated Admin Account
+  if (cleanEmail === ADMIN_CREDENTIALS.email) {
+    if (pass !== ADMIN_CREDENTIALS.password) {
+      throw new Error('รหัสผ่านผู้ดูแลระบบ (Admin) ไม่ถูกต้อง');
+    }
+    // Grant Pro Plan immediately to Admin
+    localStorage.setItem('freakout_is_pro', 'true');
+
+    const adminSession: AuthSession = {
+      user: {
+        uid: 'admin-master-uid',
+        displayName: ADMIN_CREDENTIALS.name,
+        email: ADMIN_CREDENTIALS.email,
+        photoURL: null,
+      },
+      googleAccessToken: null,
+    };
+    localStorage.setItem('freakout_auth_session', JSON.stringify(adminSession));
+    return adminSession;
+  }
 
   if (auth) {
     try {
