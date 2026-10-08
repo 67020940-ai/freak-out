@@ -69,7 +69,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
         {/* Tab 4: Cloud Pet */}
         <button
           onClick={() => onTabChange('cloud-pet')}
-          aria-label="นูเบ้"
+          aria-label="Cloudy"
           className={`flex-1 flex flex-col items-center justify-center py-1 rounded-2xl transition-all cursor-pointer ${
             currentTab === 'cloud-pet'
               ? 'text-[#485342] font-bold'
@@ -79,7 +79,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
           <div className={`p-1 rounded-xl transition-all ${currentTab === 'cloud-pet' ? 'bg-[#EBF0E8] scale-105' : ''}`}>
             <Smile className="w-5 h-5 stroke-[2.2]" />
           </div>
-          <span className="text-[10px] mt-0.5 tracking-tight">นูเบ้</span>
+          <span className="text-[10px] mt-0.5 tracking-tight">Cloudy</span>
         </button>
 
         {/* Tab 5: Settings */}

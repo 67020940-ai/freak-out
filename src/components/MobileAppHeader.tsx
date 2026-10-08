@@ -64,7 +64,7 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
               onTabChange('cloud-pet');
             }}
             className="flex items-center gap-2 group p-0.5 rounded-2xl hover:bg-[#EFE9DE] transition active:scale-95 text-left cursor-pointer shrink-0"
-            title="ห้องของน้องนูเบ้"
+            title={`ห้องของน้อง ${pet.name || 'Cloudy'}`}
           >
             <div className="relative shrink-0">
               <div className="w-9 h-9 rounded-xl overflow-hidden bg-white border border-[#E8E2D5] shadow-2xs flex items-center justify-center p-0.5">

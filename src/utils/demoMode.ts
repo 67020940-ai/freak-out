@@ -154,7 +154,7 @@ export const DEMO_STATS: UserStats = {
 };
 
 export const DEMO_PET: PetState = {
-  name: 'นูเบ้',
+  name: 'Cloudy',
   level: 2,
   affinity: 50,
   mood: 'zen',

@@ -62,6 +62,7 @@ export interface PetState {
   affinity: number; // 0 - 100
   mood: 'happy' | 'focus' | 'zen' | 'working' | 'celebrate';
   equippedAccessory?: string;
+  purchasedAccessories?: string[];
   color?: string; // hex or color token
   stardust: number;
   streakFreezes: number;

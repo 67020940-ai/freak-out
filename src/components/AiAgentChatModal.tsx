@@ -31,7 +31,7 @@ export const AiAgentChatModal: React.FC<AiAgentChatModalProps> = ({
     {
       id: 'welcome',
       role: 'assistant',
-      text: `สวัสดีครับคุณ ${userName || 'เพื่อน'}! ผมคือน้องนูเบ้ AI Agent ส่วนตัวของคุณ วันนี้มีเรื่องอะไรที่ทำให้กังวลหรือคิดวนอยู่ไหมครับ? เล่าให้ผมฟังได้เลย เดี๋ยวผมช่วยย่อยงานให้`,
+      text: `สวัสดีครับคุณ ${userName || 'เพื่อน'}! ผมคือน้อง Cloudy AI Agent ส่วนตัวของคุณ วันนี้มีเรื่องอะไรที่ทำให้กังวลหรือคิดวนอยู่ไหมครับ? เล่าให้ผมฟังได้เลย เดี๋ยวผมช่วยย่อยงานให้`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -131,7 +131,7 @@ export const AiAgentChatModal: React.FC<AiAgentChatModalProps> = ({
             <div>
               <div className="flex items-center gap-1.5">
                 <h3 className="text-sm font-bold text-[#2C2C24] dark:text-white font-heading">
-                  น้องนูเบ้ AI Agent
+                  น้อง Cloudy AI Agent
                 </h3>
                 <span className="px-1.5 py-0.2 rounded-md bg-[#EAE8F5] text-[#5C4D82] text-[9px] font-bold">
                   Gemini 2.5
@@ -226,7 +226,7 @@ export const AiAgentChatModal: React.FC<AiAgentChatModalProps> = ({
               </div>
               <div className="px-3 py-2 rounded-2xl bg-white dark:bg-[#282828] border border-[#E8E2D5] dark:border-[#383838] text-xs text-[#7A786C] flex items-center gap-1.5">
                 <Sparkles className="w-3 h-3 animate-spin text-[#6C7764]" />
-                <span>น้องนูเบ้กำลังเรียบเรียงความคิด...</span>
+                <span>น้อง Cloudy กำลังเรียบเรียงความคิด...</span>
               </div>
             </div>
           )}

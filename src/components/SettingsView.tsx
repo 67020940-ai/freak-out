@@ -33,6 +33,7 @@ interface SettingsViewProps {
   energy: EnergyLevel;
   cloudColor: string;
   onUpdateCloudColor: (color: string) => void;
+  onUpdateUserName?: (name: string) => void;
   onLogout: () => void;
   settings: AppSettings;
   onUpdateSettings: (updater: (prev: AppSettings) => AppSettings) => void;
@@ -45,6 +46,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   energy,
   cloudColor,
   onLogout,
+  onUpdateUserName,
   settings,
   onUpdateSettings,
 }) => {
@@ -85,6 +87,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const completedToday = tasks.filter((t) => t.completed).length;
 
   useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  useEffect(() => {
     runAnalysis();
   }, [energy, pendingCount]);
 
@@ -111,9 +121,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editName.trim()) return;
-    await updateUserProfile(editName.trim());
-    setSession(getSavedSession());
+    const trimmed = editName.trim();
+    if (!trimmed) return;
+    await updateUserProfile(trimmed);
+    const updated = getSavedSession();
+    setSession(updated);
+    onUpdateUserName?.(trimmed);
     setProfileSuccessMsg('บันทึกข้อมูลโปรไฟล์เรียบร้อย');
     setTimeout(() => {
       setProfileSuccessMsg('');
@@ -354,7 +367,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <ChevronRight className="w-4 h-4 text-[#A8A599] dark:text-[#666666]" />
         </button>
 
-        {/* Log Out (Standard Sign Out) */}
+        {/* Log Out (Distinct font styling) */}
         <button
           type="button"
           onClick={async () => {
@@ -364,31 +377,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-[#FAF8F5] dark:hover:bg-[#262626] transition cursor-pointer"
         >
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-[#F4EFE6] dark:bg-[#2A2A2A] flex items-center justify-center text-[#7A786C] dark:text-[#A0A0A0]">
+            <div className="w-8 h-8 rounded-xl bg-[#F6ECE8] dark:bg-[#382622] flex items-center justify-center text-[#B85824] dark:text-[#E07A4B]">
               <LogOut className="w-4 h-4 stroke-[2]" />
             </div>
-            <span className="text-xs font-semibold text-[#7A786C] dark:text-[#A0A0A0]">
-              Log out
+            <span className="text-xs font-bold text-[#B85824] dark:text-[#E07A4B] tracking-wide">
+              Log out (ออกจากระบบ)
             </span>
           </div>
-          <ChevronRight className="w-4 h-4 text-[#A8A599] dark:text-[#666666]" />
-        </button>
-
-        {/* Deactivate my account (Destructive Red Row) */}
-        <button
-          type="button"
-          onClick={() => setShowDeactivateConfirm(true)}
-          className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-[#FFF5F4] dark:hover:bg-[#331818] transition cursor-pointer group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-[#FDECE8] dark:bg-[#3D1E1B] flex items-center justify-center text-[#D0422B] group-hover:scale-105 transition-transform">
-              <LogOut className="w-4 h-4 stroke-[2]" />
-            </div>
-            <span className="text-xs font-semibold text-[#D0422B]">
-              Deactivate my account
-            </span>
-          </div>
-          <ChevronRight className="w-4 h-4 text-[#D0422B]/60" />
+          <ChevronRight className="w-4 h-4 text-[#B85824]/60 dark:text-[#E07A4B]/60" />
         </button>
       </div>
 
@@ -469,6 +465,30 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Section 4: Danger Zone - Deactivate Account at very bottom */}
+      <div className="pt-2">
+        <button
+          type="button"
+          onClick={() => setShowDeactivateConfirm(true)}
+          className="w-full px-4 py-3 rounded-2xl bg-[#FFF5F4] dark:bg-[#2A1818] border border-[#FCD8D4] dark:border-[#4A2424] flex items-center justify-between text-left hover:bg-[#FDECE8] dark:hover:bg-[#3D1E1B] transition cursor-pointer group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-7 h-7 rounded-lg bg-[#FDECE8] dark:bg-[#3D1E1B] flex items-center justify-center text-[#D0422B] group-hover:scale-105 transition-transform">
+              <LogOut className="w-3.5 h-3.5 stroke-[2]" />
+            </div>
+            <div>
+              <span className="text-xs font-semibold text-[#D0422B] block">
+                Deactivate my account
+              </span>
+              <span className="text-[10px] text-[#D0422B]/70">
+                ลบบัญชีและข้อมูลทั้งหมดออกจากอุปกรณ์
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-[#D0422B]/60" />
+        </button>
       </div>
 
       {/* Modal Sheet for Profile Details (REAL EDITABLE) */}
@@ -709,7 +729,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               )}
 
               <p className="text-[11px] text-[#7A786C] leading-relaxed">
-                ใส่ Google Gemini API Key เพื่อเปิดใช้งานระบบ AI จริง 100% ทั้งน้องนูเบ้ AI Agent และระบบวิเคราะห์ภาระสมอง
+                ใส่ Google Gemini API Key เพื่อเปิดใช้งานระบบ AI จริง 100% ทั้งน้อง Cloudy AI Agent และระบบวิเคราะห์ภาระสมอง
               </p>
 
               <div>

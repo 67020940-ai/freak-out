@@ -33,7 +33,7 @@ const FRESH_STATS: UserStats = {
 };
 
 const INITIAL_PET: PetState = {
-  name: 'นูเบ้',
+  name: 'Cloudy',
   level: 1,
   affinity: 10,
   mood: 'happy',
@@ -46,7 +46,14 @@ export default function App() {
   // Auth state
   const [userName, setUserName] = useState<string>(() => {
     try {
-      return localStorage.getItem('freakout_username') || '';
+      const explicit = localStorage.getItem('freakout_username');
+      if (explicit) return explicit;
+      const session = localStorage.getItem('freakout_auth_session');
+      if (session) {
+        const parsed = JSON.parse(session);
+        return parsed.displayName || parsed.email?.split('@')[0] || '';
+      }
+      return '';
     } catch {
       return '';
     }
@@ -354,7 +361,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-[#F9F7F2] text-[#2C2C24] flex flex-col selection:bg-[#E2DACB] antialiased relative">
+    <div className="min-h-screen min-h-[100dvh] bg-[#F9F7F2] dark:bg-[#151515] text-[#2C2C24] dark:text-[#E8E6DF] flex flex-col selection:bg-[#E2DACB] dark:selection:bg-[#3D3A30] antialiased relative transition-colors duration-200">
       {/* Conditional Rendering: Auth/Onboarding vs Main App */}
       {!isAuthenticated ? (
         <div className="flex-1 flex justify-center items-center p-4">
@@ -459,7 +466,7 @@ export default function App() {
                 />
               )}
 
-              {/* Tab 4: Cloud Pet Sanctuary (นูเบ้) */}
+              {/* Tab 4: Cloud Pet Sanctuary (Cloudy) */}
               {currentTab === 'cloud-pet' && (
                 <CloudPetView
                   pet={pet}
@@ -481,6 +488,10 @@ export default function App() {
                   energy={energy}
                   cloudColor={pet.color || 'white'}
                   onUpdateCloudColor={(color) => setPet((prev) => ({ ...prev, color }))}
+                  onUpdateUserName={(name) => {
+                    setUserName(name);
+                    localStorage.setItem('freakout_username', name);
+                  }}
                   onLogout={() => {
                     setIsAuthenticated(false);
                     setUserName('');

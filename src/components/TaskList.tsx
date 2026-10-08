@@ -59,8 +59,8 @@ interface TaskListProps {
 export const TaskList: React.FC<TaskListProps> = ({
   tasks,
   userName = 'Jay',
-  streakDays = 5,
-  minutesFocusedTotal = 120,
+  streakDays = 0,
+  minutesFocusedTotal = 0,
   energy = 'okay',
   onEnergyChange,
   petAccessory,

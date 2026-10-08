@@ -35,12 +35,12 @@ const PIXEL_POSES: { id: PixelCloudPose; name: string; desc: string }[] = [
 ];
 
 const ACCESSORIES = [
-  { id: 'none', name: 'ปกติ (Original)', desc: 'ร่างธรรมชาติ ไร้สิ่งปรุงแต่ง', price: 0, unlocked: true },
-  { id: 'glasses', name: 'แว่นเด็กเนิร์ด', desc: 'เพิ่มความฉลาด +10%', price: 50, unlocked: true },
-  { id: 'grad_cap', name: 'หมวกรับปริญญา', desc: 'ลุยทีซิสให้จบไวๆ', price: 150, unlocked: true },
-  { id: 'headphones', name: 'หูฟังตัดเสียงรบกวน', desc: 'ตัดโลกภายนอก โฟกัส 100%', price: 200, unlocked: true },
-  { id: 'crown', name: 'มงกุฎ Focus King', desc: 'ราชาแห่งการไม่ผัดวัน', price: 500, unlocked: false },
-  { id: 'coffee', name: 'แก้วชานมไข่มุก', desc: 'เติมน้ำตาล เติมกำลังใจ', price: 100, unlocked: true },
+  { id: 'none', name: 'ปกติ (Original)', desc: 'ร่างธรรมชาติ ไร้สิ่งปรุงแต่ง', price: 0, defaultUnlocked: true },
+  { id: 'glasses', name: 'แว่นเด็กเนิร์ด', desc: 'เพิ่มความฉลาด +10%', price: 50, defaultUnlocked: false },
+  { id: 'coffee', name: 'แก้วชานมไข่มุก', desc: 'เติมน้ำตาล เติมกำลังใจ', price: 100, defaultUnlocked: false },
+  { id: 'grad_cap', name: 'หมวกรับปริญญา', desc: 'ลุยทีซิสให้จบไวๆ', price: 150, defaultUnlocked: false },
+  { id: 'headphones', name: 'หูฟังตัดเสียงรบกวน', desc: 'ตัดโลกภายนอก โฟกัส 100%', price: 200, defaultUnlocked: false },
+  { id: 'crown', name: 'มงกุฎ Focus King', desc: 'ราชาแห่งการไม่ผัดวัน', price: 500, defaultUnlocked: false },
 ];
 
 const AccessoryBadgeIcon: React.FC<{ id: string }> = ({ id }) => {
@@ -153,12 +153,77 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
     setPetFeedback(feedbackPhrases[Math.floor(Math.random() * feedbackPhrases.length)]);
   };
 
-  const handleFeed = (type: 'water' | 'tea') => {
+  const [activeCareAnimation, setActiveCareAnimation] = useState<'water' | 'sun' | 'meditate' | null>(null);
+
+  const handleCareAction = (type: 'water' | 'sun' | 'meditate') => {
+    setActiveCareAnimation(type);
+
+    if (type === 'water') {
+      confetti({
+        particleCount: 30,
+        spread: 50,
+        origin: { y: 0.6 },
+        colors: ['#70B8FF', '#A0D2FF', '#FFFFFF', '#3A78B8'],
+      });
+      setPetFeedback('สดชื่นเหมือนฝนตกใหม่ๆ เลย น้องเมฆชุ่มฉ่ำ 💧');
+    } else if (type === 'sun') {
+      confetti({
+        particleCount: 35,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ['#FBBF24', '#F59E0B', '#FDE68A', '#FFFBEB'],
+      });
+      setPetFeedback('อบอุ่นใจ สังเคราะห์แสงรับวิตามินดีเต็มที่ ☀️');
+    } else {
+      setPetFeedback('หายใจเข้าลึกๆ หายใจออกช้าๆ จิตใจสงบนิ่ง 🍃');
+    }
+
+    setIsBouncing(true);
+    setActivePose('celebrate');
+    setTimeout(() => {
+      setIsBouncing(false);
+      setActivePose('idle');
+      setActiveCareAnimation(null);
+    }, 900);
+
+    onUpdatePet((prev) => ({
+      ...prev,
+      affinity: Math.min(100, prev.affinity + 8),
+      stardust: prev.stardust + 3,
+    }));
+  };
+
+  const handleBuyOrEquipAccessory = (acc: typeof ACCESSORIES[number]) => {
+    const isUnlocked = acc.defaultUnlocked || (pet.purchasedAccessories && pet.purchasedAccessories.includes(acc.id));
+
+    if (isUnlocked) {
+      onUpdatePet((prev) => ({ ...prev, equippedAccessory: acc.id }));
+      setPetFeedback(`ใส่ "${acc.name}" ให้น้องแล้ว น่ารักสุดๆ!`);
+      return;
+    }
+
+    // Buying check
+    if (pet.stardust < acc.price) {
+      setPetFeedback(`ละอองดาวไม่พอฮะ! ขาดอีก ${acc.price - pet.stardust} แต้ม (เคลียร์งานเพื่อรับเพิ่มนะ)`);
+      return;
+    }
+
+    // Deduct stardust, record purchased accessory, and equip immediately!
     confetti({
-      particleCount: 25,
-      spread: 45,
+      particleCount: 40,
+      spread: 60,
       origin: { y: 0.6 },
-      colors: type === 'water' ? ['#70B8FF', '#A0D2FF', '#FFFFFF'] : ['#E8A87C', '#C38D9E', '#E27D60'],
+      colors: ['#FBBF24', '#34D399', '#60A5FA'],
+    });
+
+    onUpdatePet((prev) => {
+      const currentPurchased = prev.purchasedAccessories || [];
+      return {
+        ...prev,
+        stardust: prev.stardust - acc.price,
+        purchasedAccessories: [...currentPurchased, acc.id],
+        equippedAccessory: acc.id,
+      };
     });
 
     setIsBouncing(true);
@@ -166,15 +231,9 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
     setTimeout(() => {
       setIsBouncing(false);
       setActivePose('idle');
-    }, 700);
+    }, 800);
 
-    onUpdatePet((prev) => ({
-      ...prev,
-      affinity: Math.min(100, prev.affinity + 10),
-      stardust: prev.stardust + 5,
-    }));
-
-    setPetFeedback(type === 'water' ? 'สดชื่นเหมือนฝนตกใหม่ๆ เลย' : 'ชาร์จพลังโฟกัสเต็มเปี่ยม');
+    setPetFeedback(`ปลดล็อกและใส่ "${acc.name}" เรียบร้อยแล้ว! ขอบคุณนะฮะ ✨`);
   };
 
   const handleSaveName = () => {
@@ -320,35 +379,61 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
               </div>
             </div>
 
-            {/* Care Actions */}
-            <div className="space-y-1.5 pt-0.5">
-              <span className="text-xs font-bold text-[#4A4A3E]">การดูแลน้องเมฆ:</span>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  onClick={() => handleFeed('water')}
-                  className="flex flex-col items-center gap-1 p-2 rounded-2xl bg-[#EAF2F8] hover:bg-[#D9EAF5] border border-[#D0E2EE] text-[#2C4A6F] transition active:scale-95 cursor-pointer text-xs font-semibold"
-                >
-                  <Droplet className="w-4 h-4 text-[#3A78B8]" />
-                  <span className="text-[11px] whitespace-nowrap">รดละอองน้ำ</span>
-                </button>
+              {/* Care Actions */}
+              <div className="space-y-1.5 pt-0.5">
+                <span className="text-xs font-bold text-[#4A4A3E]">การดูแลน้องเมฆ:</span>
+                <div className="grid grid-cols-3 gap-2">
+                  <motion.button
+                    whileTap={{ scale: 0.92, y: 1 }}
+                    whileHover={{ scale: 1.02 }}
+                    onClick={() => handleCareAction('water')}
+                    className="flex flex-col items-center gap-1 p-2 rounded-2xl bg-[#EAF2F8] hover:bg-[#D9EAF5] border border-[#D0E2EE] text-[#2C4A6F] transition active:scale-95 cursor-pointer text-xs font-semibold shadow-2xs"
+                  >
+                    <motion.div
+                      animate={activeCareAnimation === 'water' ? { y: [0, -6, 2, 0], scale: [1, 1.25, 1] } : {}}
+                      transition={{ duration: 0.4 }}
+                    >
+                      <Droplet className="w-4 h-4 text-[#3A78B8]" />
+                    </motion.div>
+                    <span className="text-[11px] whitespace-nowrap">รดละอองน้ำ</span>
+                  </motion.button>
 
-                <button
-                  onClick={() => handleFeed('tea')}
-                  className="flex flex-col items-center gap-1 p-2 rounded-2xl bg-[#FFF4E8] hover:bg-[#FFEAD5] border border-[#F6DCBE] text-[#8C4A1E] transition active:scale-95 cursor-pointer text-xs font-semibold"
-                >
-                  <Coffee className="w-4 h-4 text-[#B85824]" />
-                  <span className="text-[11px] whitespace-nowrap">ชงชาอุ่นๆ</span>
-                </button>
+                  <motion.button
+                    whileTap={{ scale: 0.92, y: 1 }}
+                    whileHover={{ scale: 1.02 }}
+                    onClick={() => handleCareAction('sun')}
+                    className="flex flex-col items-center gap-1 p-2 rounded-2xl bg-[#FFF8E8] hover:bg-[#FFF0D0] border border-[#F6E2BE] text-[#9E6514] transition active:scale-95 cursor-pointer text-xs font-semibold shadow-2xs"
+                  >
+                    <motion.div
+                      animate={activeCareAnimation === 'sun' ? { rotate: [0, 90, 180, 360], scale: [1, 1.3, 1] } : {}}
+                      transition={{ duration: 0.6 }}
+                    >
+                      <Sun className="w-4 h-4 text-[#D9822B]" />
+                    </motion.div>
+                    <span className="text-[11px] whitespace-nowrap">อาบแสงแดด</span>
+                  </motion.button>
 
-                <button
-                  onClick={onOpenPanic}
-                  className="flex flex-col items-center gap-1 p-2 rounded-2xl bg-[#E8EFE8] hover:bg-[#D8E6D8] border border-[#CDE0CD] text-[#2E522E] transition active:scale-95 cursor-pointer text-xs font-semibold"
-                >
-                  <Wind className="w-4 h-4 text-[#4D784D]" />
-                  <span className="text-[11px] whitespace-nowrap">ฝึกหายใจ</span>
-                </button>
+                  <motion.button
+                    whileTap={{ scale: 0.92, y: 1 }}
+                    whileHover={{ scale: 1.02 }}
+                    onClick={() => {
+                      handleCareAction('meditate');
+                      setTimeout(() => {
+                        onOpenPanic();
+                      }, 500);
+                    }}
+                    className="flex flex-col items-center gap-1 p-2 rounded-2xl bg-[#E8EFE8] hover:bg-[#D8E6D8] border border-[#CDE0CD] text-[#2E522E] transition active:scale-95 cursor-pointer text-xs font-semibold shadow-2xs"
+                  >
+                    <motion.div
+                      animate={activeCareAnimation === 'meditate' ? { scale: [1, 1.2, 0.9, 1] } : {}}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <Wind className="w-4 h-4 text-[#4D784D]" />
+                    </motion.div>
+                    <span className="text-[11px] whitespace-nowrap">ฝึกสมาธิ</span>
+                  </motion.button>
+                </div>
               </div>
-            </div>
           </div>
         </div>
       </div>
@@ -468,22 +553,22 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
 
         <div className="grid grid-cols-3 gap-2">
           {ACCESSORIES.map((acc) => {
+            const isUnlocked = acc.defaultUnlocked || (pet.purchasedAccessories && pet.purchasedAccessories.includes(acc.id));
             const isEquipped = pet.equippedAccessory === acc.id || (!pet.equippedAccessory && acc.id === 'none');
+            const canAfford = pet.stardust >= acc.price;
+
             return (
               <div
                 key={acc.id}
-                onClick={() => {
-                  if (acc.unlocked) {
-                    onUpdatePet((prev) => ({ ...prev, equippedAccessory: acc.id }));
-                    setPetFeedback(`ใส่ "${acc.name}" ให้น้องเมฆเรียบร้อยแล้วฮะ!`);
-                  }
-                }}
+                onClick={() => handleBuyOrEquipAccessory(acc)}
                 className={`flex flex-col items-center p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
                   isEquipped
                     ? 'bg-[#EBF0E8] border-[#6C7764] ring-2 ring-[#6C7764]/20 shadow-xs'
-                    : acc.unlocked
-                    ? 'bg-white border-[#EAE4D9] hover:bg-white/90 hover:border-[#D5CDC0]'
-                    : 'bg-[#F2EEE9] border-[#E2DACB] opacity-60 cursor-not-allowed'
+                    : isUnlocked
+                    ? 'bg-white border-[#EAE4D9] hover:bg-white/90 hover:border-[#D5CDC0] shadow-2xs'
+                    : canAfford
+                    ? 'bg-[#FFFDF7] border-[#E8DDBE] hover:border-[#D49E35] hover:shadow-2xs'
+                    : 'bg-[#F2EEE9] border-[#E2DACB] opacity-75'
                 }`}
               >
                 <div className="mb-1.5 flex items-center justify-center">
@@ -491,18 +576,22 @@ export const CloudPetView: React.FC<CloudPetViewProps> = ({
                 </div>
                 <div className="text-[11px] font-bold text-[#2C2C24] line-clamp-1">{acc.name}</div>
                 <div className="text-[9px] text-[#7A786C] mt-0.5 line-clamp-1">{acc.desc}</div>
-                <div className="mt-1.5">
+                <div className="mt-1.5 w-full">
                   {isEquipped ? (
-                    <span className="text-[9px] font-bold text-[#3B5433] bg-[#DDE9D9] px-2 py-0.5 rounded-full">
+                    <span className="inline-block text-[9px] font-bold text-[#3B5433] bg-[#DDE9D9] px-2 py-0.5 rounded-full">
                       กำลังใส่
                     </span>
-                  ) : acc.unlocked ? (
-                    <span className="text-[9px] font-semibold text-[#6C7764] bg-[#FAF8F5] px-2 py-0.5 rounded-full border border-[#E2DACB]">
+                  ) : isUnlocked ? (
+                    <span className="inline-block text-[9px] font-semibold text-[#6C7764] bg-[#FAF8F5] px-2 py-0.5 rounded-full border border-[#E2DACB]">
                       แตะเพื่อใส่
                     </span>
                   ) : (
-                    <span className="text-[9px] font-semibold text-[#8C8A7D]">
-                      {acc.price} แต้ม
+                    <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded-full border ${
+                      canAfford
+                        ? 'bg-[#FFF4E0] text-[#B87A24] border-[#F4E1BD]'
+                        : 'bg-[#ECEAE4] text-[#8C8A7D] border-[#DDD8CE]'
+                    }`}>
+                      ซื้อ {acc.price} แต้ม
                     </span>
                   )}
                 </div>

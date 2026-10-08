@@ -191,10 +191,10 @@ export const PixelCloud8Bit: React.FC<PixelCloud8BitProps> = ({
       } ${className}`}
       title={
         pose === 'idle'
-          ? 'นูเบ้กำลังลอยสบายใจ ☁️'
+          ? 'Cloudy กำลังลอยสบายใจ ☁️'
           : pose === 'focus'
-          ? 'นูเบ้กำลังตั้งใจปั่นงาน 💻'
-          : 'นูเบ้กำลังฉลองสำเร็จ! 🎉'
+          ? 'Cloudy กำลังตั้งใจปั่นงาน 💻'
+          : 'Cloudy กำลังฉลองสำเร็จ! 🎉'
       }
     >
       <svg
