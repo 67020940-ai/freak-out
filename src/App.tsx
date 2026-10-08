@@ -338,10 +338,10 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9F7F2] text-[#2C2C24] flex flex-col selection:bg-[#E2DACB] antialiased">
+    <div className="relative h-screen h-[100dvh] bg-[#F9F7F2] text-[#2C2C24] flex flex-col selection:bg-[#E2DACB] antialiased overflow-hidden">
       {/* Conditional Rendering: Auth/Onboarding vs Main App */}
       {!isAuthenticated ? (
-        <div className="flex-1 flex justify-center items-center p-4">
+        <div className="flex-1 flex justify-center items-center p-4 overflow-y-auto">
           <div className="w-full max-w-md bg-[#FAF8F5] rounded-3xl border border-[#EAE4D9] p-4 shadow-sm">
             <AuthOnboardingView
               onLogin={(name) => {
@@ -355,7 +355,7 @@ export default function App() {
         </div>
       ) : (
         <>
-          <div className="flex-1 min-h-0 flex flex-col w-full">
+          <div className="flex-1 min-h-0 flex flex-col w-full h-full overflow-hidden">
           {/* Top Web & Mobile Header */}
           <MobileAppHeader
             stats={stats}
@@ -371,7 +371,7 @@ export default function App() {
           />
 
           {/* Scrollable Screen Content */}
-          <main className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4 w-full max-w-4xl mx-auto relative no-scrollbar">
+          <main className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 pt-4 pb-8 sm:pb-12 w-full max-w-4xl mx-auto relative no-scrollbar">
               {/* Tab 1: Tasks (Clean, Intentional Home Dashboard) */}
               {currentTab === 'tasks' && (
                 <TaskList

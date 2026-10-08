@@ -96,7 +96,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
       </div>
 
       {/* iOS Home Indicator Line */}
-      <div className="w-32 h-1 bg-[#2C2C24]/15 rounded-full mx-auto mt-2 mb-1" />
+      <div className="w-32 h-1 bg-[#2C2C24]/15 rounded-full mx-auto mt-2 mb-1 sm:hidden" />
     </nav>
   );
 };

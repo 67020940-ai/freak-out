@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserStats, PetState, AppTab } from '../types';
-import { Sparkles, Flame, Wind, Crown, Gift } from 'lucide-react';
+import { Sparkles, Flame, Wind, Crown, Gift, CheckSquare, Calendar, Brain, Smile, Settings } from 'lucide-react';
 import { PixelCloud8Bit } from './PixelCloud8Bit';
 import { useSecretTap } from '../utils/useSecretTap';
 import { resetToDemo } from '../utils/demoMode';
@@ -52,8 +52,8 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
   const { title, sub } = getTabTitle();
 
   return (
-    <header className="px-4 py-3 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#EAE4D9] shrink-0 z-30 select-none">
-      <div className="flex items-center justify-between gap-3 w-full max-w-5xl mx-auto">
+    <header className="px-4 py-2.5 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#EAE4D9] shrink-0 z-30 select-none">
+      <div className="flex items-center justify-between gap-3 w-full max-w-6xl mx-auto">
         {/* Left: Mascot Pet Avatar & Space Switcher (Notion-style) */}
         <div className="flex items-center gap-2 shrink-0">
           <button
@@ -92,8 +92,72 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
           </button>
         </div>
 
-        {/* Center: Current Tab Header Info */}
-        <div className="hidden sm:flex flex-col items-center text-center">
+        {/* Center: Desktop Navigation Tabs (md+) */}
+        <nav className="hidden md:flex items-center gap-1 bg-[#EFE9DE]/80 p-1 rounded-2xl border border-[#E2DACB] shadow-2xs">
+          <button
+            type="button"
+            onClick={() => onTabChange('tasks')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+              currentTab === 'tasks'
+                ? 'bg-white text-[#2C2C24] font-bold shadow-2xs'
+                : 'text-[#7A786C] hover:text-[#2C2C24] hover:bg-white/50'
+            }`}
+          >
+            <CheckSquare className="w-3.5 h-3.5 stroke-[2.2]" />
+            <span>งานวันนี้</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onTabChange('calendar')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+              currentTab === 'calendar'
+                ? 'bg-white text-[#2C2C24] font-bold shadow-2xs'
+                : 'text-[#7A786C] hover:text-[#2C2C24] hover:bg-white/50'
+            }`}
+          >
+            <Calendar className="w-3.5 h-3.5 stroke-[2.2]" />
+            <span>ตารางเวลา</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onTabChange('smart-pick')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+              currentTab === 'smart-pick'
+                ? 'bg-[#6C7764] text-white shadow-2xs'
+                : 'text-[#6C7764] hover:bg-[#6C7764]/10'
+            }`}
+          >
+            <Brain className="w-3.5 h-3.5 stroke-[2.2]" />
+            <span>Smart Pick</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onTabChange('cloud-pet')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+              currentTab === 'cloud-pet'
+                ? 'bg-white text-[#2C2C24] font-bold shadow-2xs'
+                : 'text-[#7A786C] hover:text-[#2C2C24] hover:bg-white/50'
+            }`}
+          >
+            <Smile className="w-3.5 h-3.5 stroke-[2.2]" />
+            <span>น้อง{pet.name}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onTabChange('settings')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+              currentTab === 'settings'
+                ? 'bg-white text-[#2C2C24] font-bold shadow-2xs'
+                : 'text-[#7A786C] hover:text-[#2C2C24] hover:bg-white/50'
+            }`}
+          >
+            <Settings className="w-3.5 h-3.5 stroke-[2.2]" />
+            <span>ตั้งค่า</span>
+          </button>
+        </nav>
+
+        {/* Center for sm screens (tablet portrait / small tablet): Title info */}
+        <div className="hidden sm:flex md:hidden flex-col items-center text-center">
           <span className="font-heading font-bold text-sm text-[#2C2C24]">{title}</span>
           <span className="text-[10px] text-[#7A786C]">{sub}</span>
         </div>
