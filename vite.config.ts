@@ -18,8 +18,8 @@ function geminiProxyPlugin() {
         req.on('data', (chunk: any) => { body += chunk; });
         req.on('end', async () => {
           try {
-            const { taskTitle, category } = JSON.parse(body || '{}');
-            const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+            const { taskTitle, category, userApiKey } = JSON.parse(body || '{}');
+            const apiKey = userApiKey || process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
 
             if (!apiKey) {
               res.statusCode = 503;

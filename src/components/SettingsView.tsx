@@ -62,6 +62,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     return localStorage.getItem('freakout_gemini_api_key') || '';
   });
   const [geminiKeySuccess, setGeminiKeySuccess] = useState('');
+  const [isTestingKey, setIsTestingKey] = useState(false);
+  const [geminiTestMsg, setGeminiTestMsg] = useState<{ text: string; isError: boolean } | null>(null);
 
   // Form states for profile editing
   const [editName, setEditName] = useState(session?.user?.displayName || 'ผู้ใช้งาน');
@@ -172,6 +174,48 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const handleDeactivate = async () => {
     await deactivateAccount();
     onLogout();
+  };
+
+  const handleTestGeminiKey = async () => {
+    const keyToTest = geminiApiKey.trim();
+    if (!keyToTest) {
+      setGeminiTestMsg({ text: 'กรุณาวาง API Key ก่อนทำการทดสอบ', isError: true });
+      return;
+    }
+
+    setIsTestingKey(true);
+    setGeminiTestMsg(null);
+
+    try {
+      const { GoogleGenAI } = await import('@google/genai');
+      const ai = new GoogleGenAI({ apiKey: keyToTest });
+      const resp = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: 'ตอบสั้นๆ เพียง 1 คำ: สำเร็จ',
+      });
+
+      if (resp && resp.text) {
+        setGeminiTestMsg({ text: 'เชื่อมต่อ Gemini สำเร็จ 100%! คีย์ถูกต้องและพร้อมใช้งาน', isError: false });
+        // Automatically persist the valid key
+        localStorage.setItem('freakout_gemini_api_key', keyToTest);
+      } else {
+        throw new Error('ไม่ได้รับข้อความตอบกลับจากโมเดล');
+      }
+    } catch (err: any) {
+      console.error('Gemini Key Test Error:', err);
+      const errMsg = err?.message || 'เชื่อมต่อไม่สำเร็จ';
+      let friendlyError = 'ไม่สามารถเชื่อมต่อได้: ตรวจสอบว่า API Key ถูกต้องหรือไม่';
+      if (errMsg.includes('API key not valid') || errMsg.includes('INVALID_ARGUMENT') || errMsg.includes('API_KEY_INVALID')) {
+        friendlyError = 'API Key ไม่ถูกต้อง กรุณาคัดลอกคีย์ใหม่จาก Google AI Studio';
+      } else if (errMsg.includes('RESOURCE_EXHAUSTED') || errMsg.includes('Quota')) {
+        friendlyError = 'โควตาใช้งานของคีย์นี้เต็ม (Quota Exceeded) กรุณาตรวจสอบใน Google AI Studio';
+      } else if (errMsg.includes('PERMISSION_DENIED')) {
+        friendlyError = 'สิทธิ์การใช้งานถูกปฏิเสธ (Permission Denied)';
+      }
+      setGeminiTestMsg({ text: friendlyError, isError: true });
+    } finally {
+      setIsTestingKey(false);
+    }
   };
 
   const currentDisplayName = session?.user?.displayName || editName || 'ผู้ใช้งาน';
@@ -729,8 +773,20 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
               )}
 
-              <p className="text-[11px] text-[#7A786C] leading-relaxed">
-                ใส่ Google Gemini API Key เพื่อเปิดใช้งานระบบ AI จริง 100% ทั้งน้อง Cloudy AI Agent และระบบวิเคราะห์ภาระสมอง
+              {geminiTestMsg && (
+                <div
+                  className={`p-2.5 rounded-xl text-center font-medium border text-[11px] ${
+                    geminiTestMsg.isError
+                      ? 'bg-[#FDECE8] text-[#C23A25] border-[#F8D2CA]'
+                      : 'bg-[#EBF0E8] text-[#3B5433] border-[#CFDFCB]'
+                  }`}
+                >
+                  {geminiTestMsg.text}
+                </div>
+              )}
+
+              <p className="text-[11px] text-[#7A786C] dark:text-[#A0A0A0] leading-relaxed">
+                ใส่ Google Gemini API Key เพื่อเปิดใช้งานระบบ AI จริง 100% ทั้งน้อง Cloudy AI Agent และระบบย่อยงาน/วิเคราะห์ภาระสมอง
               </p>
 
               <div>
@@ -741,38 +797,47 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   type="password"
                   placeholder="วางคีย์ Gemini ที่นี่"
                   value={geminiApiKey}
-                  onChange={(e) => setGeminiApiKey(e.target.value)}
+                  onChange={(e) => {
+                    setGeminiApiKey(e.target.value);
+                    setGeminiTestMsg(null);
+                  }}
                   className="w-full px-3 py-2 rounded-xl border border-[#ECE6DB] dark:border-[#333333] bg-[#FAF8F5] dark:bg-[#262626] text-[#2C2C24] dark:text-white outline-none focus:border-[#6C7764] font-mono text-[11px]"
                 />
               </div>
 
-              <div className="p-2.5 rounded-xl bg-[#FAF8F5] dark:bg-[#262626] border border-[#ECE6DB] dark:border-[#333333] text-[10px] text-[#7A786C]">
-                <span>รับ API Key ฟรีได้จาก </span>
+              <div className="p-2.5 rounded-xl bg-[#FAF8F5] dark:bg-[#262626] border border-[#ECE6DB] dark:border-[#333333] text-[10px] text-[#7A786C] dark:text-[#A0A0A0] flex items-center justify-between">
+                <span>รับ API Key ฟรีได้จาก Google AI Studio</span>
                 <a
                   href="https://aistudio.google.com/app/apikey"
                   target="_blank"
                   rel="noreferrer"
-                  className="text-[#6C7764] font-bold underline"
+                  className="text-[#6C7764] dark:text-[#9BB191] font-bold underline ml-1"
                 >
-                  Google AI Studio
+                  เปิด AI Studio ↗
                 </a>
               </div>
 
+              {/* Action buttons */}
               <div className="flex gap-2 pt-1">
-                {geminiApiKey && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setGeminiApiKey('');
-                      localStorage.removeItem('freakout_gemini_api_key');
-                      setGeminiKeySuccess('ลบคีย์เรียบร้อย');
-                      setTimeout(() => setGeminiKeySuccess(''), 1500);
-                    }}
-                    className="py-2.5 px-3 rounded-xl bg-[#FDECE8] text-[#C23A25] font-semibold text-xs cursor-pointer"
-                  >
-                    ลบคีย์
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handleTestGeminiKey}
+                  disabled={isTestingKey || !geminiApiKey.trim()}
+                  className="flex-1 py-2.5 px-3 rounded-xl border border-[#828D7A] text-[#4F5948] dark:text-[#C5D1BF] dark:border-[#586350] hover:bg-[#F0ECE1] dark:hover:bg-[#2C332A] font-bold text-xs transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                >
+                  {isTestingKey ? (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5 animate-spin" />
+                      <span>กำลังทดสอบ...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>ทดสอบการเชื่อมต่อ</span>
+                    </>
+                  )}
+                </button>
+
                 <button
                   type="button"
                   onClick={() => {
@@ -788,6 +853,24 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   บันทึกคีย์
                 </button>
               </div>
+
+              {geminiApiKey && (
+                <div className="pt-1 text-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGeminiApiKey('');
+                      localStorage.removeItem('freakout_gemini_api_key');
+                      setGeminiKeySuccess('ลบคีย์เรียบร้อย');
+                      setGeminiTestMsg(null);
+                      setTimeout(() => setGeminiKeySuccess(''), 1500);
+                    }}
+                    className="text-[11px] text-[#C23A25] hover:underline cursor-pointer"
+                  >
+                    ลบคีย์ออกจากเครื่องนี้
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

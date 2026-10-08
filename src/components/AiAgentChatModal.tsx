@@ -68,12 +68,71 @@ export const AiAgentChatModal: React.FC<AiAgentChatModalProps> = ({
     setIsLoading(true);
 
     try {
+      const userApiKey = (localStorage.getItem('freakout_gemini_api_key') || '').trim();
+
+      // 1. Direct Client-side Gemini SDK call if key is saved in localStorage
+      if (userApiKey) {
+        try {
+          const { GoogleGenAI } = await import('@google/genai');
+          const ai = new GoogleGenAI({ apiKey: userApiKey });
+
+          const systemInstruction = `You are "น้อง Cloudy" (น้องคลาวดี้) — a warm, calm, intelligent personal AI productivity agent & psychologist inside the "Freak Out!" app.
+Your mission is to help people with ADHD, procrastination, anxiety, and overthinking break through paralysis and get things done gently.
+User context:
+- Name: ${userName || 'เพื่อน'}
+- Energy level: ${energy || 'okay'}
+- Pending tasks: ${tasks.filter((t) => !t.completed).length}
+Guidelines:
+1. Always respond in warm, reassuring, natural Thai (friendly tone, concise, no long essays).
+2. NEVER lecture or use toxic positivity. Acknowledge when things are hard.
+3. Suggest tiny, frictionless 2-minute steps.
+4. Keep replies within 2-4 sentences unless asked for a breakdown.
+5. Zero emojis unless truly necessary.`;
+
+          const contents: any[] = [];
+          messages.slice(-6).forEach((h) => {
+            contents.push({
+              role: h.role === 'user' ? 'user' : 'model',
+              parts: [{ text: h.text }],
+            });
+          });
+          contents.push({
+            role: 'user',
+            parts: [{ text: userText }],
+          });
+
+          const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents,
+            config: {
+              systemInstruction,
+            },
+          });
+
+          const reply = response.text || 'น้อง Cloudy อยู่ตรงนี้เสมอ ค่อยๆ ทำทีละก้าวนะครับ';
+          const botMsg: ChatMessage = {
+            id: `bot-${Date.now()}`,
+            role: 'assistant',
+            text: reply,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          };
+          setMessages((prev) => [...prev, botMsg]);
+          return;
+        } catch (directErr: any) {
+          console.warn('Direct client Gemini call encountered error, attempting proxy or smart fallback:', directErr);
+          // If key is clearly invalid, show clear error
+          const errMsg = directErr?.message || '';
+          if (errMsg.includes('API key not valid') || errMsg.includes('INVALID_ARGUMENT') || errMsg.includes('API_KEY_INVALID')) {
+            throw new Error('API Key ไม่ถูกต้อง กรุณาตรวจสอบหรือคัดลอกใหม่อีกครั้งในหน้า Settings');
+          }
+        }
+      }
+
+      // 2. Try proxy /api/chat
       const historyPayload = messages.map((m) => ({
         role: m.role,
         text: m.text,
       }));
-
-      const userApiKey = localStorage.getItem('freakout_gemini_api_key') || '';
 
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -81,7 +140,7 @@ export const AiAgentChatModal: React.FC<AiAgentChatModalProps> = ({
         body: JSON.stringify({
           message: userText,
           history: historyPayload,
-          userApiKey: userApiKey.trim() || undefined,
+          userApiKey: userApiKey || undefined,
           userContext: {
             name: userName,
             energy,
@@ -99,9 +158,27 @@ export const AiAgentChatModal: React.FC<AiAgentChatModalProps> = ({
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         };
         setMessages((prev) => [...prev, botMsg]);
-      } else {
-        throw new Error(`การเชื่อมต่อขัดข้อง (Status ${res.status})`);
+        return;
       }
+
+      // 3. Built-in smart conversational fallback if offline or non-proxy host
+      const lower = userText.toLowerCase();
+      let fallbackText = `น้อง Cloudy รับฟังอยู่เสมอนะครับ ไม่ว่าภาระงานจะเยอะแค่ไหน เราไม่ต้องทำทุกอย่างให้เสร็จพร้อมกัน แค่โฟกัสทีละอย่างตามพลังงานที่มี น้อง Cloudy เชื่อมั่นในตัวคุณครับ`;
+      if (lower.includes('คิดวน') || lower.includes('เริ่มไม่ได้') || lower.includes('ตัน') || lower.includes('กังวล')) {
+        fallbackText = `น้อง Cloudy เข้าใจเลยครับ เวลาสมองคิดวน มันเหมือนเปิดแท็บเยอะเกินไปจนเครื่องค้าง ลองทิ้งภาพปลายทางไว้ก่อน แล้วเลือกงานที่ง่ายที่สุดเพียง "1 ก้าวเล็กๆ ใน 2 นาทีแรก" พอทำเสร็จสมองจะเริ่มโล่งขึ้นทันทีเลยครับ`;
+      } else if (lower.includes('ย่อยงาน') || lower.includes('งานใหญ่') || lower.includes('โปรเจกต์') || lower.includes('รายงาน')) {
+        fallbackText = `ได้เลยครับ งานใหญ่ทำให้เรากลัวเป็นเรื่องปกติ เคล็ดลับคือหั่นเป็น 3 ช่วง: 1) เปิดไฟล์เปล่าแล้วพิมพ์ชื่อหัวข้อ 2) ร่างหัวข้อย่อย 3 ข้อแบบไม่ต้องกลัวผิด 3) จัดการทีละหัวข้อ ลองเริ่มแค่ข้อแรก 3 นาทีก่อนครับ`;
+      } else if (lower.includes('หมดแรง') || lower.includes('เหนื่อย') || lower.includes('เพลีย') || lower.includes('ขี้เกียจ')) {
+        fallbackText = `ถ้าวันนี้หมดแรง ไม่ต้องฝืนทำเรื่องยากเลยครับ จิบน้ำสักแก้ว แล้วเลือกทำเรื่องเบาๆ เช่น เช็คของ จัดโต๊ะ 1 มุม หรือแค่นั่งพักสัก 5 นาทีก็ถือว่าดูแลตัวเองได้ดีมากแล้วครับ`;
+      }
+
+      const botMsg: ChatMessage = {
+        id: `bot-${Date.now()}`,
+        role: 'assistant',
+        text: fallbackText,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages((prev) => [...prev, botMsg]);
     } catch (err: any) {
       const botMsg: ChatMessage = {
         id: `bot-${Date.now()}`,

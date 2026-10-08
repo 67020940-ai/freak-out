@@ -163,19 +163,73 @@ export function generateMicroSteps(taskTitle: string, category: string): MicroSt
 }
 
 /**
- * Call Gemini 2.5 Flash via /api/decompose to generate tailor-made micro-steps.
- * If venue Wi-Fi is down, API key is missing, or network fails, gracefully
- * fall back to generateMicroSteps() so the app never blocks or errors out.
+ * Helper to get user's Gemini API key from localStorage.
+ */
+export function getSavedGeminiApiKey(): string {
+  try {
+    return (localStorage.getItem('freakout_gemini_api_key') || '').trim();
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Call Gemini 2.5 Flash to generate tailor-made micro-steps.
+ * If user has entered an API key, calls Gemini directly via @google/genai in the client.
+ * Otherwise tries /api/decompose, and if that is unavailable or offline,
+ * gracefully falls back to generateMicroSteps() so the app never blocks.
  */
 export async function decomposeTaskWithAI(
   taskTitle: string,
   category: string
 ): Promise<{ steps: MicroStep[]; source: 'gemini' | 'offline-template' }> {
+  const userApiKey = getSavedGeminiApiKey();
+
+  // 1. Try Direct Client-side Gemini SDK if user provided an API key
+  if (userApiKey) {
+    try {
+      const { GoogleGenAI } = await import('@google/genai');
+      const ai = new GoogleGenAI({ apiKey: userApiKey });
+
+      const prompt = `You are a cognitive offloading assistant for an ADHD / overthinking anti-burnout task app called "Freak Out!".
+The user wants to start this task:
+Title: "${taskTitle}"
+Category: "${category || 'general'}"
+
+Break this task down into 3 to 4 tiny, frictionless micro-steps (2-7 minutes each) that an overwhelmed or exhausted person can do immediately without overthinking.
+Reply ONLY with a raw JSON array matching this schema, without Markdown fences:
+[
+  {"title": "string (in Thai, encouraging, actionable, very concrete)", "estimatedMinutes": number}
+]`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+      });
+
+      const text = (response.text || '').replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(text);
+
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const steps: MicroStep[] = parsed.map((s: any, idx: number) => ({
+          id: `step-ai-${Date.now()}-${idx}`,
+          title: String(s.title || `ขั้นตอนที่ ${idx + 1}`),
+          completed: false,
+          estimatedMinutes: Number(s.estimatedMinutes) || 3,
+        }));
+        return { steps, source: 'gemini' };
+      }
+    } catch (directErr) {
+      console.warn('Direct client Gemini decompose failed, trying backend or template:', directErr);
+    }
+  }
+
+  // 2. Try Vite / backend proxy endpoint
   try {
     const res = await fetch('/api/decompose', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ taskTitle, category }),
+      body: JSON.stringify({ taskTitle, category, userApiKey: userApiKey || undefined }),
     });
 
     if (res.ok) {
@@ -194,6 +248,7 @@ export async function decomposeTaskWithAI(
     // Network failed or offline: silently fall back
   }
 
+  // 3. Fallback to smart offline template
   return { steps: generateMicroSteps(taskTitle, category), source: 'offline-template' };
 }
 
@@ -210,8 +265,53 @@ export async function analyzeReadinessWithAI(
   overthinkCount: number,
   completedToday: number
 ): Promise<CognitiveAnalysisResult> {
+  const userApiKey = getSavedGeminiApiKey();
+
+  // 1. Try Direct Client-side Gemini SDK if user provided an API key
+  if (userApiKey) {
+    try {
+      const { GoogleGenAI } = await import('@google/genai');
+      const ai = new GoogleGenAI({ apiKey: userApiKey });
+
+      const prompt = `You are an empathic psychologist and cognitive coach inside "Freak Out!" task manager app.
+Analyze the user's workload state:
+- Current Energy Level: "${energy}"
+- Pending Tasks: ${taskCount}
+- Tasks causing overthinking/fear: ${overthinkCount}
+- Completed today: ${completedToday}
+
+Provide a reassuring, gentle, anti-burnout cognitive assessment in Thai.
+Reply ONLY with a raw JSON object matching this schema, without Markdown fences:
+{
+  "stressLevel": "ต่ำ" | "ปานกลาง" | "สูง",
+  "readinessScore": number (0 to 100),
+  "advice": "string (practical 1-2 sentence advice in gentle Thai, no toxic positivity)",
+  "cognitiveBandwidth": "string (e.g. 'พร้อมลุย 80%', 'สมองล้า ควรพัก 15 นาที')"
+}`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+      });
+
+      const text = (response.text || '').replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(text);
+
+      if (parsed && typeof parsed.readinessScore !== 'undefined') {
+        return {
+          stressLevel: parsed.stressLevel || 'ปานกลาง',
+          readinessScore: Number(parsed.readinessScore) || 75,
+          advice: parsed.advice || 'ค่อยๆ ก้าวทีละ 1 งานเล็กๆ สมองจะเริ่มโล่งขึ้นเอง',
+          cognitiveBandwidth: parsed.cognitiveBandwidth || 'พร้อมรับงาน 60%',
+        };
+      }
+    } catch (directErr) {
+      console.warn('Direct client Gemini readiness failed, trying backend or template:', directErr);
+    }
+  }
+
+  // 2. Try Vite / backend proxy endpoint
   try {
-    const userApiKey = localStorage.getItem('freakout_gemini_api_key') || '';
     const res = await fetch('/api/analyze-readiness', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -220,7 +320,7 @@ export async function analyzeReadinessWithAI(
         taskCount,
         overthinkCount,
         completedToday,
-        userApiKey: userApiKey.trim() || undefined,
+        userApiKey: userApiKey || undefined,
       }),
     });
 
