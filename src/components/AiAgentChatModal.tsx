@@ -92,13 +92,24 @@ Behavior Guidelines:
 2. Tone: Warm, natural, friendly Thai (สุภาพ เป็นกันเอง มีความเข้าอกเข้าใจสูง).
 3. No toxic positivity. Acknowledge real friction, cognitive overload, and emotions.`;
 
+          // In Gemini API, conversation turns must alternate and the first message MUST have role 'user'
           const contents: any[] = [];
-          messages.slice(-6).forEach((h) => {
+          const validHistory = messages.filter((m) => m.id !== 'welcome');
+          
+          // Take recent turns, ensuring we start with a user message
+          let startIdx = Math.max(0, validHistory.length - 6);
+          while (startIdx < validHistory.length && validHistory[startIdx].role !== 'user') {
+            startIdx++;
+          }
+          
+          for (let i = startIdx; i < validHistory.length; i++) {
             contents.push({
-              role: h.role === 'user' ? 'user' : 'model',
-              parts: [{ text: h.text }],
+              role: validHistory[i].role === 'user' ? 'user' : 'model',
+              parts: [{ text: validHistory[i].text }],
             });
-          });
+          }
+
+          // Append current user message
           contents.push({
             role: 'user',
             parts: [{ text: userText }],
@@ -122,12 +133,9 @@ Behavior Guidelines:
           setMessages((prev) => [...prev, botMsg]);
           return;
         } catch (directErr: any) {
-          console.warn('Direct client Gemini call encountered error, attempting proxy or smart fallback:', directErr);
-          // If key is clearly invalid, show clear error
-          const errMsg = directErr?.message || '';
-          if (errMsg.includes('API key not valid') || errMsg.includes('INVALID_ARGUMENT') || errMsg.includes('API_KEY_INVALID')) {
-            throw new Error('API Key ไม่ถูกต้อง กรุณาตรวจสอบหรือคัดลอกใหม่อีกครั้งในหน้า Settings');
-          }
+          console.error('Direct client Gemini call failed:', directErr);
+          const errMsg = directErr?.message || String(directErr);
+          throw new Error(`Gemini ตอบกลับไม่ได้: ${errMsg}`);
         }
       }
 
