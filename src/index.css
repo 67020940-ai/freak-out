@@ -30,9 +30,7 @@
 }
 
 @layer base {
-  html, body, #root {
-    height: 100%;
-    overflow: hidden;
+  html, body {
     background-color: var(--bg);
     color: var(--ink);
     font-family: var(--font-body);
@@ -41,6 +39,8 @@
     /* Subtle paper texture */
     background-image: radial-gradient(rgba(44, 44, 36, 0.04) 1px, transparent 1px);
     background-size: 24px 24px;
+    min-height: 100%;
+    overflow-x: hidden;
   }
 
   /* Anti-slop typography: Headings MUST remain upright roman, never italic */

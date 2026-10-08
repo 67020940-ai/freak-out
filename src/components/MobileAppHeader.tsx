@@ -52,7 +52,7 @@ export const MobileAppHeader: React.FC<MobileAppHeaderProps> = ({
   const { title, sub } = getTabTitle();
 
   return (
-    <header className="px-4 py-2.5 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#EAE4D9] shrink-0 z-30 select-none">
+    <header className="sticky top-0 px-4 py-2.5 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#EAE4D9] shrink-0 z-30 select-none">
       <div className="flex items-center justify-between gap-3 w-full max-w-6xl mx-auto">
         {/* Left: Mascot Pet Avatar & Space Switcher (Notion-style) */}
         <div className="flex items-center gap-2 shrink-0">

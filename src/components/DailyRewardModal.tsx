@@ -53,7 +53,7 @@ export const DailyRewardModal: React.FC<DailyRewardModalProps> = ({
   };
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col justify-end bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-[#FAF8F5] rounded-t-[36px] w-full max-h-[94%] overflow-y-auto border-t border-[#E8E2D5] shadow-2xl p-5 relative animate-in slide-in-from-bottom duration-300 no-scrollbar">
         {/* iOS Pull Handle */}
         <div className="w-10 h-1 bg-[#2C2C24]/20 rounded-full mx-auto mb-3 shrink-0" />

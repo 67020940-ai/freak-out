@@ -14,7 +14,10 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
   onTriggerSmartPick,
 }) => {
   return (
-    <nav className="w-full shrink-0 z-30 bg-[#FAF8F5]/95 backdrop-blur-lg border-t border-[#EAE4D9] pb-safe pt-1.5 px-3 select-none mt-auto">
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-40 bg-[#FAF8F5]/95 backdrop-blur-md border-t border-[#EAE4D9] pt-1.5 px-3 select-none shadow-[0_-4px_20px_rgba(44,44,36,0.06)]"
+      style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))' }}
+    >
       <div className="flex items-center justify-around max-w-lg mx-auto relative">
         {/* Tab 1: Tasks */}
         <button
@@ -94,9 +97,6 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
           <span className="text-[10px] mt-0.5 tracking-tight">ตั้งค่า</span>
         </button>
       </div>
-
-      {/* iOS Home Indicator Line */}
-      <div className="w-32 h-1 bg-[#2C2C24]/15 rounded-full mx-auto mt-2 mb-1 sm:hidden" />
     </nav>
   );
 };

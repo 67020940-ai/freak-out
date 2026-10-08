@@ -85,7 +85,7 @@ export const AdSimulationBanner: React.FC<AdSimulationBannerProps> = ({
 
       {/* Rewarded Ad Simulation Modal */}
       {isWatchingAd && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
           <div className="bg-[#FAF8F5] rounded-3xl w-full max-w-[320px] p-6 text-center border border-[#E2DACB] shadow-2xl relative">
             {!adFinished ? (
               <div className="space-y-4 py-4">
