@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Task, UserStats, Badge, PetState, EnergyLevel, MicroStep, AppTab, AppSettings, FocusSpace } from './types';
 import { INITIAL_TASKS, INITIAL_STATS, INITIAL_BADGES } from './data/mockData';
-import { MobileDeviceFrame } from './components/MobileDeviceFrame';
-import { MobileStatusBar } from './components/MobileStatusBar';
 import { MobileAppHeader } from './components/MobileAppHeader';
 import { MobileBottomTabBar } from './components/MobileBottomTabBar';
 import { MobileSmartPickView } from './components/MobileSmartPickView';
@@ -340,21 +338,10 @@ export default function App() {
   };
 
   return (
-    <MobileDeviceFrame
-      isProUser={isProUser}
-      onToggleProMode={() => setIsProUser((prev) => !prev)}
-      onToggleAuth={() => {
-        const next = !isAuthenticated;
-        setIsAuthenticated(next);
-        localStorage.setItem('freakout_authenticated', String(next));
-      }}
-      isAuthenticated={isAuthenticated}
-    >
-      {/* iOS Mobile Status Bar */}
-      <MobileStatusBar />
-
-      {/* Conditional Rendering: Auth/Onboarding vs Main App */}
-      {!isAuthenticated ? (
+    <div className="min-h-screen bg-[#F7F5EE] text-[#2C2C24] flex justify-center selection:bg-[#E2DACB] antialiased">
+      <div className="w-full max-w-2xl min-h-screen flex flex-col relative bg-[#FAF8F5] shadow-xs border-x border-[#EAE4D9]/80">
+        {/* Conditional Rendering: Auth/Onboarding vs Main App */}
+        {!isAuthenticated ? (
         <AuthOnboardingView
           onLogin={(name) => {
             setUserName(name);
@@ -562,6 +549,7 @@ export default function App() {
           />
         </>
       )}
-    </MobileDeviceFrame>
+      </div>
+    </div>
   );
 }
