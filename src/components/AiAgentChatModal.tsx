@@ -116,28 +116,33 @@ Behavior Guidelines:
             parts: [{ text: userText }],
           });
 
-          // Try gemini-3.8-flash as requested by Google API, falling back to gemini-2.5-flash if needed
-          let response: any;
-          try {
-            response = await ai.models.generateContent({
-              model: 'gemini-3.8-flash',
-              contents,
-              config: {
-                systemInstruction,
-              },
-            });
-          } catch (modelErr: any) {
-            if (modelErr?.message?.includes('404') || modelErr?.message?.includes('not found')) {
+          // Robust multi-model candidate chain to handle high-demand (503) or not-found (404)
+          const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-3.8-flash'];
+          let response: any = null;
+          let lastModelError: any = null;
+
+          for (const modelName of candidateModels) {
+            try {
               response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: modelName,
                 contents,
                 config: {
                   systemInstruction,
                 },
               });
-            } else {
-              throw modelErr;
+              if (response && response.text) break;
+            } catch (mErr: any) {
+              lastModelError = mErr;
+              console.warn(`Model ${modelName} returned error, trying next candidate:`, mErr?.message);
+              // If it's an invalid API key, no need to retry other models
+              if (mErr?.message?.includes('API key not valid') || mErr?.message?.includes('INVALID_ARGUMENT')) {
+                throw mErr;
+              }
             }
+          }
+
+          if (!response || !response.text) {
+            throw lastModelError || new Error('โมเดลทั้งหมดไม่ว่างชั่วคราว กรุณาลองใหม่อีกครั้ง');
           }
 
           const reply = response.text || 'น้อง Cloudy อยู่ตรงนี้เสมอ ค่อยๆ ทำทีละก้าวนะครับ';

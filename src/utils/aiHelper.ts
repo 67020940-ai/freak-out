@@ -217,34 +217,34 @@ Reply ONLY with a raw JSON array matching this schema, without Markdown fences:
   {"title": "string (in Thai, encouraging, actionable, very concrete)", "estimatedMinutes": number}
 ]`;
 
-      let response: any;
-      try {
-        response = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
-          contents: prompt,
-        });
-      } catch (mErr: any) {
-        if (mErr?.message?.includes('404') || mErr?.message?.includes('not found')) {
+      const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-3.8-flash'];
+      let response: any = null;
+
+      for (const m of candidateModels) {
+        try {
           response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: m,
             contents: prompt,
           });
-        } else {
-          throw mErr;
+          if (response && response.text) break;
+        } catch {
+          // Try next candidate
         }
       }
 
-      const text = (response.text || '').replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(text);
+      if (response && response.text) {
+        const text = response.text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(text);
 
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        const steps: MicroStep[] = parsed.map((s: any, idx: number) => ({
-          id: `step-ai-${Date.now()}-${idx}`,
-          title: String(s.title || `ขั้นตอนที่ ${idx + 1}`),
-          completed: false,
-          estimatedMinutes: Number(s.estimatedMinutes) || 3,
-        }));
-        return { steps, source: 'gemini' };
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const steps: MicroStep[] = parsed.map((s: any, idx: number) => ({
+            id: `step-ai-${Date.now()}-${idx}`,
+            title: String(s.title || `ขั้นตอนที่ ${idx + 1}`),
+            completed: false,
+            estimatedMinutes: Number(s.estimatedMinutes) || 3,
+          }));
+          return { steps, source: 'gemini' };
+        }
       }
     } catch (directErr) {
       console.warn('Direct client Gemini decompose failed, trying backend or template:', directErr);
@@ -316,33 +316,33 @@ Reply ONLY with a raw JSON object matching this schema, without Markdown fences:
   "cognitiveBandwidth": "string (e.g. 'พร้อมลุย 80%', 'สมองล้า ควรพัก 15 นาที')"
 }`;
 
-      let response: any;
-      try {
-        response = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
-          contents: prompt,
-        });
-      } catch (mErr: any) {
-        if (mErr?.message?.includes('404') || mErr?.message?.includes('not found')) {
+      const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-3.8-flash'];
+      let response: any = null;
+
+      for (const m of candidateModels) {
+        try {
           response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: m,
             contents: prompt,
           });
-        } else {
-          throw mErr;
+          if (response && response.text) break;
+        } catch {
+          // Try next candidate
         }
       }
 
-      const text = (response.text || '').replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(text);
+      if (response && response.text) {
+        const text = response.text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(text);
 
-      if (parsed && typeof parsed.readinessScore !== 'undefined') {
-        return {
-          stressLevel: parsed.stressLevel || 'ปานกลาง',
-          readinessScore: Number(parsed.readinessScore) || 75,
-          advice: parsed.advice || 'ค่อยๆ ก้าวทีละ 1 งานเล็กๆ สมองจะเริ่มโล่งขึ้นเอง',
-          cognitiveBandwidth: parsed.cognitiveBandwidth || 'พร้อมรับงาน 60%',
-        };
+        if (parsed && typeof parsed.readinessScore !== 'undefined') {
+          return {
+            stressLevel: parsed.stressLevel || 'ปานกลาง',
+            readinessScore: Number(parsed.readinessScore) || 75,
+            advice: parsed.advice || 'ค่อยๆ ก้าวทีละ 1 งานเล็กๆ สมองจะเริ่มโล่งขึ้นเอง',
+            cognitiveBandwidth: parsed.cognitiveBandwidth || 'พร้อมรับงาน 60%',
+          };
+        }
       }
     } catch (directErr) {
       console.warn('Direct client Gemini readiness failed, trying backend or template:', directErr);

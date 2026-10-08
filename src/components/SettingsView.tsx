@@ -199,21 +199,27 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     try {
       const { GoogleGenAI } = await import('@google/genai');
       const ai = new GoogleGenAI({ apiKey: keyToTest });
-      let resp: any;
-      try {
-        resp = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
-          contents: 'ตอบสั้นๆ เพียง 1 คำ: สำเร็จ',
-        });
-      } catch (mErr: any) {
-        if (mErr?.message?.includes('404') || mErr?.message?.includes('not found')) {
+      const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-3.8-flash'];
+      let resp: any = null;
+      let lastErr: any = null;
+
+      for (const m of candidateModels) {
+        try {
           resp = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: m,
             contents: 'ตอบสั้นๆ เพียง 1 คำ: สำเร็จ',
           });
-        } else {
-          throw mErr;
+          if (resp && resp.text) break;
+        } catch (e: any) {
+          lastErr = e;
+          if (e?.message?.includes('API key not valid') || e?.message?.includes('INVALID_ARGUMENT')) {
+            throw e;
+          }
         }
+      }
+
+      if (!resp || !resp.text) {
+        throw lastErr || new Error('ไม่สามารถเชื่อมต่อโมเดลได้');
       }
 
       if (resp && resp.text) {
