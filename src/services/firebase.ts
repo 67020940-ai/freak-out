@@ -21,15 +21,29 @@ import {
   onSnapshot
 } from 'firebase/firestore';
 
-// Firebase configuration from environment variables or safe local fallback
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
+// Firebase configuration from environment variables or stored settings
+const getFirebaseConfig = () => {
+  try {
+    const saved = localStorage.getItem('freakout_firebase_config');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.apiKey && parsed.projectId) {
+        return parsed;
+      }
+    }
+  } catch {}
+
+  return {
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
+    appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
+  };
 };
+
+const firebaseConfig = getFirebaseConfig();
 
 export const isFirebaseConfigured = Boolean(
   firebaseConfig.apiKey && firebaseConfig.projectId
@@ -43,6 +57,12 @@ const app = !getApps().length
 
 export const auth = app ? getAuth(app) : null;
 export const db = app ? getFirestore(app) : null;
+
+// Allow dynamic reload of Firebase when configured in UI
+export const reloadFirebaseWithConfig = (newConfig: any) => {
+  localStorage.setItem('freakout_firebase_config', JSON.stringify(newConfig));
+  window.location.reload();
+};
 
 // Google Auth Provider with Google Calendar scope
 const googleProvider = new GoogleAuthProvider();

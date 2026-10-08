@@ -1,20 +1,33 @@
 import React, { useState } from 'react';
 import { PixelCloud8Bit } from './PixelCloud8Bit';
-import { ArrowRight, Sparkles, Check, Mail, Lock, User, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Sparkles, Check, Mail, Lock, User, ShieldCheck, Settings, X, ExternalLink } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { loginWithGoogle, registerWithEmail, loginWithEmail } from '../services/firebase';
+import {
+  loginWithGoogle,
+  registerWithEmail,
+  loginWithEmail,
+  isFirebaseConfigured,
+  reloadFirebaseWithConfig
+} from '../services/firebase';
 
 interface AuthOnboardingViewProps {
   onLogin: (userName: string) => void;
 }
 
 export const AuthOnboardingView: React.FC<AuthOnboardingViewProps> = ({ onLogin }) => {
-  const [authMode, setAuthMode] = useState<'welcome' | 'email-login' | 'email-signup'>('email-signup');
+  const [authMode, setAuthMode] = useState<'welcome' | 'email-login' | 'email-signup'>('welcome');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showConfigModal, setShowConfigModal] = useState(false);
+
+  // Quick Firebase Config Setup state
+  const [cfgApiKey, setCfgApiKey] = useState('');
+  const [cfgAuthDomain, setCfgAuthDomain] = useState('');
+  const [cfgProjectId, setCfgProjectId] = useState('');
+  const [cfgAppId, setCfgAppId] = useState('');
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
@@ -30,7 +43,12 @@ export const AuthOnboardingView: React.FC<AuthOnboardingViewProps> = ({ onLogin 
       onLogin(session.user?.displayName || 'ผู้ใช้งานใหม่');
     } catch (err: any) {
       console.error('Google Sign-in failed:', err);
-      setErrorMessage(err.message || 'เข้าสู่ระบบด้วย Google ไม่สำเร็จ');
+      const msg = err.code === 'auth/popup-closed-by-user'
+        ? 'หน้าต่างล็อกอินถูกปิดก่อนดำเนินการเสร็จสิ้น'
+        : err.code === 'auth/unauthorized-domain'
+        ? `โดเมนนี้ยังไม่ได้รับอนุญาตใน Firebase Console (กรุณาเพิ่ม Authorized domain: ${window.location.hostname})`
+        : err.message || 'เข้าสู่ระบบด้วย Google ไม่สำเร็จ';
+      setErrorMessage(msg);
     } finally {
       setIsLoading(false);
     }
@@ -123,6 +141,12 @@ export const AuthOnboardingView: React.FC<AuthOnboardingViewProps> = ({ onLogin 
 
       {/* Bottom Auth Actions */}
       <div className="w-full max-w-xs mx-auto space-y-2.5 pb-2">
+        {errorMessage && (
+          <div className="p-3 rounded-2xl bg-[#FDECE8] border border-[#F6D7D0] text-[#C23A25] text-xs text-center font-medium leading-relaxed">
+            {errorMessage}
+          </div>
+        )}
+
         {authMode === 'welcome' ? (
           <>
             <div className="text-center mb-1">
@@ -255,7 +279,122 @@ export const AuthOnboardingView: React.FC<AuthOnboardingViewProps> = ({ onLogin 
             </div>
           </form>
         )}
+
+        {/* Firebase Config Trigger Button */}
+        <div className="pt-2 text-center">
+          <button
+            type="button"
+            onClick={() => setShowConfigModal(true)}
+            className="text-[10px] text-[#8C8A7D] hover:text-[#2C2C24] transition inline-flex items-center gap-1 cursor-pointer"
+          >
+            <Settings className="w-3 h-3" />
+            <span>
+              {isFirebaseConfigured ? 'ตั้งค่าการเชื่อมต่อ Firebase' : 'ยังไม่ได้เชื่อมต่อ Firebase (แตะเพื่อใส่ Config)'}
+            </span>
+          </button>
+        </div>
       </div>
+
+      {/* Modal for Firebase Configuration Setup */}
+      {showConfigModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl w-full max-w-sm p-5 border border-[#E8E2D5] shadow-2xl space-y-3.5">
+            <div className="flex items-center justify-between border-b border-[#F0EAE1] pb-2">
+              <div className="flex items-center gap-2">
+                <Settings className="w-4 h-4 text-[#6C7764]" />
+                <h3 className="text-sm font-bold text-[#2C2C24]">ตั้งค่า Firebase Project</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowConfigModal(false)}
+                className="p-1 rounded-full text-[#8A887A] hover:bg-[#F2ECE1]"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-[11px] text-[#7A786C] leading-relaxed">
+              เพื่อให้เข้าสู่ระบบด้วย Google Account จริงได้ กรุณาระบุค่าจาก Firebase Console (Project Settings &gt; General &gt; Your apps)
+            </p>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!cfgApiKey.trim() || !cfgProjectId.trim()) return;
+                reloadFirebaseWithConfig({
+                  apiKey: cfgApiKey.trim(),
+                  authDomain: cfgAuthDomain.trim() || `${cfgProjectId.trim()}.firebaseapp.com`,
+                  projectId: cfgProjectId.trim(),
+                  appId: cfgAppId.trim(),
+                });
+              }}
+              className="space-y-2.5 text-xs"
+            >
+              <div>
+                <label className="text-[10px] font-bold text-[#7A786C] block mb-0.5">API Key (apiKey)</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="AIzaSy..."
+                  value={cfgApiKey}
+                  onChange={(e) => setCfgApiKey(e.target.value)}
+                  className="w-full px-3 py-1.5 rounded-xl border border-[#E0D9CC] text-xs font-mono outline-none focus:border-[#6C7764]"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-[#7A786C] block mb-0.5">Project ID (projectId)</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="freak-out-app-123"
+                  value={cfgProjectId}
+                  onChange={(e) => setCfgProjectId(e.target.value)}
+                  className="w-full px-3 py-1.5 rounded-xl border border-[#E0D9CC] text-xs font-mono outline-none focus:border-[#6C7764]"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-[#7A786C] block mb-0.5">Auth Domain (authDomain)</label>
+                <input
+                  type="text"
+                  placeholder="your-project.firebaseapp.com"
+                  value={cfgAuthDomain}
+                  onChange={(e) => setCfgAuthDomain(e.target.value)}
+                  className="w-full px-3 py-1.5 rounded-xl border border-[#E0D9CC] text-xs font-mono outline-none focus:border-[#6C7764]"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-[#7A786C] block mb-0.5">App ID (appId)</label>
+                <input
+                  type="text"
+                  placeholder="1:123456789:web:abcdef..."
+                  value={cfgAppId}
+                  onChange={(e) => setCfgAppId(e.target.value)}
+                  className="w-full px-3 py-1.5 rounded-xl border border-[#E0D9CC] text-xs font-mono outline-none focus:border-[#6C7764]"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowConfigModal(false)}
+                  className="flex-1 py-2 rounded-xl bg-[#F4EFE6] text-[#5C5B50] font-semibold"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2 rounded-xl bg-[#6C7764] hover:bg-[#586350] text-white font-bold shadow-xs cursor-pointer"
+                >
+                  บันทึกและรีโหลด
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
